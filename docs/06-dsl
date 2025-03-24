@@ -1,0 +1,2166 @@
+# 7. DSL - Comprehensive Implementation Plan
+
+## 7.1 Integration of HUNT DSL with ASCII UI Translation Framework
+
+The HUNT DSL offers a sophisticated syntax for defining, processing, and translating ASCII UI elements into functional code. This section outlines how HUNT will be integrated with our ASCII UI Translation Framework to create a powerful, declarative pattern recognition system that leverages the strengths of both technologies.
+
+### Core Integration Architecture
+
+HUNT's Cabin Brackets Hierarchical System (CBHS) provides an ideal structure for defining the pattern recognition rules needed to identify UI components in ASCII grids. The integration will follow these architectural principles:
+
+1. **Layered Implementation**: The HUNT interpreter will sit as a configurable layer between the raw ASCII input and the algorithmic processing pipeline, allowing users to define custom pattern recognition rules.
+2. **Bidirectional Translation**: The system will translate between HUNT DSL expressions and the internal component model, enabling both definition of patterns and generation of code from recognized components.
+3. **Extensible Rule System**: The hierarchical nature of HUNT's bracket system maps naturally to the hierarchical structure of UI components, allowing for precise definition of component patterns.
+4. **Performance Optimization**: The DSL interpreter will be optimized to efficiently parse and apply pattern recognition rules, with minimal overhead compared to hardcoded recognition algorithms.
+
+### Implementation Strategy
+
+The integration will follow a comprehensive five-phase implementation approach:
+
+#### Phase 1: HUNT Parser Implementation
+
+```python
+class HuntParser:
+    def __init__(self):
+        self.tokens = []
+        self.ast = None
+        self.current_token_idx = 0
+
+    def parse(self, hunt_code):
+        """Parse HUNT DSL code into an abstract syntax tree."""
+        # Tokenization
+        self.tokens = self._tokenize(hunt_code)
+        self.current_token_idx = 0
+
+        # Parse the top-level structure
+        self.ast = self._parse_alpha_bracket()
+
+        return self.ast
+
+    def _tokenize(self, hunt_code):
+        """Convert HUNT code into tokens."""
+        tokens = []
+        lines = hunt_code.split('\n')
+
+        # Track indentation levels
+        current_indent = 0
+
+        for line_num, line in enumerate(lines):
+            # Skip empty lines and comments
+            if not line.strip() or line.strip().startswith('#'):
+                continue
+
+            # Calculate indentation
+            indent = len(line) - len(line.lstrip())
+
+            # Handle indentation changes
+            if indent > current_indent:
+                # Add INDENT tokens
+                for _ in range((indent - current_indent) // 4):  # Assuming 4 spaces per indent
+                    tokens.append(('INDENT', None, line_num))
+            elif indent < current_indent:
+                # Add DEDENT tokens
+                for _ in range((current_indent - indent) // 4):
+                    tokens.append(('DEDENT', None, line_num))
+
+            current_indent = indent
+
+            # Tokenize the line content
+            line_content = line.strip()
+            tokens.extend(self._tokenize_line(line_content, line_num))
+
+        # Add final DEDENT tokens if needed
+        for _ in range(current_indent // 4):
+            tokens.append(('DEDENT', None, len(lines)))
+
+        # Add EOF token
+        tokens.append(('EOF', None, len(lines)))
+
+        return tokens
+
+    def _tokenize_line(self, line, line_num):
+        """Tokenize a single line of HUNT code."""
+        tokens = []
+        i = 0
+
+        while i < len(line):
+            char = line[i]
+
+            # Handle HUNT-specific tokens
+            if char == '<':
+                tokens.append(('ALPHA_OPEN', '<', line_num))
+                i += 1
+            elif char == '>':
+                tokens.append(('ALPHA_CLOSE', '>', line_num))
+                i += 1
+            elif char == '[':
+                tokens.append(('BETA_OPEN', '[', line_num))
+                i += 1
+            elif char == ']':
+                tokens.append(('BETA_CLOSE', ']', line_num))
+                i += 1
+            elif char == '{':
+                tokens.append(('GAMMA_OPEN', '{', line_num))
+                i += 1
+            elif char == '}':
+                tokens.append(('GAMMA_CLOSE', '}', line_num))
+                i += 1
+            elif char == '(':
+                tokens.append(('DELTA_OPEN', '(', line_num))
+                i += 1
+            elif char == ')':
+                tokens.append(('DELTA_CLOSE', ')', line_num))
+                i += 1
+            elif char == '=':
+                tokens.append(('ASSIGN', '=', line_num))
+                i += 1
+            elif char == ':':
+                tokens.append(('BRIDGE', ':', line_num))
+                i += 1
+            elif char == ',':
+                tokens.append(('COMMA', ',', line_num))
+                i += 1
+            elif char == '@' and i + 1 < len(line) and line[i+1] == '@':
+                tokens.append(('CHAIN', '@@', line_num))
+                i += 2
+            elif char.isalpha() or char == '_':
+                # Handle identifiers
+                identifier = ''
+                while i < len(line) and (line[i].isalnum() or line[i] == '_'):
+                    identifier += line[i]
+                    i += 1
+
+                # Check for keywords
+                if identifier in ['hunt', 'INIT', 'param', 'val', 'EXEC', 'Track', 'GATHER', 'GET', 'HARVEST', 'HARV', 'RACK', 'COOK', 'tag', 'pluck', 'trap', 'skin', 'log', 'boil', 'scent', 'snare', 'true', 'false', 'req', 'prohib']:
+                    tokens.append(('KEYWORD', identifier, line_num))
+                else:
+                    tokens.append(('IDENTIFIER', identifier, line_num))
+            elif char.isspace():
+                # Skip whitespace
+                i += 1
+            elif char == '"' or char == "'":
+                # Handle string literals
+                start_char = char
+                string_value = ''
+                i += 1  # Skip the opening quote
+
+                while i < len(line) and line[i] != start_char:
+                    string_value += line[i]
+                    i += 1
+
+                if i < len(line):  # Skip the closing quote
+                    i += 1
+
+                tokens.append(('STRING', string_value, line_num))
+            else:
+                # Handle other characters
+                tokens.append(('CHAR', char, line_num))
+                i += 1
+
+        return tokens
+
+    def _parse_alpha_bracket(self):
+        """Parse a top-level alpha bracket structure."""
+        if self._match('ALPHA_OPEN'):
+            self._consume('ALPHA_OPEN')
+
+            # Parse the command or identifier
+            command = self._parse_identifier()
+
+            # Check for bridge
+            has_bridge = False
+            bridge_target = None
+
+            if self._match('BRIDGE'):
+                self._consume('BRIDGE')
+                has_bridge = True
+
+                if self._match('IDENTIFIER'):
+                    bridge_target = self._parse_identifier()
+
+            # Parse nested beta brackets
+            beta_brackets = []
+
+            while self._match('BETA_OPEN'):
+                beta_bracket = self._parse_beta_bracket()
+                beta_brackets.append(beta_bracket)
+
+            # Parse the closing alpha bracket and EXEC if present
+            exec_params = None
+
+            if self._match('ALPHA_CLOSE'):
+                self._consume('ALPHA_CLOSE')
+
+                if self._match('KEYWORD') and self._peek_value() == 'EXEC':
+                    self._consume('KEYWORD')  # Consume EXEC
+
+                    # Check for EXEC parameters
+                    if self._match('BRIDGE'):
+                        self._consume('BRIDGE')
+                        exec_params = self._parse_exec_params()
+
+                    # Check for closing alpha bracket for EXEC
+                    if self._match('ALPHA_CLOSE'):
+                        self._consume('ALPHA_CLOSE')
+
+            # Construct AST node
+            return {
+                'type': 'alpha_bracket',
+                'command': command,
+                'has_bridge': has_bridge,
+                'bridge_target': bridge_target,
+                'beta_brackets': beta_brackets,
+                'exec_params': exec_params
+            }
+
+        raise SyntaxError("Expected alpha bracket opening '<'")
+
+    def _parse_beta_bracket(self):
+        """Parse a beta bracket structure."""
+        if self._match('BETA_OPEN'):
+            self._consume('BETA_OPEN')
+
+            # Parse the command or identifier
+            command = self._parse_identifier()
+
+            # Check for assignment
+            has_assign = False
+            assign_value = None
+
+            if self._match('ASSIGN'):
+                self._consume('ASSIGN')
+                has_assign = True
+
+                if self._match('IDENTIFIER'):
+                    assign_value = self._parse_identifier()
+
+            # Parse nested gamma brackets
+            gamma_brackets = []
+
+            while self._match('GAMMA_OPEN'):
+                gamma_bracket = self._parse_gamma_bracket()
+                gamma_brackets.append(gamma_bracket)
+
+            # Parse the closing beta bracket
+            if self._match('BETA_CLOSE'):
+                self._consume('BETA_CLOSE')
+
+            # Construct AST node
+            return {
+                'type': 'beta_bracket',
+                'command': command,
+                'has_assign': has_assign,
+                'assign_value': assign_value,
+                'gamma_brackets': gamma_brackets
+            }
+
+        raise SyntaxError("Expected beta bracket opening '['")
+
+    def _parse_gamma_bracket(self):
+        """Parse a gamma bracket structure."""
+        if self._match('GAMMA_OPEN'):
+            self._consume('GAMMA_OPEN')
+
+            # Parse the command or identifier
+            command = self._parse_identifier()
+
+            # Check for bridge or assignment
+            has_bridge = False
+            bridge_target = None
+            has_assign = False
+            assign_value = None
+
+            if self._match('BRIDGE'):
+                self._consume('BRIDGE')
+                has_bridge = True
+
+                if self._match('IDENTIFIER') or self._match('KEYWORD'):
+                    bridge_target = self._parse_identifier()
+            elif self._match('ASSIGN'):
+                self._consume('ASSIGN')
+                has_assign = True
+
+                if self._match('IDENTIFIER') or self._match('KEYWORD'):
+                    assign_value = self._parse_identifier()
+
+            # Parse nested delta brackets
+            delta_brackets = []
+
+            while self._match('DELTA_OPEN'):
+                delta_bracket = self._parse_delta_bracket()
+                delta_brackets.append(delta_bracket)
+
+            # Parse the closing gamma bracket
+            if self._match('GAMMA_CLOSE'):
+                self._consume('GAMMA_CLOSE')
+
+            # Construct AST node
+            return {
+                'type': 'gamma_bracket',
+                'command': command,
+                'has_bridge': has_bridge,
+                'bridge_target': bridge_target,
+                'has_assign': has_assign,
+                'assign_value': assign_value,
+                'delta_brackets': delta_brackets
+            }
+
+        raise SyntaxError("Expected gamma bracket opening '{'")
+
+    def _parse_delta_bracket(self):
+        """Parse a delta bracket structure."""
+        if self._match('DELTA_OPEN'):
+            self._consume('DELTA_OPEN')
+
+            # Parse values
+            values = []
+
+            # Parse first value if present
+            if not self._match('DELTA_CLOSE'):
+                values.append(self._parse_value())
+
+                # Parse additional values separated by commas
+                while self._match('COMMA'):
+                    self._consume('COMMA')
+
+                    if not self._match('DELTA_CLOSE'):
+                        values.append(self._parse_value())
+
+            # Parse the closing delta bracket
+            if self._match('DELTA_CLOSE'):
+                self._consume('DELTA_CLOSE')
+
+            # Construct AST node
+            return {
+                'type': 'delta_bracket',
+                'values': values
+            }
+
+        raise SyntaxError("Expected delta bracket opening '('")
+
+    def _parse_identifier(self):
+        """Parse an identifier or keyword."""
+        if self._match('IDENTIFIER'):
+            identifier = self._current_token()
+            self._consume('IDENTIFIER')
+            return identifier
+        elif self._match('KEYWORD'):
+            keyword = self._current_token()
+            self._consume('KEYWORD')
+            return keyword
+
+        raise SyntaxError("Expected identifier or keyword")
+
+    def _parse_value(self):
+        """Parse a value (identifier, string, etc.)."""
+        if self._match('IDENTIFIER'):
+            value = self._current_token()
+            self._consume('IDENTIFIER')
+            return value
+        elif self._match('STRING'):
+            value = self._current_token()
+            self._consume('STRING')
+            return value
+        elif self._match('KEYWORD'):
+            value = self._current_token()
+            self._consume('KEYWORD')
+            return value
+
+        raise SyntaxError("Expected value")
+
+    def _parse_exec_params(self):
+        """Parse EXEC parameters."""
+        params = []
+
+        # Parse first parameter
+        param = self._parse_exec_param()
+        params.append(param)
+
+        # Parse additional parameters separated by chains
+        while self._match('CHAIN'):
+            self._consume('CHAIN')
+            param = self._parse_exec_param()
+            params.append(param)
+
+        return params
+
+    def _parse_exec_param(self):
+        """Parse a single EXEC parameter."""
+        if self._match('IDENTIFIER') or self._match('KEYWORD'):
+            param = self._parse_identifier()
+
+            # Check for nested parameters
+            if self._match('GAMMA_OPEN'):
+                nested_param = self._parse_gamma_bracket()
+                return {
+                    'type': 'exec_param',
+                    'param': param,
+                    'nested': nested_param
+                }
+
+            return {
+                'type': 'exec_param',
+                'param': param,
+                'nested': None
+            }
+
+        elif self._match('GAMMA_OPEN'):
+            nested_param = self._parse_gamma_bracket()
+            return {
+                'type': 'exec_param',
+                'param': None,
+                'nested': nested_param
+            }
+
+        raise SyntaxError("Expected EXEC parameter")
+
+    def _match(self, token_type):
+        """Check if the current token matches the expected type."""
+        if self.current_token_idx >= len(self.tokens):
+            return False
+
+        return self.tokens[self.current_token_idx][0] == token_type
+
+    def _peek_value(self):
+        """Peek at the value of the current token."""
+        if self.current_token_idx >= len(self.tokens):
+            return None
+
+        return self.tokens[self.current_token_idx][1]
+
+    def _current_token(self):
+        """Get the current token."""
+        if self.current_token_idx >= len(self.tokens):
+            return None
+
+        return self.tokens[self.current_token_idx][1]
+
+    def _consume(self, token_type):
+        """Consume a token of the expected type."""
+        if not self._match(token_type):
+            token = self.tokens[self.current_token_idx] if self.current_token_idx < len(self.tokens) else ('EOF', None)
+            raise SyntaxError(f"Expected {token_type}, got {token[0]} at line {token[2]}")
+
+        token = self.tokens[self.current_token_idx]
+        self.current_token_idx += 1
+        return token[1]
+```
+
+#### Phase 2: HUNT Interpreter Implementation
+
+```python
+class HuntInterpreter:
+    def __init__(self, pattern_registry=None):
+        self.parser = HuntParser()
+        self.pattern_registry = pattern_registry or PatternRegistry()
+        self.global_context = {}
+
+    def interpret(self, hunt_code, context=None):
+        """Interpret HUNT DSL code and return the result."""
+        if context is not None:
+            self.global_context.update(context)
+
+        # Parse the code
+        ast = self.parser.parse(hunt_code)
+
+        # Evaluate the AST
+        result = self._evaluate_node(ast, self.global_context)
+
+        return result
+
+    def _evaluate_node(self, node, context):
+        """Evaluate an AST node."""
+        if node is None:
+            return None
+
+        node_type = node.get('type')
+
+        if node_type == 'alpha_bracket':
+            return self._evaluate_alpha_bracket(node, context)
+        elif node_type == 'beta_bracket':
+            return self._evaluate_beta_bracket(node, context)
+        elif node_type == 'gamma_bracket':
+            return self._evaluate_gamma_bracket(node, context)
+        elif node_type == 'delta_bracket':
+            return self._evaluate_delta_bracket(node, context)
+        elif node_type == 'exec_param':
+            return self._evaluate_exec_param(node, context)
+
+        raise ValueError(f"Unknown node type: {node_type}")
+
+    def _evaluate_alpha_bracket(self, node, context):
+        """Evaluate an alpha bracket node."""
+        command = node.get('command')
+
+        # Create a new scope for this alpha bracket
+        local_context = dict(context)
+
+        # Handle hunt command
+        if command == 'hunt':
+            # Check if there's a bridge target
+            if node.get('has_bridge') and node.get('bridge_target'):
+                bridge_target = node.get('bridge_target')
+                local_context['current_module'] = bridge_target
+
+                # Initialize module if not already present
+                if bridge_target not in local_context:
+                    local_context[bridge_target] = {}
+
+            # Evaluate beta brackets
+            beta_results = []
+
+            for beta_node in node.get('beta_brackets', []):
+                beta_result = self._evaluate_node(beta_node, local_context)
+                beta_results.append(beta_result)
+
+            # Execute the EXEC block if present
+            exec_params = node.get('exec_params')
+
+            if exec_params:
+                exec_results = []
+
+                for param in exec_params:
+                    exec_result = self._evaluate_node(param, local_context)
+                    exec_results.append(exec_result)
+
+                # Return the results
+                return {
+                    'command': command,
+                    'beta_results': beta_results,
+                    'exec_results': exec_results
+                }
+
+            # Return the results without EXEC
+            return {
+                'command': command,
+                'beta_results': beta_results
+            }
+
+        elif command == 'Track':
+            # Register a pattern for tracking
+            # This could initiate component recognition based on the pattern
+
+            # Evaluate beta brackets for tracking rules
+            beta_results = []
+
+            for beta_node in node.get('beta_brackets', []):
+                beta_result = self._evaluate_node(beta_node, local_context)
+                beta_results.append(beta_result)
+
+            # Register the tracking pattern
+            pattern_name = node.get('bridge_target', 'default_track')
+            self.pattern_registry.register_tracking_pattern(pattern_name, {
+                'type': 'track',
+                'rules': beta_results
+            })
+
+            return {
+                'command': command,
+                'pattern_name': pattern_name,
+                'rules': beta_results
+            }
+
+        # Add more commands as needed
+
+        raise ValueError(f"Unknown alpha bracket command: {command}")
+
+    def _evaluate_beta_bracket(self, node, context):
+        """Evaluate a beta bracket node."""
+        command = node.get('command')
+
+        # Create a new scope for this beta bracket
+        local_context = dict(context)
+
+        # Handle INIT command
+        if command == 'INIT':
+            # Check if there's an assignment
+            if node.get('has_assign') and node.get('assign_value'):
+                assign_value = node.get('assign_value')
+                local_context['current_init'] = assign_value
+
+            # Evaluate gamma brackets
+            gamma_results = []
+
+            for gamma_node in node.get('gamma_brackets', []):
+                gamma_result = self._evaluate_node(gamma_node, local_context)
+                gamma_results.append(gamma_result)
+
+            # Return the results
+            return {
+                'command': command,
+                'init_target': node.get('assign_value'),
+                'params': gamma_results
+            }
+
+        elif command == 'GATHER' or command == 'GET':
+            # Extract data from the grid based on rules
+
+            # Evaluate gamma brackets for extraction rules
+            gamma_results = []
+
+            for gamma_node in node.get('gamma_brackets', []):
+                gamma_result = self._evaluate_node(gamma_node, local_context)
+                gamma_results.append(gamma_result)
+
+            # Register the extraction pattern
+            pattern_name = node.get('assign_value', 'default_gather')
+            self.pattern_registry.register_extraction_pattern(pattern_name, {
+                'type': 'gather',
+                'rules': gamma_results
+            })
+
+            return {
+                'command': command,
+                'pattern_name': pattern_name,
+                'rules': gamma_results
+            }
+
+        # Add more commands as needed
+
+        raise ValueError(f"Unknown beta bracket command: {command}")
+
+    def _evaluate_gamma_bracket(self, node, context):
+        """Evaluate a gamma bracket node."""
+        command = node.get('command')
+
+        # Create a new scope for this gamma bracket
+        local_context = dict(context)
+
+        # Handle param command
+        if command == 'param':
+            # Check if there's a bridge or assignment
+            param_name = None
+
+            if node.get('has_bridge') and node.get('bridge_target'):
+                param_name = node.get('bridge_target')
+            elif node.get('has_assign') and node.get('assign_value'):
+                param_name = node.get('assign_value')
+
+            # Evaluate delta brackets
+            delta_results = []
+
+            for delta_node in node.get('delta_brackets', []):
+                delta_result = self._evaluate_node(delta_node, local_context)
+                delta_results.append(delta_result)
+
+            # Return the results
+            return {
+                'command': command,
+                'param_name': param_name,
+                'values': delta_results
+            }
+
+        elif command == 'tag':
+            # Define tags and labels for components
+
+            # Evaluate delta brackets for tag rules
+            delta_results = []
+
+            for delta_node in node.get('delta_brackets', []):
+                delta_result = self._evaluate_node(delta_node, local_context)
+                delta_results.append(delta_result)
+
+            # Return the results
+            return {
+                'command': command,
+                'tag_name': node.get('bridge_target') or node.get('assign_value'),
+                'rules': delta_results
+            }
+
+        elif command == 'pluck':
+            # Extract specific elements
+
+            # Evaluate delta brackets for pluck rules
+            delta_results = []
+
+            for delta_node in node.get('delta_brackets', []):
+                delta_result = self._evaluate_node(delta_node, local_context)
+                delta_results.append(delta_result)
+
+            # Return the results
+            return {
+                'command': command,
+                'target': node.get('bridge_target') or node.get('assign_value'),
+                'rules': delta_results
+            }
+
+        # Add more commands as needed
+
+        raise ValueError(f"Unknown gamma bracket command: {command}")
+
+    def _evaluate_delta_bracket(self, node, context):
+        """Evaluate a delta bracket node."""
+        # Evaluate all values
+        evaluated_values = []
+
+        for value in node.get('values', []):
+            # Check if the value is a string or a reference to a variable
+            if isinstance(value, str):
+                if value in context:
+                    evaluated_values.append(context[value])
+                else:
+                    evaluated_values.append(value)
+            else:
+                # Handle more complex values if needed
+                evaluated_values.append(value)
+
+        return evaluated_values
+
+    def _evaluate_exec_param(self, node, context):
+        """Evaluate an EXEC parameter."""
+        param = node.get('param')
+        nested = node.get('nested')
+
+        if param == 'req':
+            # Set required mode
+            context['req_mode'] = True
+
+        elif param == 'prohib':
+            # Set prohibited mode
+            context['prohib_mode'] = True
+
+        elif param == 'config':
+            # Load configuration
+            if nested:
+                config_params = self._evaluate_node(nested, context)
+                context['config'] = config_params
+
+        # Evaluate nested parameter if present
+        result = None
+
+        if nested:
+            result = self._evaluate_node(nested, context)
+
+        return {
+            'param': param,
+            'result': result
+        }
+```
+
+#### Phase 3: Pattern Registry Implementation
+
+```python
+class PatternRegistry:
+    def __init__(self):
+        self.tracking_patterns = {}
+        self.extraction_patterns = {}
+        self.component_patterns = {}
+        self.relationship_patterns = {}
+
+    def register_tracking_pattern(self, name, pattern):
+        """Register a pattern for tracking UI elements."""
+        self.tracking_patterns[name] = pattern
+
+    def register_extraction_pattern(self, name, pattern):
+        """Register a pattern for extracting data from UI elements."""
+        self.extraction_patterns[name] = pattern
+
+    def register_component_pattern(self, component_type, pattern):
+        """Register a pattern for recognizing a specific component type."""
+        self.component_patterns[component_type] = pattern
+
+    def register_relationship_pattern(self, relationship_type, pattern):
+        """Register a pattern for recognizing relationships between components."""
+        self.relationship_patterns[relationship_type] = pattern
+
+    def get_tracking_pattern(self, name):
+        """Get a tracking pattern by name."""
+        return self.tracking_patterns.get(name)
+
+    def get_extraction_pattern(self, name):
+        """Get an extraction pattern by name."""
+        return self.extraction_patterns.get(name)
+
+    def get_component_pattern(self, component_type):
+        """Get a component pattern by type."""
+        return self.component_patterns.get(component_type)
+
+    def get_relationship_pattern(self, relationship_type):
+        """Get a relationship pattern by type."""
+        return self.relationship_patterns.get(relationship_type)
+
+    def get_all_tracking_patterns(self):
+        """Get all registered tracking patterns."""
+        return self.tracking_patterns
+
+    def get_all_extraction_patterns(self):
+        """Get all registered extraction patterns."""
+        return self.extraction_patterns
+
+    def get_all_component_patterns(self):
+        """Get all registered component patterns."""
+        return self.component_patterns
+
+    def get_all_relationship_patterns(self):
+        """Get all registered relationship patterns."""
+        return self.relationship_patterns
+```
+
+#### Phase 4: Pattern Matcher Implementation
+
+```python
+class PatternMatcher:
+    def __init__(self, pattern_registry):
+        self.pattern_registry = pattern_registry
+
+    def match_component(self, grid, component, context=None):
+        """Match a component against registered patterns."""
+        if context is None:
+            context = {}
+
+        # Get all component patterns
+        component_patterns = self.pattern_registry.get_all_component_patterns()
+
+        # Try to match the component with each pattern
+        matches = []
+
+        for component_type, pattern in component_patterns.items():
+            match_result = self._match_component_pattern(grid, component, pattern, context)
+
+            if match_result['match']:
+                matches.append({
+                    'component_type': component_type,
+                    'confidence': match_result['confidence'],
+                    'properties': match_result['properties']
+                })
+
+        # Sort matches by confidence
+        matches.sort(key=lambda m: m['confidence'], reverse=True)
+
+        return matches
+
+    def _match_component_pattern(self, grid, component, pattern, context):
+        """Match a component against a specific pattern."""
+        result = {
+            'match': False,
+            'confidence': 0.0,
+            'properties': {}
+        }
+
+        # Extract pattern rules
+        rules = pattern.get('rules', [])
+
+        if not rules:
+            return result
+
+        # Initialize confidence
+        total_confidence = 0.0
+        matched_rules = 0
+
+        # Check each rule
+        for rule in rules:
+            rule_type = rule.get('command')
+
+            if rule_type == 'tag':
+                # Match tag rules
+                tag_match = self._match_tag_rule(grid, component, rule, context)
+
+                if tag_match['match']:
+                    total_confidence += tag_match['confidence']
+                    matched_rules += 1
+
+                    # Add properties
+                    result['properties'].update(tag_match['properties'])
+
+            elif rule_type == 'pluck':
+                # Match pluck rules
+                pluck_match = self._match_pluck_rule(grid, component, rule, context)
+
+                if pluck_match['match']:
+                    total_confidence += pluck_match['confidence']
+                    matched_rules += 1
+
+                    # Add properties
+                    result['properties'].update(pluck_match['properties'])
+
+            # Add more rule types as needed
+
+        # Calculate overall confidence
+        if matched_rules > 0:
+            result['confidence'] = total_confidence / matched_rules
+            result['match'] = result['confidence'] > 0.5  # Threshold for matching
+
+        return result
+
+    def _match_tag_rule(self, grid, component, rule, context):
+        """Match a tag rule against a component."""
+        result = {
+            'match': False,
+            'confidence': 0.0,
+            'properties': {}
+        }
+
+        # Get tag name and rules
+        tag_name = rule.get('tag_name')
+        tag_rules = rule.get('rules', [])
+
+        if not tag_name or not tag_rules:
+            return result
+
+        # Initialize confidence
+        total_confidence = 0.0
+        matched_rules = 0
+
+        # Check each tag rule
+        for tag_rule in tag_rules:
+            # Process tag rule
+            # This will depend on the specific tag rule format
+            # For example, checking if a component has a specific character pattern
+
+            # For illustration, let's say we're looking for a specific character
+            if isinstance(tag_rule, list) and len(tag_rule) > 0:
+                char_to_find = tag_rule[0]
+
+                # Check if the component contains the character
+                content = component.get('content', [])
+                found = False
+
+                for line in content:
+                    if char_to_find in line:
+                        found = True
+                        break
+
+                if found:
+                    total_confidence += 1.0
+                    matched_rules += 1
+
+                    # Add property
+                    result['properties'][f"has_{tag_name}"] = True
+
+
+        # Calculate overall confidence
+        if matched_rules > 0:
+            result['confidence'] = total_confidence / matched_rules
+            result['match'] = result['confidence'] > 0.5  # Threshold for matching
+
+        return result
+
+    def _match_pluck_rule(self, grid, component, rule, context):
+        """Match a pluck rule against a component."""
+        result = {
+            'match': False,
+            'confidence': 0.0,
+            'properties': {}
+        }
+
+        # Get target and rules
+        target = rule.get('target')
+        pluck_rules = rule.get('rules', [])
+
+        if not target or not pluck_rules:
+            return result
+
+        # Initialize confidence
+        total_confidence = 0.0
+        matched_rules = 0
+
+        # Check each pluck rule
+        for pluck_rule in pluck_rules:
+            # Process pluck rule
+            # This will depend on the specific pluck rule format
+            # For example, extracting text from a specific region of the component
+
+            # For illustration, let's say we're extracting text matching a pattern
+            if isinstance(pluck_rule, list) and len(pluck_rule) > 0:
+                pattern = pluck_rule[0]
+
+                # Check if the component contains text matching the pattern
+                content = component.get('content', [])
+                extracted_text = None
+
+                for line in content:
+                    import re
+                    match = re.search(pattern, line)
+
+                    if match:
+                        extracted_text = match.group(0)
+                        break
+
+                if extracted_text:
+                    total_confidence += 1.0
+                    matched_rules += 1
+
+                    # Add property
+                    result['properties'][target] = extracted_text
+
+        # Calculate overall confidence
+        if matched_rules > 0:
+            result['confidence'] = total_confidence / matched_rules
+            result['match'] = result['confidence'] > 0.5  # Threshold for matching
+
+        return result
+
+    def match_relationships(self, grid, components, context=None):
+        """Match relationships between components."""
+        if context is None:
+            context = {}
+
+        # Get all relationship patterns
+        relationship_patterns = self.pattern_registry.get_all_relationship_patterns()
+
+        # Try to match relationships
+        relationships = []
+
+        for relationship_type, pattern in relationship_patterns.items():
+            relationship_matches = self._match_relationship_pattern(grid, components, pattern, context)
+            relationships.extend(relationship_matches)
+
+        return relationships
+
+    def _match_relationship_pattern(self, grid, components, pattern, context):
+        """Match a relationship pattern between components."""
+        # Extract pattern rules
+        rules = pattern.get('rules', [])
+
+        if not rules:
+            return []
+
+        # Initialize relationships
+        relationships = []
+
+        # Check each rule
+        for rule in rules:
+            rule_type = rule.get('command')
+
+            if rule_type == 'tag':
+                # Match tag rules for relationships
+                tag_relationships = self._match_relationship_tag_rule(grid, components, rule, context)
+                relationships.extend(tag_relationships)
+
+            # Add more rule types as needed
+
+        return relationships
+
+    def _match_relationship_tag_rule(self, grid, components, rule, context):
+        """Match a tag rule for relationships between components."""
+        # Get tag name and rules
+        tag_name = rule.get('tag_name')
+        tag_rules = rule.get('rules', [])
+
+        if not tag_name or not tag_rules:
+            return []
+
+        # Initialize relationships
+        relationships = []
+
+        # Implement relationship matching logic
+        # This will depend on the specific tag rule format
+        # For example, checking for containing relationships based on bounding boxes
+
+        return relationships
+```
+
+#### Phase 5: Integration with Recognition Pipeline
+
+```python
+class HuntRecognitionProcessor:
+    def __init__(self, pattern_registry=None):
+        self.pattern_registry = pattern_registry or PatternRegistry()
+        self.interpreter = HuntInterpreter(self.pattern_registry)
+        self.pattern_matcher = PatternMatcher(self.pattern_registry)
+
+    def process(self, grid_data, context=None):
+        """Process grid data using HUNT patterns."""
+        if context is None:
+            context = {}
+
+        # Load HUNT patterns from context if available
+        hunt_patterns = context.get('hunt_patterns', [])
+
+        for pattern in hunt_patterns:
+            self.interpreter.interpret(pattern, context)
+
+        # Process components using the pattern matcher
+        components = context.get('components', [])
+        processed_components = []
+
+        for component in components:
+            # Match component against patterns
+            matches = self.pattern_matcher.match_component(grid_data, component, context)
+
+            if matches:
+                # Get the best match
+                best_match = matches[0]
+
+                # Update component
+                component['ui_type'] = best_match['component_type']
+                component.update(best_match['properties'])
+
+            processed_components.append(component)
+
+        # Match relationships
+        relationships = self.pattern_matcher.match_relationships(grid_data, processed_components, context)
+
+        # Update context
+        context['components'] = processed_components
+        context['relationships'] = relationships
+
+        return processed_components
+
+    def load_hunt_pattern_file(self, file_path):
+        """Load HUNT patterns from a file."""
+        with open(file_path, 'r') as f:
+            hunt_code = f.read()
+
+        return self.interpreter.interpret(hunt_code)
+
+    def register_built_in_patterns(self):
+        """Register built-in HUNT patterns."""
+        # Register patterns for common UI components
+
+        # Button pattern
+        button_pattern = """
+        < hunt Track:
+            [INIT GATHER =
+                {param tag:button =
+                    (val "[", "]")
+                }
+            ]
+        ><EXEC>
+        """
+
+        self.interpreter.interpret(button_pattern)
+
+        # Checkbox pattern
+        checkbox_pattern = """
+        < hunt Track:
+            [INIT GATHER =
+                {param tag:checkbox =
+                    (val "□", "■", "☐", "☑", "[ ]", "[X]")
+                }
+            ]
+        ><EXEC>
+        """
+
+        self.interpreter.interpret(checkbox_pattern)
+
+        # Text field pattern
+        text_field_pattern = """
+        < hunt Track:
+            [INIT GATHER =
+                {param tag:text_field =
+                    (val "_____", "____", "......")
+                }
+                {param pluck:field_text =
+                    (val "([A-Za-z0-9_]+)")
+                }
+            ]
+        ><EXEC>
+        """
+
+        self.interpreter.interpret(text_field_pattern)
+
+        # Add more built-in patterns as needed
+```
+
+### HUNT Pattern Library
+
+A comprehensive library of pre-defined patterns for recognizing common UI elements will be developed:
+
+#### 1. Box and Container Patterns
+
+```hunt
+< hunt Track:
+    [INIT GATHER =
+        {param tag:window =
+            (val
+             top_left:(┌),
+             top_right:(┐),
+             bottom_left:(└),
+             bottom_right:(┘),
+             horizontal:(─),
+             vertical:(│)
+            )
+        }
+        {param pluck:title =
+            (val "^(.+)$")  # First line of content
+        }
+    ]
+><EXEC>
+
+< hunt Track:
+    [INIT GATHER =
+        {param tag:panel =
+            (val
+             top_left:(╔),
+             top_right:(╗),
+             bottom_left:(╚),
+             bottom_right:(╝),
+             horizontal:(═),
+             vertical:(║)
+            )
+        }
+    ]
+><EXEC>
+
+< hunt Track:
+    [INIT GATHER =
+        {param tag:group_box =
+            (val
+             top_left:(┏),
+             top_right:(┓),
+             bottom_left:(┗),
+             bottom_right:(┛),
+             horizontal:(━),
+             vertical:(┃)
+            )
+        }
+        {param pluck:group_title =
+            (val "^(.+)$")  # First line of content
+        }
+    ]
+><EXEC>
+```
+
+#### 2. Control Patterns
+
+```hunt
+< hunt Track:
+    [INIT GATHER =
+        {param tag:button =
+            (val "[", "]")
+        }
+        {param pluck:button_text =
+            (val "\\[(.+?)\\]")  # Text between brackets
+        }
+    ]
+><EXEC>
+
+< hunt Track:
+    [INIT GATHER =
+        {param tag:checkbox =
+            (val "□", "■", "☐", "☑", "[ ]", "[X]")
+        }
+        {param pluck:checkbox_state =
+            (val "■|☑|\\[X\\]", "□|☐|\\[ \\]")
+        }
+        {param pluck:checkbox_label =
+            (val "(?:■|□|☑|☐|\\[X\\]|\\[ \\])\\s*(.+)")  # Text after checkbox
+        }
+    ]
+><EXEC>
+
+< hunt Track:
+    [INIT GATHER =
+        {param tag:radio_button =
+            (val "○", "●", "( )", "(•)")
+        }
+        {param pluck:radio_state =
+            (val "●|\\(•\\)", "○|\\( \\)")
+        }
+        {param pluck:radio_label =
+            (val "(?:●|○|\\(•\\)|\\( \\))\\s*(.+)")  # Text after radio button
+        }
+    ]
+><EXEC>
+
+< hunt Track:
+    [INIT GATHER =
+        {param tag:dropdown =
+            (val "▼", "▶", "[▼]", "[▶]")
+        }
+        {param pluck:dropdown_state =
+            (val "▼|\\[▼\\]", "▶|\\[▶\\]")
+        }
+        {param pluck:dropdown_label =
+            (val "(.+?)\\s*(?:▼|▶|\\[▼\\]|\\[▶\\])")  # Text before dropdown
+        }
+    ]
+><EXEC>
+```
+
+#### 3. Text and Input Patterns
+
+```hunt
+< hunt Track:
+    [INIT GATHER =
+        {param tag:text_field =
+            (val "___", "...", "___________")
+        }
+        {param pluck:field_label =
+            (val "(.+?):\\s*(?:___|\\.\\.\\.|_________)")  # Label before field
+        }
+        {param pluck:field_value =
+            (val "(?:___|\\.\\.\\.|_________)(.*)")  # Text in field
+        }
+    ]
+><EXEC>
+
+< hunt Track:
+    [INIT GATHER =
+        {param tag:text_area =
+            (val
+             top_left:(┌),
+             top_right:(┐),
+             bottom_left:(└),
+             bottom_right:(┘),
+             horizontal:(─),
+             vertical:(│)
+            )
+        }
+        {param pluck:area_content =
+            (val "(?s)(?<=\\n)(.+?)(?=\\n[└┘])")  # Content between borders
+        }
+    ]
+><EXEC>
+
+< hunt Track:
+    [INIT GATHER =
+        {param tag:label =
+            (val ":", "=")
+        }
+        {param pluck:label_text =
+            (val "(.+?)(?::|=)")  # Text before colon or equals
+        }
+        {param pluck:label_value =
+            (val "(?::|=)\\s*(.+)")  # Text after colon or equals
+        }
+    ]
+><EXEC>
+```
+
+#### 4. Relationship Patterns
+
+```hunt
+< hunt Track:
+    [INIT GATHER =
+        {param tag:contains =
+            (val "contains", "inside")
+        }
+    ]
+><EXEC>
+
+< hunt Track:
+    [INIT GATHER =
+        {param tag:adjacent =
+            (val "next_to", "adjacent")
+        }
+        {param pluck:direction =
+            (val "right", "left", "above", "below")
+        }
+    ]
+><EXEC>
+
+< hunt Track:
+    [INIT GATHER =
+        {param tag:labeled_by =
+            (val "labeled_by", "described_by")
+        }
+    ]
+><EXEC>
+```
+
+### Integration with Main Processing Pipeline
+
+The HUNT DSL will be integrated with the main processing pipeline through a dedicated processor:
+
+```python
+def register_hunt_processor(pipeline):
+    """Register the HUNT processor with the processing pipeline."""
+    # Create pattern registry
+    pattern_registry = PatternRegistry()
+
+    # Create HUNT processor
+    hunt_processor = HuntRecognitionProcessor(pattern_registry)
+
+    # Register built-in patterns
+    hunt_processor.register_built_in_patterns()
+
+    # Register processor with pipeline
+    pipeline.register_processor(hunt_processor, 'hunt_recognition')
+
+    # Register error handler
+    pipeline.register_error_handler('hunt_recognition', HuntErrorHandler())
+
+    return hunt_processor
+```
+
+### Command-Line Interface Extensions
+
+The HUNT DSL will be exposed through the command-line interface:
+
+```python
+def extend_cli_for_hunt(parser):
+    """Extend command-line interface for HUNT DSL."""
+    # Add HUNT-specific commands
+    hunt_parser = parser.add_parser('hunt', help='Work with HUNT patterns')
+    hunt_subparsers = hunt_parser.add_subparsers(dest='hunt_command', help='HUNT command')
+
+    # Parse HUNT file command
+    parse_parser = hunt_subparsers.add_parser('parse', help='Parse HUNT file')
+    parse_parser.add_argument('hunt_file', help='HUNT pattern file')
+    parse_parser.add_argument('--output', '-o', help='Output file for parsed AST')
+
+    # Apply HUNT patterns command
+    apply_parser = hunt_subparsers.add_parser('apply', help='Apply HUNT patterns to ASCII UI')
+    apply_parser.add_argument('input_file', help='Input ASCII UI file')
+    apply_parser.add_argument('hunt_file', help='HUNT pattern file')
+    apply_parser.add_argument('--output', '-o', help='Output file for recognized components')
+
+    # Generate HUNT patterns command
+    generate_parser = hunt_subparsers.add_parser('generate', help='Generate HUNT patterns from components')
+    generate_parser.add_argument('components_file', help='Components JSON file')
+    generate_parser.add_argument('--output', '-o', help='Output file for generated HUNT patterns')
+
+    return parser
+```
+
+### HUNT Pattern Visualization
+
+To aid in pattern development and debugging, a visualization tool will be created:
+
+```python
+class HuntVisualizer:
+    def __init__(self, pattern_registry):
+        self.pattern_registry = pattern_registry
+
+    def visualize_pattern_matches(self, grid, components, output_file=None):
+        """Visualize pattern matches on the grid."""
+        # Create a copy of the grid for visualization
+        visual_grid = grid.copy()
+
+        # Create color mapping for different component types
+        color_map = {
+            'button': 'blue',
+            'checkbox': 'green',
+            'radio_button': 'cyan',
+            'dropdown': 'magenta',
+            'text_field': 'yellow',
+            'text_area': 'red',
+            'label': 'white',
+            'window': 'blue',
+            'panel': 'green',
+            'group_box': 'cyan'
+        }
+
+        # Colorize components
+        for component in components:
+            ui_type = component.get('ui_type')
+
+            if not ui_type:
+                continue
+
+            color = color_map.get(ui_type, 'white')
+
+            # Colorize component boundaries
+            bounding_box = component.get('bounding_box')
+
+            if bounding_box:
+                x1, y1, x2, y2 = bounding_box
+
+                # Draw colored border
+                for x in range(x1, x2 + 1):
+                    for y in range(y1, y2 + 1):
+                        if x == x1 or x == x2 or y == y1 or y == y2:
+                            visual_grid[y, x] = self._colorize(visual_grid[y, x], color)
+
+        # Save or display the visualization
+        if output_file:
+            with open(output_file, 'w') as f:
+                for y in range(visual_grid.shape[0]):
+                    line = ''.join(visual_grid[y])
+                    f.write(line + '\n')
+        else:
+            # Display in console
+            for y in range(visual_grid.shape[0]):
+                line = ''.join(visual_grid[y])
+                print(line)
+
+    def _colorize(self, char, color):
+        """Add ANSI color to a character."""
+        color_codes = {
+            'black': '\033[30m',
+            'red': '\033[31m',
+            'green': '\033[32m',
+            'yellow': '\033[33m',
+            'blue': '\033[34m',
+            'magenta': '\033[35m',
+            'cyan': '\033[36m',
+            'white': '\033[37m'
+        }
+
+        reset = '\033[0m'
+
+        return color_codes.get(color, '') + char + reset
+```
+
+## 7.2 Pattern Recognition DSL Specification
+
+The pattern recognition DSL will be designed to allow declarative definition of ASCII UI patterns:
+
+### Syntax and Semantics
+
+1. **Top-Level Commands**:
+
+   - `hunt`: Define a pattern or module
+   - `Track`: Define a tracking pattern for UI elements
+   - `GATHER`/`GET`: Extract characters and coordinates
+   - `HARVEST`/`HARV`: Collect data from multiple regions
+   - `RACK`: Preview pattern visualization
+   - `COOK`: Generate code from recognized patterns
+
+2. **Parameter Expressions**:
+
+   - `tag`: Define pattern tags for classification
+   - `pluck`: Extract specific content based on patterns
+   - `trap`: Define constraints or validation rules
+   - `skin`: Extract from partial matches
+   - `log`: Control debugging and logging output
+
+3. **Execution Controls**:
+   - `EXEC`: Execute pattern processing
+   - `req`: Make pattern requirements strict
+   - `prohib`: Specify prohibited patterns
+   - `config`: Configure processing options
+
+### Pattern Definition Example
+
+```hunt
+< hunt Button:
+    [INIT GATHER =
+        {param tag:button =
+            (val
+             box_chars:(┌┐└┘│─),  # Optional box characters
+             bracket_chars:("[", "]")  # Button can be in [] brackets
+            )
+        }
+        {param pluck:button_text =
+            (val
+             bracket_pattern:"\\[(.+?)\\]",  # Extract text between []
+             box_pattern:"(?<=\\n\\s*)(.+?)(?=\\s*\\n)"  # Extract text in box
+            )
+        }
+        {param trap =
+            (val "text must not be empty")  # Validation rule
+        }
+    ]
+><EXEC>
+```
+
+### Pattern Matching Process
+
+The pattern matching process will follow these steps:
+
+1. **Parse HUNT Patterns**: Convert HUNT DSL code into an AST
+2. **Register Patterns**: Store patterns in the pattern registry
+3. **Apply Patterns**: Apply patterns to detected components from earlier pipeline stages
+4. **Extract Properties**: Extract component properties based on pattern matches
+5. **Determine Types**: Classify components based on best pattern matches
+6. **Detect Relationships**: Apply relationship patterns to determine component hierarchies
+7. **Validate Results**: Apply validation rules to ensure pattern integrity
+
+### Integration with Component Model
+
+The DSL will integrate with the component model through these mechanisms:
+
+1. **Type Classification**: Determine the UI element type based on pattern matches
+2. **Property Extraction**: Extract properties like labels, values, and states
+3. **Relationship Detection**: Establish parent-child and logical relationships
+4. **Validation Rules**: Ensure component integrity and completeness
+
+### Extensibility Mechanisms
+
+The DSL will support extensibility through:
+
+1. **Custom Pattern Libraries**: Load user-defined pattern collections
+2. **Pattern Inheritance**: Extend existing patterns with additional rules
+3. **Plugin Architecture**: Register custom pattern matchers and extractors
+4. **Configuration System**: Configure pattern matching behavior
+
+## 7.3 Implementation Roadmap
+
+The implementation of the HUNT DSL integration will follow this timeline:
+
+### Phase 1: Core Parser and Interpreter (Weeks 1-3)
+
+1. **Implement HUNT Parser**: Complete the lexer and parser for HUNT syntax
+2. **Build AST Representation**: Create data structures for the abstract syntax tree
+3. **Develop Basic Interpreter**: Implement core command interpretation
+4. **Create Pattern Registry**: Build the pattern storage and retrieval system
+
+### Phase 2: Pattern Matching System (Weeks 4-6)
+
+1. **Implement Pattern Matchers**: Develop matchers for different pattern types
+2. **Create Property Extractors**: Build extractors for component properties
+3. **Develop Relationship Detectors**: Implement relationship detection logic
+4. **Build Validation System**: Create the constraint validation system
+
+### Phase 3: Integration with Framework (Weeks 7-9)
+
+1. **Create Pipeline Processor**: Implement the HUNT recognition processor
+2. **Develop Component Model Adapter**: Connect DSL to component model
+3. **Build Command Line Interface**: Extend CLI for HUNT operations
+4. **Implement Configuration System**: Create configuration management
+
+### Phase 4: Pattern Library Development (Weeks 10-12)
+
+1. **Create Basic Pattern Library**: Implement common UI element patterns
+2. **Develop Relationship Patterns**: Create patterns for component relationships
+3. **Build Complex Composite Patterns**: Implement patterns for composite components
+4. **Create Pattern Testing Framework**: Develop tools for testing patterns
+
+### Phase 5: Visualization and Debugging (Weeks 13-15)
+
+1. **Implement Visualizer**: Create pattern match visualization tool
+2. **Build Debugging Utilities**: Develop debugging and tracing tools
+3. **Create Pattern Editor**: Build interactive pattern development environment
+4. **Develop Documentation Generator**: Create tools for documenting patterns
+
+## 7.4 Advanced Features and Future Extensions
+
+### Pattern Learning System
+
+A pattern learning system will be developed to automatically generate patterns from examples:
+
+```python
+class PatternLearner:
+    def __init__(self, pattern_registry):
+        self.pattern_registry = pattern_registry
+
+    def learn_from_examples(self, examples):
+        """Learn patterns from annotated examples."""
+        # Extract common patterns from examples
+        patterns = self._extract_patterns(examples)
+
+        # Generate HUNT DSL code for patterns
+        hunt_code = self._generate_hunt_code(patterns)
+
+        return hunt_code
+
+    def _extract_patterns(self, examples):
+        """Extract common patterns from examples."""
+        # Implement pattern extraction logic
+        # For example, finding common character sequences in components of the same type
+
+        patterns = {}
+
+        # Group examples by component type
+        grouped_examples = {}
+
+        for example in examples:
+            component_type = example.get('ui_type')
+
+            if component_type:
+                if component_type not in grouped_examples:
+                    grouped_examples[component_type] = []
+
+                grouped_examples[component_type].append(example)
+
+        # Extract patterns for each component type
+        for component_type, components in grouped_examples.items():
+            type_patterns = self._extract_type_patterns(component_type, components)
+            patterns[component_type] = type_patterns
+
+        return patterns
+
+    def _extract_type_patterns(self, component_type, components):
+        """Extract patterns for a specific component type."""
+        # Implement type-specific pattern extraction
+
+        # For example, finding common boundary characters
+        boundary_chars = set()
+
+        for component in components:
+            boundary_points = component.get('boundary_points', [])
+
+            for x, y in boundary_points:
+                char = component.get('grid', {}).get((x, y))
+
+                if char:
+                    boundary_chars.add(char)
+
+        # Find common content patterns
+        content_patterns = []
+
+        for component in components:
+            content = component.get('content', [])
+
+            for line in content:
+                # Look for common patterns like brackets, labels, etc.
+                import re
+
+                # Check for button pattern
+                button_match = re.search(r'\[(.+?)\]', line)
+
+                if button_match:
+                    content_patterns.append(('button', button_match.group(0)))
+
+                # Check for checkbox pattern
+                checkbox_match = re.search(r'(\[\s*\]|\[X\]|□|■|☐|☑)', line)
+
+                if checkbox_match:
+                    content_patterns.append(('checkbox', checkbox_match.group(0)))
+
+                # Check for radio button pattern
+                radio_match = re.search(r'(\(\s*\)|\(•\)|○|●)', line)
+
+                if radio_match:
+                    content_patterns.append(('radio', radio_match.group(0)))
+
+        return {
+            'boundary_chars': list(boundary_chars),
+            'content_patterns': content_patterns
+        }
+
+    def _generate_hunt_code(self, patterns):
+        """Generate HUNT DSL code from extracted patterns."""
+        hunt_code = []
+
+        for component_type, type_patterns in patterns.items():
+            # Generate HUNT code for this component type
+            component_code = [
+                f"< hunt {component_type}:",
+                "    [INIT GATHER ="
+            ]
+
+            # Add tag parameters
+            boundary_chars = type_patterns.get('boundary_chars', [])
+
+            if boundary_chars:
+                component_code.append(f"        {{param tag:{component_type} =")
+                component_code.append("            (val")
+
+                for char in boundary_chars:
+                    component_code.append(f"             boundary_char:(\"{char}\"),")
+
+                component_code.append("            )")
+                component_code.append("        }")
+
+            # Add pluck parameters for content patterns
+            content_patterns = type_patterns.get('content_patterns', [])
+            pattern_types = {}
+
+            for pattern_type, pattern in content_patterns:
+                if pattern_type not in pattern_types:
+                    pattern_types[pattern_type] = []
+
+                pattern_types[pattern_type].append(pattern)
+
+            for pattern_type, patterns in pattern_types.items():
+                component_code.append(f"        {{param pluck:{pattern_type} =")
+                component_code.append("            (val")
+
+                for pattern in patterns:
+                    component_code.append(f'             pattern:("{re.escape(pattern)}"),')
+
+                component_code.append("            )")
+                component_code.append("        }")
+
+            # Close the HUNT code
+            component_code.append("    ]")
+            component_code.append("><EXEC>")
+            component_code.append("")
+
+            hunt_code.extend(component_code)
+
+        return '\n'.join(hunt_code)
+```
+
+### Interactive Pattern Development Environment
+
+An interactive pattern development environment will be created to assist in pattern creation and testing:
+
+```python
+class PatternDevelopmentEnvironment:
+    def __init__(self, pattern_registry, interpreter):
+        self.pattern_registry = pattern_registry
+        self.interpreter = interpreter
+        self.visualizer = HuntVisualizer(pattern_registry)
+
+    def interactive_session(self, grid_data):
+        """Start an interactive pattern development session."""
+        # Display grid
+        print("ASCII Grid:")
+        print(grid_data.to_string())
+        print()
+
+        # Initialize components
+        components = []
+
+        while True:
+            # Show menu
+            print("Pattern Development Menu:")
+            print("1. Create pattern")
+            print("2. Apply patterns")
+            print("3. Visualize matches")
+            print("4. Edit pattern")
+            print("5. Test pattern")
+            print("6. Save patterns")
+            print("7. Exit")
+
+            choice = input("Enter choice (1-7): ")
+
+            if choice == '1':
+                # Create pattern
+                pattern_code = self._create_pattern()
+
+                if pattern_code:
+                    self.interpreter.interpret(pattern_code)
+                    print("Pattern created successfully.")
+
+            elif choice == '2':
+                # Apply patterns
+                components = self._apply_patterns(grid_data)
+
+                print(f"Applied patterns, found {len(components)} components.")
+
+            elif choice == '3':
+                # Visualize matches
+                self.visualizer.visualize_pattern_matches(grid_data.to_numpy(), components)
+
+            elif choice == '4':
+                # Edit pattern
+                self._edit_pattern()
+
+            elif choice == '5':
+                # Test pattern
+                self._test_pattern(grid_data)
+
+            elif choice == '6':
+                # Save patterns
+                self._save_patterns()
+
+            elif choice == '7':
+                # Exit
+                print("Exiting pattern development session.")
+                break
+
+            else:
+                print("Invalid choice. Please try again.")
+
+    def _create_pattern(self):
+        """Create a new pattern."""
+        print("Enter HUNT DSL code for the pattern (end with a blank line):")
+
+        lines = []
+        while True:
+            line = input()
+
+            if not line:
+                break
+
+            lines.append(line)
+
+        pattern_code = '\n'.join(lines)
+
+        return pattern_code
+
+    def _apply_patterns(self, grid_data):
+        """Apply patterns to the grid."""
+        # Process the grid using the pattern registry
+        processor = HuntRecognitionProcessor(self.pattern_registry)
+
+        # Perform initial component detection
+        from FloodFillProcessor import FloodFillProcessor
+        flood_fill_processor = FloodFillProcessor()
+        components = flood_fill_processor.process(grid_data, {})
+
+        # Process components using HUNT patterns
+        context = {'components': components, 'grid': grid_data}
+        processed_components = processor.process(grid_data, context)
+
+        return processed_components
+
+    def _edit_pattern(self):
+        """Edit an existing pattern."""
+        # Show available patterns
+        tracking_patterns = self.pattern_registry.get_all_tracking_patterns()
+
+        if not tracking_patterns:
+            print("No patterns available to edit.")
+            return
+
+        print("Available patterns:")
+
+        for i, (name, _) in enumerate(tracking_patterns.items()):
+            print(f"{i+1}. {name}")
+
+        choice = input("Enter pattern number to edit: ")
+
+        try:
+            index = int(choice) - 1
+            name = list(tracking_patterns.keys())[index]
+
+            # Show pattern code
+            pattern = tracking_patterns[name]
+            print(f"Pattern '{name}':")
+            print(pattern)
+
+            # Get new code
+            print("Enter new HUNT DSL code (end with a blank line):")
+
+            lines = []
+            while True:
+                line = input()
+
+                if not line:
+                    break
+
+                lines.append(line)
+
+            pattern_code = '\n'.join(lines)
+
+            # Update pattern
+            self.interpreter.interpret(pattern_code)
+
+            print("Pattern updated successfully.")
+
+        except (ValueError, IndexError):
+            print("Invalid choice. Please try again.")
+
+    def _test_pattern(self, grid_data):
+        """Test a pattern on the grid."""
+        # Show available patterns
+        tracking_patterns = self.pattern_registry.get_all_tracking_patterns()
+
+        if not tracking_patterns:
+            print("No patterns available to test.")
+            return
+
+        print("Available patterns:")
+
+        for i, (name, _) in enumerate(tracking_patterns.items()):
+            print(f"{i+1}. {name}")
+```
+
+```python
+        choice = input("Enter pattern number to test: ")
+
+        try:
+            index = int(choice) - 1
+            name = list(tracking_patterns.keys())[index]
+            pattern = tracking_patterns[name]
+
+            # Process the grid using this pattern
+            processor = HuntRecognitionProcessor(self.pattern_registry)
+
+            # Perform initial component detection
+            from FloodFillProcessor import FloodFillProcessor
+            flood_fill_processor = FloodFillProcessor()
+            components = flood_fill_processor.process(grid_data, {})
+
+            # Create a pattern matcher
+            pattern_matcher = PatternMatcher(self.pattern_registry)
+
+            # Test pattern on each component
+            for component in components:
+                matches = pattern_matcher.match_component(grid_data, component, {'test_pattern': name})
+
+                if matches:
+                    print(f"Component {component.get('id')} matched pattern '{name}':")
+                    for match in matches:
+                        print(f"  Confidence: {match['confidence']:.2f}")
+                        print(f"  Properties: {match['properties']}")
+                        print()
+
+        except (ValueError, IndexError):
+            print("Invalid choice. Please try again.")
+
+    def _save_patterns(self):
+        """Save patterns to a file."""
+        filename = input("Enter filename to save patterns: ")
+
+        # Get all patterns
+        tracking_patterns = self.pattern_registry.get_all_tracking_patterns()
+        extraction_patterns = self.pattern_registry.get_all_extraction_patterns()
+
+        # Generate HUNT code for patterns
+        hunt_code = []
+
+        for name, pattern in tracking_patterns.items():
+            # Generate HUNT code for tracking pattern
+            # This is a simplified version; a real implementation would need to convert
+            # the internal pattern representation back to HUNT DSL code
+            hunt_code.append(f"< hunt Track:{name}")
+            hunt_code.append("    [INIT GATHER =")
+
+            for rule in pattern.get('rules', []):
+                hunt_code.append(f"        {{param {rule['command']} =")
+                hunt_code.append("            (val")
+
+                for value in rule.get('values', []):
+                    hunt_code.append(f"             {value},")
+
+                hunt_code.append("            )")
+                hunt_code.append("        }")
+
+            hunt_code.append("    ]")
+            hunt_code.append("><EXEC>")
+            hunt_code.append("")
+
+        # Write to file
+        with open(filename, 'w') as f:
+            f.write('\n'.join(hunt_code))
+
+        print(f"Patterns saved to {filename}")
+```
+
+### Pattern Optimization Engine
+
+```python
+class PatternOptimizer:
+    def __init__(self, pattern_registry, interpreter):
+        self.pattern_registry = pattern_registry
+        self.interpreter = interpreter
+
+    def optimize_patterns(self, grid_data, components):
+        """Optimize patterns for better matching performance and accuracy."""
+        # Get all patterns
+        tracking_patterns = self.pattern_registry.get_all_tracking_patterns()
+
+        optimized_patterns = {}
+
+        # Group components by type
+        grouped_components = {}
+
+        for component in components:
+            component_type = component.get('ui_type')
+
+            if component_type:
+                if component_type not in grouped_components:
+                    grouped_components[component_type] = []
+
+                grouped_components[component_type].append(component)
+
+        # Optimize each pattern
+        for name, pattern in tracking_patterns.items():
+            # Check if there are components for this pattern
+            component_type = name
+
+            if component_type in grouped_components:
+                components_of_type = grouped_components[component_type]
+
+                # Optimize pattern for these components
+                optimized_pattern = self._optimize_pattern(pattern, components_of_type, grid_data)
+                optimized_patterns[name] = optimized_pattern
+
+        # Generate HUNT code for optimized patterns
+        hunt_code = self._generate_hunt_code(optimized_patterns)
+
+        return hunt_code
+
+    def _optimize_pattern(self, pattern, components, grid_data):
+        """Optimize a pattern for better matching with specific components."""
+        # Extract common features from components
+        boundary_chars = set()
+        content_patterns = []
+
+        for component in components:
+            # Extract boundary characters
+            boundary_points = component.get('boundary_points', [])
+
+            for x, y in boundary_points:
+                if 0 <= y < grid_data.shape[0] and 0 <= x < grid_data.shape[1]:
+                    char = grid_data[y, x]
+                    boundary_chars.add(char)
+
+            # Extract content patterns
+            content = component.get('content', [])
+
+            for line in content:
+                # Look for patterns in content
+                import re
+
+                # Check for common patterns
+                button_match = re.search(r'\[(.+?)\]', line)
+                checkbox_match = re.search(r'(\[\s*\]|\[X\]|□|■|☐|☑)', line)
+                radio_match = re.search(r'(\(\s*\)|\(•\)|○|●)', line)
+
+                if button_match:
+                    content_patterns.append(('button', button_match.group(0)))
+                elif checkbox_match:
+                    content_patterns.append(('checkbox', checkbox_match.group(0)))
+                elif radio_match:
+                    content_patterns.append(('radio', radio_match.group(0)))
+
+        # Create optimized pattern
+        optimized_pattern = dict(pattern)
+
+        # Update pattern rules
+        rules = optimized_pattern.get('rules', [])
+
+        for rule in rules:
+            rule_type = rule.get('command')
+
+            if rule_type == 'tag':
+                # Update tag values
+                values = rule.get('values', [])
+
+                # Add boundary characters
+                for char in boundary_chars:
+                    if char not in values:
+                        values.append(char)
+
+                rule['values'] = values
+
+            elif rule_type == 'pluck':
+                # Update pluck rules
+                for pattern_type, pattern_value in content_patterns:
+                    if pattern_type == rule.get('target'):
+                        values = rule.get('values', [])
+
+                        if pattern_value not in values:
+                            values.append(pattern_value)
+
+                        rule['values'] = values
+
+        optimized_pattern['rules'] = rules
+
+        return optimized_pattern
+
+    def _generate_hunt_code(self, patterns):
+        """Generate HUNT DSL code from patterns."""
+        hunt_code = []
+
+        for name, pattern in patterns.items():
+            # Generate HUNT code for this pattern
+            hunt_code.append(f"< hunt Track:{name}")
+            hunt_code.append("    [INIT GATHER =")
+
+            for rule in pattern.get('rules', []):
+                rule_type = rule.get('command')
+
+                if rule_type == 'tag':
+                    hunt_code.append(f"        {{param tag:{name} =")
+                    hunt_code.append("            (val")
+
+                    for value in rule.get('values', []):
+                        hunt_code.append(f'             "{value}",')
+
+                    hunt_code.append("            )")
+                    hunt_code.append("        }")
+
+                elif rule_type == 'pluck':
+                    target = rule.get('target')
+                    hunt_code.append(f"        {{param pluck:{target} =")
+                    hunt_code.append("            (val")
+
+                    for value in rule.get('values', []):
+                        hunt_code.append(f'             "{value}",')
+
+                    hunt_code.append("            )")
+                    hunt_code.append("        }")
+
+            hunt_code.append("    ]")
+            hunt_code.append("><EXEC>")
+            hunt_code.append("")
+
+        return '\n'.join(hunt_code)
+```
+
+## 7.5 Conclusion
+
+The integration of the HUNT DSL with the ASCII UI Translation Framework provides a powerful, declarative mechanism for defining and recognizing UI patterns in ASCII grids. This comprehensive implementation plan establishes the foundation for a flexible, extensible pattern recognition system that leverages the structured syntax and semantics of HUNT to streamline the process of translating ASCII UI designs into functional code.
+
+By adopting HUNT's Cabin Brackets Hierarchical System, we create a natural mapping between the hierarchical structure of UI components and the pattern definitions used to recognize them. The implementation strategy outlined here ensures that the system is both powerful for advanced users who want fine-grained control over pattern matching and accessible for those who simply want to use pre-defined patterns.
+
+The robust architecture includes:
+
+1. A complete parser and interpreter for HUNT syntax
+2. A flexible pattern matching system for UI component recognition
+3. A pattern registry for managing and retrieving pattern definitions
+4. Integration with the core processing pipeline
+5. Visualization and debugging tools for pattern development
+6. Advanced features like pattern learning and optimization
+
+This integration leverages the strengths of both the HUNT DSL and the ASCII UI Translation Framework to create a system that is greater than the sum of its parts, providing a comprehensive solution for the challenge of translating ASCII UI designs into functional code.
