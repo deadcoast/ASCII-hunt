@@ -57,9 +57,11 @@ class FrameworkAdapter:
                 "modal": lambda v: f"window.transient(parent)" if v else "",
             },
             "Button": {
-                "enabled": lambda v: f"button['state'] = tk.NORMAL"
-                if v
-                else f"button['state'] = tk.DISABLED",
+                "enabled": lambda v: (
+                    f"button['state'] = tk.NORMAL"
+                    if v
+                    else f"button['state'] = tk.DISABLED"
+                ),
             },
             "Label": {
                 "text": lambda v: f"label.config(text='{v}')",
@@ -68,9 +70,9 @@ class FrameworkAdapter:
                 "value": lambda v: f"entry.insert(0, '{v}')",
             },
             "Checkbox": {
-                "checked": lambda v: f"checkbox.select()"
-                if v
-                else f"checkbox.deselect()",
+                "checked": lambda v: (
+                    f"checkbox.select()" if v else f"checkbox.deselect()"
+                ),
             },
             "RadioButton": {
                 "selected": lambda v: f"radio.select()" if v else f"radio.deselect()",
@@ -247,9 +249,11 @@ class FrameworkAdapter:
         adapter.register_property_mapper(
             "Button",
             "enabled",
-            lambda v: f"button['state'] = tk.NORMAL"
-            if v
-            else f"button['state'] = tk.DISABLED",
+            lambda v: (
+                f"button['state'] = tk.NORMAL"
+                if v
+                else f"button['state'] = tk.DISABLED"
+            ),
         )
 
         return adapter

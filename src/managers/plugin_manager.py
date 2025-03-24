@@ -1,20 +1,19 @@
 """Plugin Manager Module."""
 
-import os
 import glob
 import importlib
-
-from managers.python_tkinter_generator import PythonTkinterGenerator
-from managers.hunt_code_generator import HuntCodeGenerator
-from managers.dsl_code_generator import DSLCodeGenerator
-from managers.code_generator import CodeGenerator
-from managers.layout_management import LayoutManager
-from managers.functional_relationship_manager import FunctionalRelationshipManager
-from managers.cache_manager import CacheManager
-from managers.component_overlay_manager import ComponentOverlayManager
-from components.component_model_representation import ComponentModel
+import os
 
 from components.abstract_component import AbstractComponent
+from components.component_model_representation import ComponentModel
+from managers.cache_manager import CacheManager
+from managers.code_generator import CodeGenerator
+from managers.component_overlay_manager import ComponentOverlayManager
+from managers.dsl_code_generator import DSLCodeGenerator
+from managers.functional_relationship_manager import FunctionalRelationshipManager
+from managers.hunt_code_generator import HuntCodeGenerator
+from managers.layout_management import LayoutManager
+from managers.python_tkinter_generator import PythonTkinterGenerator
 
 
 class PluginManager:

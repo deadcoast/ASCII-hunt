@@ -1,8 +1,8 @@
+from components.component_analysis import ComponentAnalyzer
+from components.component_model_representation import ComponentModel
+from components.connected_component_analysis import ConnectedComponentAnalyzer
 from dsl.parser import DSLParser
 from dsl.standard_library import DSLStandardLibrary
-from components.component_model_representation import ComponentModel
-from components.component_analysis import ComponentAnalyzer
-from components.connected_component_analysis import ConnectedComponentAnalyzer
 from widgets.ascii_grid_widget import AsciiGridWidget
 
 

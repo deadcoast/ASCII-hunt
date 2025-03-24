@@ -1,10 +1,10 @@
 """Backend Manager Module."""
 
-from algorithms.hierarchical_clustering import HierarchicalClustering
 from algorithms.decision_tree_classifier import DecisionTreeClassifier
-from generators.code_generator import CodeGenerator
 from algorithms.flood_fill_processor import FloodFillProcessor
+from algorithms.hierarchical_clustering import HierarchicalClustering
 from components.component_analysis import ComponentAnalysis
+from generators.code_generator import CodeGenerator
 
 
 class BackendManager:

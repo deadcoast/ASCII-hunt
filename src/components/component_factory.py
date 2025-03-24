@@ -2,8 +2,8 @@
 
 import uuid
 
-from components.component_model_representation import AbstractComponent
 from components.component_analysis import ConnectedComponentAnalyzer
+from components.component_model_representation import AbstractComponent
 
 
 class ComponentFactory:

@@ -1,21 +1,22 @@
 """ASCII UI Translation Engine Module."""
 
-from .ascii_grid import ASCIIGrid
-from ..processors.flood_fill_processor import FloodFillProcessor
-from ..processors.contour_detection_processor import ContourDetectionProcessor
-from ..processors.pattern_recognition_processor import PatternRecognitionProcessor
-from ..processors.feature_extraction_processor import FeatureExtractionProcessor
-from ..processors.component_classification_processor import (
+from managers.cache_manager import CacheManager
+from managers.configuration_manager import ConfigurationManager
+from managers.extension_point import ExtensionPoint
+from managers.performance_monitor import PerformanceMonitor
+from managers.plugin_manager import PluginManager
+from managers.processing_pipeline import ProcessingPipeline
+from processors.code_generation_processor import CodeGenerationProcessor
+from processors.component_classification_processor import (
     ComponentClassificationProcessor,
 )
-from ..processors.relationship_analysis_processor import RelationshipAnalysisProcessor
-from ..processors.code_generation_processor import CodeGenerationProcessor
-from ..managers.performance_monitor import PerformanceMonitor
-from ..managers.plugin_manager import PluginManager
-from ..managers.configuration_manager import ConfigurationManager
-from ..managers.processing_pipeline import ProcessingPipeline
-from ..managers.cache_manager import CacheManager
-from ..managers.extension_point import ExtensionPoint
+from processors.contour_detection_processor import ContourDetectionProcessor
+from processors.feature_extraction_processor import FeatureExtractionProcessor
+from processors.flood_fill_processor import FloodFillProcessor
+from processors.pattern_recognition_processor import PatternRecognitionProcessor
+from processors.relationship_analysis_processor import RelationshipAnalysisProcessor
+
+from .ascii_grid import ASCIIGrid
 
 
 class ASCIIUITranslationEngine:
@@ -130,9 +131,9 @@ class ASCIIUITranslationEngine:
             # Prepare response
             response = {
                 "success": True,
-                "generated_code": result
-                if isinstance(result, str)
-                else context.get("generated_code"),
+                "generated_code": (
+                    result if isinstance(result, str) else context.get("generated_code")
+                ),
                 "component_model": context.get("component_model"),
                 "performance_metrics": performance_metrics,
             }
@@ -181,4 +182,22 @@ class ASCIIUITranslationEngine:
 
         if ext_point:
             return list(ext_point.get_extensions().keys())
-        return []
+        return ["default"]
+
+    def list_frameworks(self):
+        """List all supported frameworks."""
+        frameworks = self.get_supported_frameworks()
+        print("Supported Frameworks:")
+        for idx, framework in enumerate(frameworks, 1):
+            print(f"{idx}. {framework}")
+
+    def list_plugins(self):
+        """List all available plugins."""
+        plugins = self.plugin_manager.get_plugins()
+        print("Available Plugins:")
+        for idx, plugin in enumerate(plugins, 1):
+            print(f"{idx}. {plugin}")
+
+    def get_plugin_info(self, plugin_name):
+        """Get information about a specific plugin."""
+        return self.plugin_manager.get_plugin_info(plugin_name)

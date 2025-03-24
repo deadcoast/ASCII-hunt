@@ -1,7 +1,7 @@
 """Application Controller Module."""
 
-from managers.backend_manager import BackendManager
 from generators.code_generator import CodeGenerator
+from managers.backend_manager import BackendManager
 
 
 class ApplicationController:

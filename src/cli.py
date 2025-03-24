@@ -1,5 +1,25 @@
+"""Command-line interface for the ASCII UI Translation Engine."""
+
+from data_stack.ascii_ui_translation_engine import (
+    ASCIIUITranslationEngine,
+    ComponentClassificationProcessor,
+)
+
+
 def create_cli():
-    """Create command line interface for the engine."""
+    """
+    Create the command-line interface for the ASCII UI Translation Engine.
+
+    This function creates an argparse ArgumentParser instance with the
+    following commands:
+
+    - process: Process an ASCII UI file.
+    - list-frameworks: List supported frameworks.
+    - load-plugins: Load plugins from a directory.
+
+    Returns:
+        argparse.ArgumentParser: The CLI parser
+    """
     import argparse
 
     parser = argparse.ArgumentParser(description="ASCII UI Translation Engine")
@@ -16,8 +36,15 @@ def create_cli():
         help="Target framework for code generation",
     )
     process_parser.add_argument("--config", "-c", help="Configuration file")
+    process_parser.add_argument("--components", "-c", help="Components file")
+    process_parser.add_argument("--grid", "-g", help="Grid file")
+    process_parser.add_argument("--model", "-m", help="Model file")
+    process_parser.add_argument("--analysis", "-a", help="Analysis file")
+    process_parser.add_argument("--output", "-o", help="Output file")
+    process_parser.add_argument("--plugins", "-p", help="Plugins file")
 
     # List frameworks command
+
     list_frameworks_parser = subparsers.add_parser(
         "list-frameworks", help="List supported frameworks"
     )

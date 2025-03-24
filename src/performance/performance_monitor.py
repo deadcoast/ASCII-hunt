@@ -7,9 +7,10 @@ class PerformanceMonitor:
 
     def start(self):
         """Start performance monitoring."""
-        import time
-        import psutil
         import os
+        import time
+
+        import psutil
 
         self.start_time = time.time()
         self.memory_usage = []
@@ -20,9 +21,10 @@ class PerformanceMonitor:
 
     def end(self):
         """End performance monitoring."""
-        import time
-        import psutil
         import os
+        import time
+
+        import psutil
 
         self.end_time = time.time()
 

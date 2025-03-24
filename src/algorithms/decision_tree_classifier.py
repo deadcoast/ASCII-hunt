@@ -4,8 +4,8 @@ def build_decision_tree_classifier(training_data):
 
     training_data: List of (feature_vector, component_type) pairs
     """
-    from sklearn import tree
     import numpy as np
+    from sklearn import tree
 
     # Extract features and labels
     X = []  # Features

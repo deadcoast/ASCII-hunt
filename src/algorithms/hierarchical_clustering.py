@@ -1,7 +1,7 @@
 """Hierarchical Clustering Module."""
 
-import numpy as np
 import networkx as nx
+import numpy as np
 
 
 def hierarchical_clustering(components, feature_vectors):
