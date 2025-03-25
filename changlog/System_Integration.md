@@ -4,46 +4,6 @@ This file documents the current state of the {PROJECT_NAME} system architecture.
 
 ## Directory Structure
 
-```
-├── src/
-│   ├── components/
-│   │   ├── Sidebar/
-│   │   │   └── Sidebar.tsx
-│   │   ├── Terminal/
-│   │   │   └── Terminal.tsx
-│   │   ├── Widget/
-│   │   │   └── Widget.tsx
-│   │   └── WidgetBar/
-│   │       └── WidgetBar.tsx
-│   ├── hooks/
-│   │   ├── useCommandProcessor.ts
-│   │   ├── useTerminal.ts
-│   │   └── useWidgets.ts
-│   ├── lib/
-│   │   └── jsonmcp.ts
-│   ├── services/
-│   │   ├── commands/
-│   │   │   ├── CommandProcessor.ts
-│   │   │   └── index.ts
-│   │   └── terminal/
-│   │       ├── index.ts
-│   │       └── TerminalService.ts
-│   ├── store/
-│   │   ├── index.ts
-│   │   └── widgetsSlice.ts
-│   ├── types/
-│   │   └── widget.ts
-│   ├── App.tsx
-│   ├── index.css
-│   └── main.tsx
-├── .cursorrules.md
-├── .markdown-link-check.json
-├── .markdownlint.json
-├── check-links.sh
-├── index.html
-└── package.json
-```
-
 ## Usage Instructions
 
 ### For Integrating the System Integration Template

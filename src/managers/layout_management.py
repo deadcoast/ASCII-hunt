@@ -1,7 +1,5 @@
 """Layout Management Module."""
 
-from components.abstract_component import AbstractComponent
-
 
 class LayoutManager:
     def __init__(self):

@@ -119,10 +119,14 @@ DEFAULT_IGNORE = [
 
 def parse_args():
     """Parse command line arguments."""
-    parser = argparse.ArgumentParser(description="Generate a beautiful directory tree using Rich")
+    parser = argparse.ArgumentParser(
+        description="Generate a beautiful directory tree using Rich"
+    )
     parser.add_argument("--path", type=str, help="Directory to generate tree for")
     parser.add_argument("--output", type=str, help="Output file")
-    parser.add_argument("--ignore", action="append", help="Patterns to ignore", default=[])
+    parser.add_argument(
+        "--ignore", action="append", help="Patterns to ignore", default=[]
+    )
     parser.add_argument("--max-depth", type=int, help="Maximum depth to display")
     parser.add_argument(
         "--use-default-ignore", action="store_true", help="Use default ignore patterns"
@@ -156,7 +160,9 @@ def should_ignore(path, ignore_patterns):
     return False
 
 
-def build_directory_tree(directory, tree, ignore_patterns=None, max_depth=None, current_depth=0):
+def build_directory_tree(
+    directory, tree, ignore_patterns=None, max_depth=None, current_depth=0
+):
     """Build a Rich Tree representation of the directory structure."""
     if ignore_patterns is None:
         ignore_patterns = []
@@ -178,7 +184,9 @@ def build_directory_tree(directory, tree, ignore_patterns=None, max_depth=None, 
         # If it's a directory, create a subtree and process recursively
         if entry.is_dir():
             subtree = tree.add(f"[bold blue]{entry.name}/[/]")
-            build_directory_tree(entry, subtree, ignore_patterns, max_depth, current_depth + 1)
+            build_directory_tree(
+                entry, subtree, ignore_patterns, max_depth, current_depth + 1
+            )
         else:
             # It's a file, just add it to the tree
             tree.add(f"[green]{entry.name}[/]")

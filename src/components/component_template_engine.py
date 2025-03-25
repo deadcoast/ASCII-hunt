@@ -30,7 +30,7 @@ class TemplateEngine:
                 result = self._evaluate_expression(expr, data)
                 return str(result)
             except Exception as e:
-                return f"{{Error: {str(e)}}}"
+                return f"{{Error: {e!s}}}"
 
         return self.expression_pattern.sub(replace_expr, template)
 

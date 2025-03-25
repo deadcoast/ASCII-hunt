@@ -27,7 +27,7 @@ class ExtensionPoint:
                 except Exception as e:
                     # Log error and continue
                     print(
-                        f"Error invoking {method_name} on extension {plugin_name}: {str(e)}"
+                        f"Error invoking {method_name} on extension {plugin_name}: {e!s}"
                     )
 
         return results

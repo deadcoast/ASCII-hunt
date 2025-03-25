@@ -1,7 +1,5 @@
 """Hunt Code Generator Module."""
 
-import jinja2
-
 
 class HuntCodeGenerator:
     def __init__(self, template_registry=None):

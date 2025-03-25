@@ -1,10 +1,5 @@
 """Python Tkinter Generator Module."""
 
-import tkinter as tk
-from tkinter import ttk
-
-from components.abstract_component import AbstractComponent
-
 
 class PythonTkinterGenerator:
     def __init__(self):
@@ -87,7 +82,7 @@ class PythonTkinterGenerator:
             component_code = template.render(component, indent, options)
         except Exception as e:
             # Log error and return empty list
-            print(f"Error generating code for component {component.id}: {str(e)}")
+            print(f"Error generating code for component {component.id}: {e!s}")
             return []
 
         code_parts = component_code.split("\n")

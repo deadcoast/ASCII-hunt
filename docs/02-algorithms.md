@@ -1,5 +1,3 @@
-I understand your frustration. Let me provide a truly comprehensive plan for the Algorithms section that covers the full scope of implementation details, design considerations, and integration strategy.
-
 # 2. Algorithms - Comprehensive Implementation Plan
 
 ## 2.1 Flood Fill Algorithm
@@ -14,21 +12,21 @@ For our implementation, we need a specialized version of flood fill that underst
 
 The implementation will follow a multi-tiered approach:
 
-1. **Base Layer**: Low-level grid traversal mechanisms
+1. Base Layer: Low-level grid traversal mechanisms
 
    - Grid representation using NumPy arrays
    - Queue-based breadth-first traversal system
    - Boundary character detection and classification
    - Region membership tracking
 
-2. **Semantic Layer**: UI-aware processing logic
+2. Semantic Layer: UI-aware processing logic
 
    - Box type identification (single, double, rounded corners)
    - Component boundary extraction and analysis
    - Internal content extraction and preprocessing
    - Special character handling (indicators, buttons, etc.)
 
-3. **Integration Layer**: Interfaces with other system components
+3. Integration Layer: Interfaces with other system components
 
    - Feature extraction for component classification
    - Relationship data generation for hierarchical analysis
@@ -56,21 +54,21 @@ This process will be applied iteratively to identify all components within the A
 
 The boundary analysis system will incorporate:
 
-1. **Morphological Operations**:
+1. Morphological Operations:
 
    - Boundary tracing to identify closed shapes
    - Corner detection to classify component types
    - Gap filling to handle incomplete boundaries
    - Junction analysis to detect nested components
 
-2. **Component Feature Extraction**:
+2. Component Feature Extraction:
 
    - Bounding box dimensions and coordinates
    - Border type classification (single, double, bold)
    - Content extraction from internal region
    - Special character detection within boundaries
 
-3. **Spatial Relationship Analysis**:
+3. Spatial Relationship Analysis:
 
    - Containment detection for nested components
    - Adjacency measurements for related components
@@ -81,25 +79,25 @@ The boundary analysis system will incorporate:
 
 For large ASCII UIs, we'll implement multiple optimization techniques:
 
-1. **Coarse-to-Fine Processing**:
+1. Coarse-to-Fine Processing:
 
    - Initial pass with simplified boundary detection
    - Refined analysis only on identified regions of interest
    - Progressive detail enhancement for complex regions
 
-2. **Vectorized Operations**:
+2. Vectorized Operations:
 
    - NumPy-based parallel processing for boundary detection
    - Bitmap operations for efficient region marking
    - Vector-based distance calculations for spatial analysis
 
-3. **Memory Management**:
+3. Memory Management:
 
    - Sparse representation for large, mostly empty grids
    - Result caching for repeated pattern detection
    - Component-level processing to limit memory footprint
 
-4. **Multi-threading**:
+4. Multi-threading:
 
    - Parallel processing of independent UI regions
    - Background preprocessing for performance-intensive operations
@@ -120,25 +118,25 @@ The results will be structured for direct consumption by the Connected Component
 
 The implementation will include robust handling of challenging cases:
 
-1. **Incomplete Boundaries**:
+1. Incomplete Boundaries:
 
    - Detection and repair of broken boundary lines
    - Inference of missing corners or edges
    - Confidence scoring for ambiguous boundaries
 
-2. **Mixed Border Types**:
+2. Mixed Border Types:
 
    - Recognition of components with mixed border styles
    - Handling of custom or non-standard border characters
    - Border consistency evaluation and reporting
 
-3. **Overlapping Components**:
+3. Overlapping Components:
 
    - Resolution of shared boundaries between components
    - Disambiguation of nested versus adjacent components
    - Priority rules for component hierarchy
 
-4. **Special UI Patterns**:
+4. Special UI Patterns:
 
    - Recognition of tables and grid structures
    - Detection of horizontal and vertical separators
@@ -148,19 +146,19 @@ The implementation will include robust handling of challenging cases:
 
 The testing strategy will include:
 
-1. **Unit Testing Suite**:
+1. Unit Testing Suite:
 
    - Test cases for each border style and component type
    - Performance benchmarks for different grid sizes
    - Edge case validation for unusual boundary configurations
 
-2. **Integration Testing**:
+2. Integration Testing:
 
    - Validation of outputs against Connected Component Analysis
    - End-to-end testing with complete ASCII UI designs
    - Regression testing for algorithm modifications
 
-3. **Performance Profiling**:
+3. Performance Profiling:
 
    - Memory usage monitoring for large inputs
    - Processing time benchmarks for optimization validation
@@ -178,28 +176,28 @@ Our implementation will go beyond traditional CCA by incorporating domain-specif
 
 The implementation will follow a multi-stage architecture:
 
-1. **Preprocessing Stage**:
+1. Preprocessing Stage:
 
    - Character classification based on unicode properties
    - Text region identification and extraction
    - Special character detection and classification
    - Initial component boundary refinement
 
-2. **Component Detection Stage**:
+2. Component Detection Stage:
 
    - Character grouping based on spatial proximity
    - Text label association with UI controls
    - Button and input field detection
    - Composite control identification
 
-3. **Relationship Modeling Stage**:
+3. Relationship Modeling Stage:
 
    - Label-to-control association
    - Group-to-container mapping
    - Component hierarchy establishment
    - Interactive element state detection
 
-4. **Output Generation Stage**:
+4. Output Generation Stage:
 
    - Component feature vector creation
    - Relationship graph construction
@@ -210,21 +208,21 @@ The implementation will follow a multi-stage architecture:
 
 The CCA process will incorporate specialized rules for UI components:
 
-1. **Initial Component Labeling**:
+1. Initial Component Labeling:
 
    - Process Flood Fill results to establish component candidates
    - Apply 8-connectivity labeling to identify text regions
    - Merge adjacent regions based on UI component heuristics
    - Split regions that contain multiple logical controls
 
-2. **Semantic Component Analysis**:
+2. Semantic Component Analysis:
 
    - Analyze component content to determine functional type
    - Identify labels, values, and interactive elements
    - Detect state indicators (checkboxes, radio buttons, toggles)
    - Recognize input fields, buttons, and selection controls
 
-3. **Relationship Establishment**:
+3. Relationship Establishment:
 
    - Associate labels with their corresponding controls
    - Group related controls into functional units
@@ -235,28 +233,28 @@ The CCA process will incorporate specialized rules for UI components:
 
 The classification system will identify various UI components:
 
-1. **Container Elements**:
+1. Container Elements:
 
    - Windows with title bars and borders
    - Panels and group boxes with labels
    - Tabbed interfaces with selectors
    - Scrollable content areas
 
-2. **Interactive Controls**:
+2. Interactive Controls:
 
    - Push buttons with labels
    - Checkboxes and radio buttons
    - Dropdown menus and list boxes
    - Text input fields and text areas
 
-3. **Informational Elements**:
+3. Informational Elements:
 
    - Labels and descriptive text
    - Status indicators and icons
    - Progress bars and meters
    - Headers and section titles
 
-4. **Layout Components**:
+4. Layout Components:
 
    - Horizontal and vertical separators
    - Spacers and alignment guides
@@ -267,21 +265,21 @@ The classification system will identify various UI components:
 
 A specialized text processing system will:
 
-1. **Detect and Extract Text Regions**:
+1. Detect and Extract Text Regions:
 
    - Identify contiguous text characters
    - Differentiate between labels, values, and instructions
    - Recognize multiline text blocks
    - Detect text formatting and alignment
 
-2. **Associate Text with Controls**:
+2. Associate Text with Controls:
 
    - Map labels to their corresponding interactive elements
    - Identify button text and state descriptions
    - Associate help text with input fields
    - Extract values from display fields
 
-3. **Process Special Text Patterns**:
+3. Process Special Text Patterns:
 
    - Detect menu items and command lists
    - Identify shortcut keys and accelerators
@@ -303,21 +301,21 @@ The output will include pre-calculated distances and relationship scores to stre
 
 The CCA implementation will optimize for:
 
-1. **Processing Efficiency**:
+1. Processing Efficiency:
 
    - Incremental processing of large component sets
    - Early pruning of invalid component candidates
    - Spatial indexing for faster relationship computations
    - Memory-efficient component representation
 
-2. **Accuracy Enhancements**:
+2. Accuracy Enhancements:
 
    - Confidence scoring for ambiguous classifications
    - Multi-pass refinement for complex components
    - Context-based disambiguation of similar patterns
    - Adaptation to different ASCII UI styles
 
-3. **Extensibility**:
+3. Extensibility:
 
    - Plugin system for custom component detection
    - Configurable rule sets for different UI paradigms
@@ -328,14 +326,14 @@ The CCA implementation will optimize for:
 
 Robust error handling will address:
 
-1. **Ambiguous Component Boundaries**:
+1. Ambiguous Component Boundaries:
 
    - Multiple interpretation candidates with confidence scoring
    - User-guided disambiguation for complex cases
    - Heuristic-based resolution for common patterns
    - Warning generation for uncertain classifications
 
-2. **Incomplete or Malformed UI Elements**:
+2. Incomplete or Malformed UI Elements:
 
    - Partial component recovery and reconstruction
    - Best-effort classification with confidence indicators
@@ -354,28 +352,28 @@ Our implementation will combine traditional hierarchical clustering with domain-
 
 The implementation will follow a multi-phase approach:
 
-1. **Relationship Scoring Phase**:
+1. Relationship Scoring Phase:
 
    - Spatial containment analysis
    - Functional relationship evaluation
    - Visual grouping assessment
    - Semantic connection identification
 
-2. **Hierarchical Structure Building Phase**:
+2. Hierarchical Structure Building Phase:
 
    - Bottom-up agglomerative clustering
    - Dendrogram construction and analysis
    - Cutting and pruning for logical groupings
    - Structure validation and refinement
 
-3. **UI Hierarchy Optimization Phase**:
+3. UI Hierarchy Optimization Phase:
 
    - Layout-based hierarchy adjustments
    - Functional group consolidation
    - Control-container relationship enforcement
    - Logical order establishment
 
-4. **Output Structure Generation Phase**:
+4. Output Structure Generation Phase:
 
    - Hierarchical component tree construction
    - Relationship attribute annotation
@@ -386,21 +384,21 @@ The implementation will follow a multi-phase approach:
 
 The hierarchical clustering process will incorporate multiple relationship types:
 
-1. **Spatial Containment Analysis**:
+1. Spatial Containment Analysis:
 
    - Calculate precise containment relationships between components
    - Determine partial and complete containment scores
    - Handle overlapping and adjacent components
    - Establish primary container relationships
 
-2. **Functional Grouping**:
+2. Functional Grouping:
 
    - Identify controls that operate as functional units
    - Group related fields in forms and dialogs
    - Cluster menu items and selection options
    - Associate labels with their interactive elements
 
-3. **Dendrogram Construction**:
+3. Dendrogram Construction:
 
    - Build hierarchical representation of relationships
    - Determine optimal cutting thresholds
@@ -411,21 +409,21 @@ The hierarchical clustering process will incorporate multiple relationship types
 
 The implementation will incorporate specialized rules for UI hierarchies:
 
-1. **Container Precedence Rules**:
+1. Container Precedence Rules:
 
    - Windows contain panels
    - Panels contain groups
    - Groups contain individual controls
    - Maintain consistent containment semantics
 
-2. **Control Grouping Rules**:
+2. Control Grouping Rules:
 
    - Radio buttons form exclusive groups
    - Related checkboxes form non-exclusive groups
    - Input fields with labels form field groups
    - Buttons with similar functions form action groups
 
-3. **Layout-Based Rules**:
+3. Layout-Based Rules:
 
    - Horizontally aligned controls may form rows
    - Vertically aligned controls may form columns
@@ -436,21 +434,21 @@ The implementation will incorporate specialized rules for UI hierarchies:
 
 The clustering will utilize specialized UI-aware metrics:
 
-1. **Spatial Distance Functions**:
+1. Spatial Distance Functions:
 
    - Containment ratio (percentage of contained area)
    - Border proximity (distance between boundaries)
    - Alignment distance (deviation from perfect alignment)
    - Center-to-center distance (for adjacent components)
 
-2. **Functional Similarity Measures**:
+2. Functional Similarity Measures:
 
    - Component type compatibility
    - Label-control association strength
    - Interactive behavior similarity
    - Visual style consistency
 
-3. **Custom Aggregation Methods**:
+3. Custom Aggregation Methods:
 
    - Weighted combination of spatial and functional measures
    - Context-sensitive distance calculation
@@ -461,21 +459,21 @@ The clustering will utilize specialized UI-aware metrics:
 
 The hierarchical clustering results will be transformed into NetworkX graph structures:
 
-1. **Graph Construction**:
+1. Graph Construction:
 
    - Nodes representing UI components
    - Edges representing containment and functional relationships
    - Attributes encoding relationship types and strengths
    - Multiple edge types for different relationship categories
 
-2. **Graph Analysis**:
+2. Graph Analysis:
 
    - Traversal order determination for code generation
    - Path analysis for focus navigation
    - Connectivity validation for UI coherence
    - Subgraph identification for component groups
 
-3. **Tree Transformation**:
+3. Tree Transformation:
 
    - Conversion of general graph to strict hierarchy
    - Resolution of circular relationships
@@ -486,21 +484,21 @@ The hierarchical clustering results will be transformed into NetworkX graph stru
 
 The clustering results will undergo extensive validation:
 
-1. **Structural Validation**:
+1. Structural Validation:
 
    - Verification of containment consistency
    - Detection of orphaned controls
    - Identification of excessive nesting
    - Validation of logical grouping
 
-2. **UI-Semantic Validation**:
+2. UI-Semantic Validation:
 
    - Confirmation of expected control groupings
    - Verification of label-control associations
    - Assessment of navigation and tab order logic
    - Evaluation of visual layout coherence
 
-3. **Interactive Refinement**:
+3. Interactive Refinement:
 
    - User-guided hierarchy adjustments
    - Manual override capabilities for complex cases
@@ -519,28 +517,28 @@ Our implementation will combine traditional decision tree classification with sp
 
 The implementation will follow a modular approach:
 
-1. **Feature Extraction Module**:
+1. Feature Extraction Module:
 
    - Character pattern analysis
    - Geometric property calculation
    - Content analysis and classification
    - Context and relationship feature extraction
 
-2. **Classification Engine**:
+2. Classification Engine:
 
    - Multi-stage decision tree classifier
    - Feature-based classification rules
    - Confidence scoring system
    - Ambiguity resolution mechanisms
 
-3. **Component Type Recognition**:
+3. Component Type Recognition:
 
    - UI control type identification
    - State detection for interactive elements
    - Custom component recognition
    - Variant handling for common controls
 
-4. **Classification Refinement**:
+4. Classification Refinement:
 
    - Context-based disambiguation
    - Post-processing rule application
@@ -551,28 +549,28 @@ The implementation will follow a modular approach:
 
 The feature extraction will generate comprehensive component signatures:
 
-1. **Geometric Features**:
+1. Geometric Features:
 
    - Component dimensions and aspect ratio
    - Border characteristics and type
    - Internal layout and structure
    - Position relative to other elements
 
-2. **Content Features**:
+2. Content Features:
 
    - Text pattern analysis
    - Special character identification
    - Character density and distribution
    - Content alignment and formatting
 
-3. **Contextual Features**:
+3. Contextual Features:
 
    - Neighboring component types
    - Parent container classification
    - Association with labels or descriptions
    - Position within overall UI structure
 
-4. **Behavioral Indicators**:
+4. Behavioral Indicators:
 
    - State representation characters
    - Interactive element markers
@@ -583,28 +581,28 @@ The feature extraction will generate comprehensive component signatures:
 
 The decision tree classifier will incorporate:
 
-1. **Multi-Stage Classification Process**:
+1. Multi-Stage Classification Process:
 
    - Primary category determination (container, control, display)
    - Secondary type classification (specific control type)
    - Tertiary attribute identification (state, mode, properties)
    - Final variant determination (style, appearance)
 
-2. **Rule-Based Classification Logic**:
+2. Rule-Based Classification Logic:
 
    - Explicit character pattern matching
    - Geometric constraint evaluation
    - Content pattern analysis
    - Context-sensitive decision rules
 
-3. **Confidence Assessment**:
+3. Confidence Assessment:
 
    - Classification confidence scoring
    - Multiple hypothesis tracking
    - Ambiguity identification
    - Uncertainty quantification
 
-4. **Extended Decision Tree Model**:
+4. Extended Decision Tree Model:
 
    - Feature importance weighting
    - Pruning for generalization
@@ -615,35 +613,35 @@ The decision tree classifier will incorporate:
 
 The classifier will recognize an extensive catalog of UI components:
 
-1. **Container Elements**:
+1. Container Elements:
 
    - Windows (with/without title bars, borders, status bars)
    - Panels (standard, grouped, framed)
    - Tab controls (horizontal, vertical, nested)
    - Group boxes (labeled, unlabeled)
 
-2. **Action Controls**:
+2. Action Controls:
 
    - Buttons (push, toggle, menu)
    - Command links and hyperlinks
    - Menu items (standard, checkbox, radio)
    - Toolbars and command bars
 
-3. **Selection Controls**:
+3. Selection Controls:
 
    - Checkboxes (unchecked, checked, indeterminate)
    - Radio buttons (selected, unselected)
    - Dropdown lists and combo boxes
    - List boxes and list views
 
-4. **Input Controls**:
+4. Input Controls:
 
    - Text fields (standard, required, read-only)
    - Text areas (multiline, scrollable)
    - Numeric inputs and spinners
    - Specialized input fields (date, time, currency)
 
-5. **Display Elements**:
+5. Display Elements:
 
    - Labels and static text
    - Status indicators and icons
@@ -654,21 +652,21 @@ The classifier will recognize an extensive catalog of UI components:
 
 The system will support extensibility for custom components:
 
-1. **Pattern Definition Language**:
+1. Pattern Definition Language:
 
    - Declarative component pattern specifications
    - Regular expression-like pattern matching
    - Feature constraint definitions
    - Relationship requirement definitions
 
-2. **Learning Capability**:
+2. Learning Capability:
 
    - Pattern recognition from examples
    - Feature importance discovery
    - Refinement from user corrections
    - Automatic rule generation
 
-3. **Custom Component Registry**:
+3. Custom Component Registry:
 
    - User-defined component catalog
    - Pattern storage and management
@@ -679,14 +677,14 @@ The system will support extensibility for custom components:
 
 The Decision Tree system will interface with the Recognition DSL:
 
-1. **DSL-Based Pattern Definition**:
+1. DSL-Based Pattern Definition:
 
    - Translation of DSL patterns to classification rules
    - Runtime evaluation of DSL expressions
    - Dynamic rule application based on DSL specifications
    - Extension of classification capabilities through DSL
 
-2. **Feedback Mechanism**:
+2. Feedback Mechanism:
 
    - Classification confidence reporting
    - Ambiguity notification for DSL refinement
@@ -705,28 +703,28 @@ Our implementation will apply dynamic programming principles across multiple pro
 
 The implementation will encompass multiple optimization domains:
 
-1. **Pattern Matching Optimization**:
+1. Pattern Matching Optimization:
 
    - Efficient substring matching algorithms
    - Edit distance calculation for fuzzy matching
    - Optimal substructure identification
    - Memoization for repeated pattern analysis
 
-2. **Computational Resource Management**:
+2. Computational Resource Management:
 
    - Processing pipeline optimization
    - Memory usage minimization
    - Incremental update capabilities
    - Result caching and reuse
 
-3. **Algorithm Selection and Tuning**:
+3. Algorithm Selection and Tuning:
 
    - Adaptive algorithm selection based on input characteristics
    - Parameter optimization for specific UI styles
    - Performance profiling and bottleneck identification
    - Strategy switching for different processing phases
 
-4. **Pattern Variation Handling**:
+4. Pattern Variation Handling:
 
    - Flexible matching for style variations
    - Approximate pattern recognition
@@ -737,28 +735,28 @@ The implementation will encompass multiple optimization domains:
 
 The system will incorporate multiple dynamic programming algorithms:
 
-1. **Needleman-Wunsch Algorithm**:
+1. Needleman-Wunsch Algorithm:
 
    - Global alignment of pattern templates
    - Scoring system for character matches and gaps
    - Optimal alignment path calculation
    - Application to component pattern matching
 
-2. **Smith-Waterman Algorithm**:
+2. Smith-Waterman Algorithm:
 
    - Local alignment for partial pattern matching
    - Scoring optimized for UI element characteristics
    - Detection of component fragments
    - Handling of interrupted patterns
 
-3. **Levenshtein Distance Calculation**:
+3. Levenshtein Distance Calculation:
 
    - Edit distance metrics for pattern similarity
    - Fuzzy matching of component templates
    - Tolerance for minor variations and errors
    - Threshold-based pattern classification
 
-4. **Longest Common Subsequence**:
+4. Longest Common Subsequence:
 
    - Identification of shared patterns across components
    - Template extraction from multiple examples
@@ -769,28 +767,28 @@ The system will incorporate multiple dynamic programming algorithms:
 
 The implementation will utilize advanced optimization methods:
 
-1. **Memoization and Tabulation**:
+1. Memoization and Tabulation:
 
    - Result caching for repeated subproblems
    - Tabular computation for efficient lookups
    - Sparse representation for memory efficiency
    - Selective computation for relevant subproblems
 
-2. **Problem Decomposition**:
+2. Problem Decomposition:
 
    - Breaking complex patterns into manageable subproblems
    - Divide-and-conquer approach for large UIs
    - Parallel processing of independent regions
    - Hierarchical problem structure exploitation
 
-3. **Incremental Processing**:
+3. Incremental Processing:
 
    - Partial result reuse after minor changes
    - Differential update for modified regions
    - Change impact analysis and propagation
    - Selective recomputation strategies
 
-4. **Approximate Computing**:
+4. Approximate Computing:
 
    - Early termination for clear matches
    - Progressive refinement for ambiguous cases
@@ -801,21 +799,21 @@ The implementation will utilize advanced optimization methods:
 
 The system will maintain an optimized pattern library:
 
-1. **Pattern Encoding**:
+1. Pattern Encoding:
 
    - Efficient representation of component templates
    - Feature vector compression
    - Indexed storage for fast retrieval
    - Hierarchical pattern organization
 
-2. **Template Matching Process**:
+2. Template Matching Process:
 
    - Multi-scale template scanning
    - Rotation and reflection invariant matching
    - Partial and approximate matching
    - Confidence scoring for match quality
 
-3. **Pattern Generalization**:
+3. Pattern Generalization:
 
    - Extraction of common patterns from examples
    - Abstraction of variable elements
@@ -826,28 +824,28 @@ The system will maintain an optimized pattern library:
 
 Dynamic programming optimizations will be applied across the entire processing pipeline:
 
-1. **Flood Fill Optimization**:
+1. Flood Fill Optimization:
 
    - Efficient boundary tracing algorithms
    - Optimized region exploration
    - Memory-efficient visited tracking
    - Incremental boundary updating
 
-2. **Connected Component Analysis Enhancement**:
+2. Connected Component Analysis Enhancement:
 
    - Efficient component merging and splitting
    - Optimized relationship computation
    - Incremental component updating
    - Selective reprocessing after changes
 
-3. **Hierarchical Clustering Acceleration**:
+3. Hierarchical Clustering Acceleration:
 
    - Efficient distance matrix computation
    - Optimized dendrogram construction
    - Incremental hierarchy updates
    - Selective reclustering strategies
 
-4. **Decision Tree Optimization**:
+4. Decision Tree Optimization:
 
    - Efficient feature computation
    - Optimized decision path evaluation
@@ -858,21 +856,21 @@ Dynamic programming optimizations will be applied across the entire processing p
 
 The system will include comprehensive performance management:
 
-1. **Runtime Profiling**:
+1. Runtime Profiling:
 
    - Algorithm performance measurement
    - Resource usage tracking
    - Bottleneck identification
    - Processing time prediction
 
-2. **Adaptive Strategy Selection**:
+2. Adaptive Strategy Selection:
 
    - Input-based algorithm selection
    - Resource-aware processing strategies
    - Precision-performance tradeoff management
    - Dynamic parameter adjustment
 
-3. **Scale-Based Optimization**:
+3. Scale-Based Optimization:
 
    - UI size-dependent strategy selection
    - Complexity-based resource allocation
@@ -885,11 +883,11 @@ The system will include comprehensive performance management:
 
 The Flood Fill algorithm operates on a discrete 2D grid $G$ of dimensions $m \times n$ where each cell contains a character.
 
-**Input**: A grid $G$, a starting point $(x_0, y_0)$, and a set of boundary characters $B$.
+Input: A grid $G$, a starting point $(x_0, y_0)$, and a set of boundary characters $B$.
 
-**Definition**: Let $V(x,y)$ be the visitation state of cell $(x,y)$, where: $V(x,y) = \begin{cases} 1 & \text{if cell has been visited} \ 0 & \text{otherwise} \end{cases}$
+Definition: Let $V(x,y)$ be the visitation state of cell $(x,y)$, where: $V(x,y) = \begin{cases} 1 & \text{if cell has been visited} \ 0 & \text{otherwise} \end{cases}$
 
-**Algorithm**:
+Algorithm:
 
 1. Initialize queue $Q = {(x_0, y_0)}$, visited set $V$ with $V(x_0, y_0) = 1$
 2. Initialize interior region $I = {(x_0, y_0)}$ and boundary region $B = \emptyset$
@@ -968,11 +966,11 @@ $F_i = [f_1^i, f_2^i, ..., f_k^i]$
 
 Feature extraction includes:
 
-1. **Aspect Ratio**: $f_{aspect}^i = \frac{width_i}{height_i}$
-2. **Border Density**: $f_{border}^i = \frac{|B_i|}{2 \times (width_i + height_i)}$
-3. **Content Density**: $f_{content}^i = \frac{|I_i|}{width_i \times height_i}$
-4. **Character Distribution**: For each character type $c$, the frequency is: $f_c^i = \frac{|{(x,y) \in I_i | G(x,y) = c}|}{|I_i|}$
-5. **Corner Detection**: Corner score based on the presence of corner characters: $f_{corner}^i = \frac{|{(x,y) \in B_i | G(x,y) \in \text{corner_chars}}|}{4}$
+1. Aspect Ratio: $f_{aspect}^i = \frac{width_i}{height_i}$
+2. Border Density: $f_{border}^i = \frac{|B_i|}{2 \times (width_i + height_i)}$
+3. Content Density: $f_{content}^i = \frac{|I_i|}{width_i \times height_i}$
+4. Character Distribution: For each character type $c$, the frequency is: $f_c^i = \frac{|{(x,y) \in I_i | G(x,y) = c}|}{|I_i|}$
+5. Corner Detection: Corner score based on the presence of corner characters: $f_{corner}^i = \frac{|{(x,y) \in B_i | G(x,y) \in \text{corner_chars}}|}{4}$
 
 Components are grouped based on spatial proximity and feature similarity:
 
@@ -1042,9 +1040,9 @@ def connected_component_analysis(components, grid):
 
             # Weighted Euclidean distance between numeric features
             feature_distance = np.sqrt(
-                0.3 * (f_i['aspect_ratio'] - f_j['aspect_ratio'])**2 +
-                0.4 * (f_i['border_density'] - f_j['border_density'])**2 +
-                0.3 * (f_i['content_density'] - f_j['content_density'])**2
+                0.3 * (f_i['aspect_ratio'] - f_j['aspect_ratio'])2 +
+                0.4 * (f_i['border_density'] - f_j['border_density'])2 +
+                0.3 * (f_i['content_density'] - f_j['content_density'])2
             )
 
             # Spatial distance between components
@@ -1217,14 +1215,14 @@ The decision tree is constructed using the information gain criterion:
 
 For specialized UI features, we define:
 
-1. **Border Type Feature**: $f_{border_type}(C) = \begin{cases} 1 & \text{if single-line border} \ 2 & \text{if double-line border} \ 3 & \text{if heavy-line border} \ 4 & \text{if rounded border} \ 0 & \text{otherwise} \end{cases}$
-2. **Button Detection Feature**: $f_{button}(C) = \begin{cases} 1 & \text{if matches button pattern} \ 0 & \text{otherwise} \end{cases}$ where button pattern is defined by:
+1. Border Type Feature: $f_{border_type}(C) = \begin{cases} 1 & \text{if single-line border} \ 2 & \text{if double-line border} \ 3 & \text{if heavy-line border} \ 4 & \text{if rounded border} \ 0 & \text{otherwise} \end{cases}$
+2. Button Detection Feature: $f_{button}(C) = \begin{cases} 1 & \text{if matches button pattern} \ 0 & \text{otherwise} \end{cases}$ where button pattern is defined by:
 
    - Text surrounded by brackets: [Text]
    - Text surrounded by border characters
    - Small width-to-height ratio component
 
-3. **Content Type Feature**: Based on character distribution: $f_{content_type}(C) = \arg\max_{t \in Types} p(t|C_{chars})$ where $p(t|C_{chars})$ is calculated using Bayes' theorem.
+3. Content Type Feature: Based on character distribution: $f_{content_type}(C) = \arg\max_{t \in Types} p(t|C_{chars})$ where $p(t|C_{chars})$ is calculated using Bayes' theorem.
 
 ### NumPy Implementation
 

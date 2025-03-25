@@ -6,7 +6,7 @@ class ConfigurationManager:
         """Load configuration from a file."""
         import json
 
-        with open(config_path, "r") as f:
+        with open(config_path) as f:
             config_data = json.load(f)
 
         self.config.update(config_data)

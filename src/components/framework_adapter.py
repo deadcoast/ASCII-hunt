@@ -54,13 +54,13 @@ class FrameworkAdapter:
         """Register property mappers for the framework."""
         self.property_mappers = {
             "Window": {
-                "modal": lambda v: f"window.transient(parent)" if v else "",
+                "modal": lambda v: "window.transient(parent)" if v else "",
             },
             "Button": {
                 "enabled": lambda v: (
-                    f"button['state'] = tk.NORMAL"
+                    "button['state'] = tk.NORMAL"
                     if v
-                    else f"button['state'] = tk.DISABLED"
+                    else "button['state'] = tk.DISABLED"
                 ),
             },
             "Label": {
@@ -71,11 +71,11 @@ class FrameworkAdapter:
             },
             "Checkbox": {
                 "checked": lambda v: (
-                    f"checkbox.select()" if v else f"checkbox.deselect()"
+                    "checkbox.select()" if v else "checkbox.deselect()"
                 ),
             },
             "RadioButton": {
-                "selected": lambda v: f"radio.select()" if v else f"radio.deselect()",
+                "selected": lambda v: "radio.select()" if v else "radio.deselect()",
             },
             "TextArea": {
                 "value": lambda v: f"text_area.insert(1.0, '{v}')",
@@ -155,7 +155,7 @@ class FrameworkAdapter:
 
         # Register property mappers
         adapter.register_property_mapper(
-            "Window", "modal", lambda v: f"window.transient(parent)" if v else ""
+            "Window", "modal", lambda v: "window.transient(parent)" if v else ""
         )
 
         return adapter
@@ -244,15 +244,13 @@ class FrameworkAdapter:
         adapter.register_property_mapper(
             "Window",
             "modal",
-            lambda v: f"window.transient(parent)" if v else "",
+            lambda v: "window.transient(parent)" if v else "",
         )
         adapter.register_property_mapper(
             "Button",
             "enabled",
             lambda v: (
-                f"button['state'] = tk.NORMAL"
-                if v
-                else f"button['state'] = tk.DISABLED"
+                "button['state'] = tk.NORMAL" if v else "button['state'] = tk.DISABLED"
             ),
         )
 

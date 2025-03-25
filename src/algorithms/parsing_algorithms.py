@@ -3,6 +3,47 @@
 import numpy as np
 
 
+class DistanceCalculator:
+    """A class that calculates distances between components."""
+
+    def __init__(self):
+        """Initialize the DistanceCalculator class."""
+        pass
+
+    def calculate_distance_matrix(self, features):
+        """
+        Calculate the distance matrix between components based on their features.
+
+        Parameters
+        ----------
+        features : list
+            List of feature vectors for components
+
+        Returns
+        -------
+        numpy.ndarray
+            The distance matrix between components
+        """
+        n = len(features)
+        distance_matrix = np.zeros((n, n))
+
+        for i in range(n):
+            for j in range(i + 1, n):
+                # Calculate Euclidean distance between feature vectors
+                distance = np.sqrt(
+                    np.sum(
+                        (
+                            np.array(list(features[i].values()))
+                            - np.array(list(features[j].values()))
+                        )
+                        ** 2
+                    )
+                )
+                distance_matrix[i, j] = distance_matrix[j, i] = distance
+
+        return distance_matrix
+
+
 def needleman_wunsch(seq1, seq2, match_score=2, mismatch_penalty=-1, gap_penalty=-2):
     """
     Implements the Needleman-Wunsch algorithm for global sequence alignment.

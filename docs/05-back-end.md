@@ -1,9 +1,3 @@
-<userStyle>Claude aims to write in a clear, polished way that works well for business settings.
-Claude structures its answers carefully, with clear sections and logical flow. It gets to the point quickly while giving enough detail to fully answer the question.
-Claude uses a formal but clear tone, avoiding casual language and slang. It writes in a way that would be appropriate for sharing with colleagues and stakeholders.
-Claude balances being thorough with being efficient. It includes important context and details while leaving out unnecessary information that might distract from the main points.
-Claude writes prose and in full sentences, especially for reports, documents, explanations, and question answering. Claude can use bullet points or lists only if the human asks specifically for a list, or if it makes sense for the specific task that the human is asking about.</userStyle>
-
 # 5. Back End - Comprehensive Implementation Plan
 
 ## 5.1 System Architecture Overview
@@ -14,35 +8,35 @@ The back end of the ASCII UI Translation Framework will employ an advanced, high
 
 The back end architecture will adhere to the following principles:
 
-1. **Pipeline Architecture**: The system will implement a sophisticated data processing pipeline that transforms raw ASCII input through multiple processing stages into a final code output, with each stage building upon the results of previous stages.
+1. Pipeline Architecture: The system will implement a sophisticated data processing pipeline that transforms raw ASCII input through multiple processing stages into a final code output, with each stage building upon the results of previous stages.
 
-2. **Microkernel Design**: The core system will provide minimal essential functionality, with specialized modules plugging into well-defined extension points, enabling both maintainability and extensive customization.
+2. Microkernel Design: The core system will provide minimal essential functionality, with specialized modules plugging into well-defined extension points, enabling both maintainability and extensive customization.
 
-3. **Domain-Driven Design**: The system will model the problem domain explicitly, with clear boundaries between different contexts (grid analysis, component recognition, hierarchical modeling, code generation).
+3. Domain-Driven Design: The system will model the problem domain explicitly, with clear boundaries between different contexts (grid analysis, component recognition, hierarchical modeling, code generation).
 
-4. **Reactive Processing**: The system will implement reactive data flow patterns to efficiently propagate changes through the processing pipeline, enabling incremental updates and real-time feedback.
+4. Reactive Processing: The system will implement reactive data flow patterns to efficiently propagate changes through the processing pipeline, enabling incremental updates and real-time feedback.
 
-5. **Immutable Data Structures**: Where appropriate, the system will use immutable data structures to simplify concurrency, enable efficient caching, and support transactional operations.
+5. Immutable Data Structures: Where appropriate, the system will use immutable data structures to simplify concurrency, enable efficient caching, and support transactional operations.
 
 ### High-Level System Components
 
 The back end system will comprise the following major components:
 
-1. **Data Processing Core**: Manages the flow of data through the processing pipeline, orchestrating the various analysis and transformation steps.
+1. Data Processing Core: Manages the flow of data through the processing pipeline, orchestrating the various analysis and transformation steps.
 
-2. **Grid Analysis Subsystem**: Processes the raw ASCII grid to identify spatial structures, boundaries, and content regions.
+2. Grid Analysis Subsystem: Processes the raw ASCII grid to identify spatial structures, boundaries, and content regions.
 
-3. **Component Recognition Engine**: Analyzes grid structures to recognize UI components and their properties.
+3. Component Recognition Engine: Analyzes grid structures to recognize UI components and their properties.
 
-4. **Hierarchical Modeling System**: Establishes parent-child relationships and builds the component hierarchy.
+4. Hierarchical Modeling System: Establishes parent-child relationships and builds the component hierarchy.
 
-5. **Code Generation Framework**: Transforms the component model into framework-specific code.
+5. Code Generation Framework: Transforms the component model into framework-specific code.
 
-6. **Extension Management System**: Provides mechanisms for extending and customizing system behavior.
+6. Extension Management System: Provides mechanisms for extending and customizing system behavior.
 
-7. **Persistence Layer**: Manages saving and loading of projects, including both raw ASCII data and recognized component models.
+7. Persistence Layer: Manages saving and loading of projects, including both raw ASCII data and recognized component models.
 
-8. **Performance Optimization Subsystem**: Monitors and optimizes system performance during processing.
+8. Performance Optimization Subsystem: Monitors and optimizes system performance during processing.
 
 ## 5.2 Data Stack Architecture
 
@@ -2132,7 +2126,7 @@ class ExtensionPoint:
         """Get an extension by plugin name."""
         return self.extensions.get(plugin_name)
 
-    def invoke(self, method_name, *args, **kwargs):
+    def invoke(self, method_name, *args, kwargs):
         """Invoke a method on all extensions."""
         results = {}
 
@@ -2140,7 +2134,7 @@ class ExtensionPoint:
             if hasattr(extension, method_name):
                 method = getattr(extension, method_name)
                 try:
-                    results[plugin_name] = method(*args, **kwargs)
+                    results[plugin_name] = method(*args, kwargs)
                 except Exception as e:
                     # Log error and continue
                     print(f"Error invoking {method_name} on extension {plugin_name}: {str(e)}")

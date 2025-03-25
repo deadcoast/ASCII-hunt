@@ -1,7 +1,5 @@
 """Cache Manager Module."""
 
-from collections import OrderedDict
-
 
 class CacheManager:
     def __init__(self, max_size=100):

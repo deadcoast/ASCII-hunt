@@ -1,0 +1,22 @@
+TabbedContent {
+    layout: vertical;
+    height: auto;
+    width: auto;
+}
+
+TabbedContent > Tabs {
+    dock: top;
+    width: 100%;
+    height: auto;
+}
+
+TabbedContent > ContentSwitcher {
+    width: 100%;
+    height: 1fr;
+}
+
+TabPane {
+    width: 100%;
+    height: 100%;
+    padding: 1;
+} 

@@ -8,21 +8,21 @@ The front end for the ASCII UI Translation Framework will serve as the interface
 
 The front end will implement a Model-View-Controller (MVC) architecture to maintain separation of concerns:
 
-1. **Model**: Manages data, state, and business logic
+1. Model: Manages data, state, and business logic
 
    - ASCII grid representation
    - Component recognition results
    - Generated code storage
    - Application state management
 
-2. **View**: User interface components
+2. View: User interface components
 
    - ASCII editor interface
    - Component visualization overlays
    - Property inspector panels
    - Code preview windows
 
-3. **Controller**: Mediates between Model and View
+3. Controller: Mediates between Model and View
    - User input handling
    - Command processing
    - Backend communication
@@ -32,28 +32,28 @@ The front end will implement a Model-View-Controller (MVC) architecture to maint
 
 The UI will be organized into modular components with clear responsibilities:
 
-1. **Main Application Window**
+1. Main Application Window
 
    - Menu system
    - Tool selection
    - Status indicators
    - Project management
 
-2. **ASCII Editor**
+2. ASCII Editor
 
    - Grid-based editing canvas
    - Character palette
    - Line drawing tools
    - Selection and manipulation tools
 
-3. **Component Inspector**
+3. Component Inspector
 
    - Property editor
    - Hierarchy viewer
    - Relationship manager
    - Validation display
 
-4. **Code Generator**
+4. Code Generator
    - Framework selection
    - Code preview
    - Output options
@@ -65,7 +65,7 @@ The UI will be organized into modular components with clear responsibilities:
 
 The application will use a multi-pane layout with resizable panels:
 
-1. **Main Menu Bar**
+1. Main Menu Bar
 
    - File operations (New, Open, Save, Export)
    - Edit functions (Undo, Redo, Copy, Paste)
@@ -73,31 +73,31 @@ The application will use a multi-pane layout with resizable panels:
    - Tools (Recognition, Code Generation, Settings)
    - Help (Documentation, About)
 
-2. **Toolbar Area**
+2. Toolbar Area
 
    - Quick access tools
    - Mode selection (Edit, Recognize, Generate)
    - Common operations
 
-3. **Main Work Area** (central, expandable)
+3. Main Work Area (central, expandable)
 
    - ASCII editor canvas with ruler guides
    - Component visualization overlays
    - Grid display with line numbers
 
-4. **Property Panel** (right sidebar)
+4. Property Panel (right sidebar)
 
    - Component properties editor
    - Validation results
    - Recognition confidence display
 
-5. **Project Explorer** (left sidebar)
+5. Project Explorer (left sidebar)
 
    - File browser
    - Component hierarchy
    - Template library
 
-6. **Output Panel** (bottom)
+6. Output Panel (bottom)
    - Generated code preview
    - Log messages
    - Recognition status
@@ -106,28 +106,28 @@ The application will use a multi-pane layout with resizable panels:
 
 The ASCII editor will provide specialized capabilities for UI design:
 
-1. **Grid-Based Editing**
+1. Grid-Based Editing
 
    - Character-aligned cursor positioning
    - Line and box drawing tools
    - Rectangular selection and operations
    - Character insertion and deletion
 
-2. **Box Drawing Tools**
+2. Box Drawing Tools
 
    - Single-line box creation
    - Double-line box creation
    - Rounded corner box creation
    - Custom border style selection
 
-3. **Component Templates**
+3. Component Templates
 
    - Button template insertion
    - Window frame creation
    - Form controls (checkboxes, radio buttons)
    - Text input fields
 
-4. **Editing Modes**
+4. Editing Modes
    - Character mode (single character editing)
    - Box mode (drawing rectangular components)
    - Line mode (drawing connecting lines)
@@ -137,25 +137,25 @@ The ASCII editor will provide specialized capabilities for UI design:
 
 The visualization system will overlay recognition results on the ASCII grid:
 
-1. **Boundary Highlighting**
+1. Boundary Highlighting
 
    - Color-coded component boundaries
    - Selection indicators
    - Focus highlighting
 
-2. **Type Indicators**
+2. Type Indicators
 
    - Component type icons
    - Status indicators
    - Validation markers
 
-3. **Relationship Visualization**
+3. Relationship Visualization
 
    - Parent-child connections
    - Functional relationships
    - Layout relationships
 
-4. **Confidence Visualization**
+4. Confidence Visualization
    - Color gradients for recognition confidence
    - Warning indicators for ambiguous components
    - Suggestion markers for potential improvements
@@ -164,28 +164,28 @@ The visualization system will overlay recognition results on the ASCII grid:
 
 The property inspector will provide detailed control over component attributes:
 
-1. **Property Editor**
+1. Property Editor
 
    - Type-specific property fields
    - Data validation
    - Default value suggestions
    - Required property highlighting
 
-2. **Hierarchy Navigator**
+2. Hierarchy Navigator
 
    - Tree view of component hierarchy
    - Drag-and-drop reordering
    - Nested component management
    - Multi-selection operations
 
-3. **Relationship Manager**
+3. Relationship Manager
 
    - Parent-child relationship editor
    - Functional relationship creation
    - Connection visualization
    - Reference resolution
 
-4. **Template Binding**
+4. Template Binding
    - Code template association
    - Output customization
    - Framework-specific options
@@ -195,28 +195,28 @@ The property inspector will provide detailed control over component attributes:
 
 The code generation interface will provide control over output creation:
 
-1. **Framework Selector**
+1. Framework Selector
 
    - Target framework selection
    - Version specification
    - Feature toggles
    - Platform targeting
 
-2. **Code Preview**
+2. Code Preview
 
    - Syntax-highlighted code display
    - Real-time updating
    - Collapsible sections
    - Line numbers and navigation
 
-3. **Output Options**
+3. Output Options
 
    - File format selection
    - Directory structure options
    - File naming conventions
    - Include/exclude options
 
-4. **Template Customization**
+4. Template Customization
    - Template editor
    - Mapping customization
    - Style selection
@@ -264,28 +264,28 @@ The application will support the following key user workflows:
 
 The front end will be implemented using PyQt5/PySide with the following components:
 
-1. **Core Framework**
+1. Core Framework
 
    - QMainWindow for application structure
    - QDockWidget for panel management
    - QTabWidget for multi-document interface
    - QStatusBar for status information
 
-2. **ASCII Editor Widget**
+2. ASCII Editor Widget
 
    - Custom QWidget for grid-based editing
    - QPainter for rendering grid and components
    - QGraphicsView/QGraphicsScene for visualization overlays
    - Custom event handlers for specialized editing operations
 
-3. **Property Editors**
+3. Property Editors
 
    - QTreeView for hierarchical property display
    - Custom delegates for property type editing
    - QTableView for tabular property editing
    - Form layouts for structured property groups
 
-4. **Code Preview**
+4. Code Preview
    - QTextEdit with syntax highlighting
    - Custom QSyntaxHighlighter for code coloring
    - Code folding integration
@@ -295,7 +295,7 @@ The front end will be implemented using PyQt5/PySide with the following componen
 
 Several specialized widgets will be developed:
 
-1. **ASCIIGridWidget**
+1. ASCIIGridWidget
 
    ```python
    class ASCIIGridWidget(QWidget):
@@ -338,7 +338,7 @@ Several specialized widgets will be developed:
            pass
    ```
 
-2. **ComponentOverlayManager**
+2. ComponentOverlayManager
 
    ```python
    class ComponentOverlayManager:
@@ -370,7 +370,8 @@ Several specialized widgets will be developed:
            pass
    ```
 
-3. **PropertyEditorWidget**
+3. PropertyEditorWidget
+
    ```python
    class PropertyEditorWidget(QWidget):
        def __init__(self, parent=None):
@@ -420,7 +421,7 @@ Several specialized widgets will be developed:
 
 The front end will communicate with the backend through a clean API:
 
-1. **BackendManager**
+1. BackendManager
 
    ```python
    class BackendManager:
@@ -460,10 +461,11 @@ The front end will communicate with the backend through a clean API:
        def generate_code(self, components, framework, options):
            """Generate code for the given components."""
            return self.code_generator.generate(components, framework, options)
-   ```
+```
 
-2. **Application Controller**
-   ```python
+2. Application Controller
+
+```python
    class ApplicationController:
        def __init__(self, main_window):
            self.main_window = main_window
@@ -513,28 +515,28 @@ The front end will communicate with the backend through a clean API:
 
 The application state will be managed using a hierarchical model:
 
-1. **Project State**
+1. Project State
 
    - ASCII grid content
    - File path and metadata
    - Modification status
    - Project settings
 
-2. **Recognition State**
+2. Recognition State
 
    - Component hierarchy
    - Recognition results
    - Validation status
    - Error and warning indicators
 
-3. **UI State**
+3. UI State
 
    - Current tool selection
    - Editing mode
    - Selected components
    - View settings (zoom, visibility)
 
-4. **Generation State**
+4. Generation State
    - Target framework
    - Output settings
    - Template configuration
@@ -544,7 +546,7 @@ The application state will be managed using a hierarchical model:
 
 The application will implement a unidirectional data flow:
 
-1. **User Actions** → **Controller Methods** → **State Updates** → **View Updates**
+1. User Actions → Controller Methods → State Updates → View Updates
 
 2. Key state transitions:
 
@@ -562,21 +564,21 @@ The application will implement a unidirectional data flow:
 
 The front end will integrate with the backend at several points:
 
-1. **Recognition Pipeline**
+1. Recognition Pipeline
 
    - Grid data is sent to backend for processing
    - Recognition results are returned as component structures
    - Results are visualized in the UI with confidence indicators
    - User can adjust and refine results
 
-2. **Code Generation**
+2. Code Generation
 
    - Component hierarchy is sent to backend generator
    - Template and framework selections are specified
    - Generated code is returned for preview
    - Output options determine final export format
 
-3. **Project Management**
+3. Project Management
    - Project files store both ASCII content and recognition results
    - Import/export capabilities for different formats
    - Version tracking for iterative development
@@ -588,21 +590,21 @@ The front end will integrate with the backend at several points:
 
 The application will include accessibility enhancements:
 
-1. **Keyboard Navigation**
+1. Keyboard Navigation
 
    - Full keyboard control of all functions
    - Customizable keyboard shortcuts
    - Focus indicators and navigation patterns
    - Command palette for quick access
 
-2. **Screen Reader Support**
+2. Screen Reader Support
 
    - Proper labeling of all UI elements
    - Meaningful descriptions of visual components
    - Status announcements for operations
    - Alternative text for visualization elements
 
-3. **Visual Adjustments**
+3. Visual Adjustments
    - Configurable color schemes
    - High-contrast mode
    - Font size and style customization
@@ -612,21 +614,21 @@ The application will include accessibility enhancements:
 
 The interface will incorporate usability best practices:
 
-1. **Contextual Help**
+1. Contextual Help
 
    - Tooltips for controls and features
    - Status bar hints for current operations
    - Inline documentation for properties
    - Interactive tutorials for key workflows
 
-2. **Progressive Disclosure**
+2. Progressive Disclosure
 
    - Basic features prominently available
    - Advanced options in expandable sections
    - Configurable interface complexity
    - Task-oriented view configurations
 
-3. **Error Prevention**
+3. Error Prevention
    - Validation during input
    - Preview of operations before execution
    - Undo/redo for all actions
@@ -636,21 +638,21 @@ The interface will incorporate usability best practices:
 
 The UI will be optimized for responsiveness:
 
-1. **Asynchronous Processing**
+1. Asynchronous Processing
 
    - Long-running operations execute in background threads
    - Progress indicators for extended processes
    - UI remains responsive during processing
    - Cancellation options for operations
 
-2. **Rendering Optimizations**
+2. Rendering Optimizations
 
    - Efficient drawing algorithms for grid display
    - Layer-based rendering for overlays
    - Viewport culling for large grids
    - Hardware acceleration where available
 
-3. **Lazy Loading**
+3. Lazy Loading
    - On-demand loading of resources
    - Partial processing of large files
    - Incremental updates of views
@@ -662,21 +664,21 @@ The front end implementation will follow a phased approach:
 
 ### Phase 1: Core Infrastructure (Weeks 1-3)
 
-1. **Basic Application Framework**
+1. Basic Application Framework
 
    - Main window and panel layout
    - Menu structure and event handling
    - Settings infrastructure
    - File operations
 
-2. **ASCII Grid Editor**
+2. ASCII Grid Editor
 
    - Basic grid rendering
    - Character input and editing
    - Selection and cursor handling
    - Copy/paste operations
 
-3. **Backend Integration**
+3. Backend Integration
    - API definition
    - Data conversion utilities
    - Process execution management
@@ -684,21 +686,21 @@ The front end implementation will follow a phased approach:
 
 ### Phase 2: Component Visualization (Weeks 4-6)
 
-1. **Component Overlay System**
+1. Component Overlay System
 
    - Boundary visualization
    - Type indicators
    - Selection highlighting
    - Z-order management
 
-2. **Property Inspector**
+2. Property Inspector
 
    - Property display
    - Value editing
    - Type-specific editors
    - Validation display
 
-3. **Hierarchy Navigator**
+3. Hierarchy Navigator
    - Tree view implementation
    - Drag-and-drop reordering
    - Selection synchronization
@@ -706,21 +708,21 @@ The front end implementation will follow a phased approach:
 
 ### Phase 3: Advanced Editing Tools (Weeks 7-9)
 
-1. **Specialized UI Drawing Tools**
+1. Specialized UI Drawing Tools
 
    - Box drawing tools
    - Line drawing aids
    - Component templates
    - Smart positioning guides
 
-2. **Interactive Recognition**
+2. Interactive Recognition
 
    - Recognition triggering
    - Result visualization
    - Confidence indicators
    - Manual adjustment tools
 
-3. **Relationship Management**
+3. Relationship Management
    - Relationship visualization
    - Connection creation tools
    - Containment editing
@@ -728,21 +730,21 @@ The front end implementation will follow a phased approach:
 
 ### Phase 4: Code Generation Interface (Weeks 10-12)
 
-1. **Framework Selection System**
+1. Framework Selection System
 
    - Framework catalog
    - Version management
    - Feature toggles
    - Platform targeting
 
-2. **Code Preview**
+2. Code Preview
 
    - Syntax highlighting
    - Real-time preview
    - Collapsible sections
    - Line number display
 
-3. **Output Management**
+3. Output Management
    - File export options
    - Directory structure configuration
    - Template customization
@@ -750,21 +752,21 @@ The front end implementation will follow a phased approach:
 
 ### Phase 5: Polish and Integration (Weeks 13-15)
 
-1. **Performance Optimization**
+1. Performance Optimization
 
    - Profiling and bottleneck identification
    - Rendering optimizations
    - Memory usage improvements
    - Responsive UI enhancements
 
-2. **Usability Refinement**
+2. Usability Refinement
 
    - User testing feedback integration
    - Workflow streamlining
    - Documentation completion
    - Contextual help system
 
-3. **Final Integration and Testing**
+3. Final Integration and Testing
    - End-to-end workflow testing
    - Error handling verification
    - Cross-platform validation
@@ -776,21 +778,21 @@ The front end will undergo comprehensive testing:
 
 ### Unit Testing
 
-1. **Widget Tests**
+1. Widget Tests
 
    - Individual widget functionality
    - Event handling
    - State management
    - Rendering accuracy
 
-2. **Model Tests**
+2. Model Tests
 
    - Data structure integrity
    - State transition correctness
    - Validation logic
    - Persistence operations
 
-3. **Controller Tests**
+3. Controller Tests
    - Command execution
    - Error handling
    - Event propagation
@@ -798,21 +800,21 @@ The front end will undergo comprehensive testing:
 
 ### Integration Testing
 
-1. **Workflow Tests**
+1. Workflow Tests
 
    - Complete user scenarios
    - Multi-step operations
    - State persistence between operations
    - Recovery from interruptions
 
-2. **Backend Integration Tests**
+2. Backend Integration Tests
 
    - Data transformation accuracy
    - Error propagation
    - Performance under load
    - Resource management
 
-3. **User Interface Integration Tests**
+3. User Interface Integration Tests
    - Component interactions
    - Focus and navigation flow
    - Accessibility compliance
@@ -820,21 +822,21 @@ The front end will undergo comprehensive testing:
 
 ### User Experience Testing
 
-1. **Usability Studies**
+1. Usability Studies
 
    - Task completion analysis
    - Time-on-task measurements
    - Error frequency tracking
    - User satisfaction surveys
 
-2. **Accessibility Evaluation**
+2. Accessibility Evaluation
 
    - Screen reader compatibility
    - Keyboard navigation completeness
    - Color contrast compliance
    - Input method flexibility
 
-3. **Performance Benchmarking**
+3. Performance Benchmarking
    - Startup time
    - Operation responsiveness
    - Memory usage
@@ -846,21 +848,21 @@ The front end will support various extension points:
 
 ### Plugin Architecture
 
-1. **UI Extension Points**
+1. UI Extension Points
 
    - Custom tool integrations
    - Panel additions
    - Menu extensions
    - Visualization overlays
 
-2. **Editor Extensions**
+2. Editor Extensions
 
    - Custom drawing tools
    - Specialized editing modes
    - Grid transformations
    - Import/export formats
 
-3. **Recognition Enhancements**
+3. Recognition Enhancements
    - Custom component detectors
    - Specialized visualizations
    - Property extractors
@@ -868,21 +870,21 @@ The front end will support various extension points:
 
 ### Theming System
 
-1. **Visual Theming**
+1. Visual Theming
 
    - Color scheme customization
    - Icon set selection
    - Font configuration
    - Control styling
 
-2. **Layout Customization**
+2. Layout Customization
 
    - Panel arrangement
    - Tool placement
    - Workspace configuration
    - Visibility toggles
 
-3. **Behavior Preferences**
+3. Behavior Preferences
    - Interaction modes
    - Default settings
    - Keyboard shortcuts
@@ -890,21 +892,21 @@ The front end will support various extension points:
 
 ### User Profile Management
 
-1. **User Preferences**
+1. User Preferences
 
    - Interface configuration
    - Default settings
    - Recent projects
    - Tool presets
 
-2. **Workspace Management**
+2. Workspace Management
 
    - Layout saving and loading
    - Context-specific arrangements
    - Multi-monitor support
    - Task-oriented configurations
 
-3. **Template Libraries**
+3. Template Libraries
    - User-defined components
    - Project templates
    - Code snippets
@@ -916,21 +918,21 @@ The front end will include comprehensive documentation:
 
 ### In-Application Help
 
-1. **Contextual Help**
+1. Contextual Help
 
    - Tool-specific guidance
    - Property descriptions
    - Error resolution suggestions
    - Keyboard shortcut reference
 
-2. **Interactive Tutorials**
+2. Interactive Tutorials
 
    - Guided workflows
    - Feature discovery
    - Skill-building exercises
    - Best practice demonstrations
 
-3. **Reference Documentation**
+3. Reference Documentation
    - Component type catalog
    - Property reference
    - Framework capability guide
@@ -938,21 +940,21 @@ The front end will include comprehensive documentation:
 
 ### External Documentation
 
-1. **User Manual**
+1. User Manual
 
    - Complete feature documentation
    - Workflow guides
    - Troubleshooting information
    - Configuration reference
 
-2. **Developer Guide**
+2. Developer Guide
 
    - API documentation
    - Extension development
    - Integration guidelines
    - Custom template creation
 
-3. **Example Gallery**
+3. Example Gallery
    - Sample projects
    - Case studies
    - Design patterns

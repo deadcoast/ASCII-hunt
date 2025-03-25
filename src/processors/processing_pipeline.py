@@ -58,10 +58,10 @@ class ProcessingPipeline:
                         current_data = handled_data
                     else:
                         # Cannot continue pipeline
-                        raise PipelineError(f"Error in stage {stage_name}: {str(e)}")
+                        raise PipelineError(f"Error in stage {stage_name}: {e!s}")
                 else:
                     # No handler, propagate error
-                    raise PipelineError(f"Error in stage {stage_name}: {str(e)}")
+                    raise PipelineError(f"Error in stage {stage_name}: {e!s}")
 
         # Return the final result and all stage results
         return current_data, stage_results
@@ -112,12 +112,12 @@ class ProcessingPipeline:
                         else:
                             # Cannot continue incremental update
                             raise PipelineError(
-                                f"Error in incremental update for stage {stage_name}: {str(e)}"
+                                f"Error in incremental update for stage {stage_name}: {e!s}"
                             )
                     else:
                         # No handler, propagate error
                         raise PipelineError(
-                            f"Error in incremental update for stage {stage_name}: {str(e)}"
+                            f"Error in incremental update for stage {stage_name}: {e!s}"
                         )
             else:
                 # Processor doesn't support incremental updates, need to reprocess
@@ -166,13 +166,11 @@ class ProcessingPipeline:
                             else:
                                 # Cannot continue pipeline
                                 raise PipelineError(
-                                    f"Error in stage {stage_name}: {str(e)}"
+                                    f"Error in stage {stage_name}: {e!s}"
                                 )
                         else:
                             # No handler, propagate error
-                            raise PipelineError(
-                                f"Error in stage {stage_name}: {str(e)}"
-                            )
+                            raise PipelineError(f"Error in stage {stage_name}: {e!s}")
                 else:
                     # No full data available, cannot continue
                     raise PipelineError(

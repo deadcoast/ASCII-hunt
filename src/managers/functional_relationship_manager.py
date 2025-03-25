@@ -1,7 +1,5 @@
 """Functional Relationship Manager Module."""
 
-from components.component_model import ComponentModel
-
 
 class FunctionalRelationshipPattern:
     def __init__(self, pattern_id, description, apply_function):

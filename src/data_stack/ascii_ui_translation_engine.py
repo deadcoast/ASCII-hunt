@@ -164,7 +164,7 @@ class ASCIIUITranslationEngine:
                 plugin_name = self.plugin_manager.load_plugin_from_file(plugin_file)
                 loaded_plugins.append(plugin_name)
             except Exception as e:
-                print(f"Error loading plugin {plugin_file}: {str(e)}")
+                print(f"Error loading plugin {plugin_file}: {e!s}")
 
         return loaded_plugins
 

@@ -48,7 +48,7 @@ class HuntRecognitionProcessor:
 
     def load_hunt_pattern_file(self, file_path):
         """Load HUNT patterns from a file."""
-        with open(file_path, "r") as f:
+        with open(file_path) as f:
             hunt_code = f.read()
 
         return self.interpreter.interpret(hunt_code)

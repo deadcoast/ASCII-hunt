@@ -1,9 +1,6 @@
 """Command-line interface for the ASCII UI Translation Engine."""
 
-from data_stack.ascii_ui_translation_engine import (
-    ASCIIUITranslationEngine,
-    ComponentClassificationProcessor,
-)
+from data_stack.ascii_ui_translation_engine import ASCIIUITranslationEngine
 
 
 def create_cli():
@@ -107,7 +104,7 @@ def main():
             engine.load_config(args.config)
 
         # Read input file
-        with open(args.input_file, "r") as f:
+        with open(args.input_file) as f:
             ascii_text = f.read()
 
         # Process ASCII UI

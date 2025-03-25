@@ -1,5 +1,7 @@
 """Component Analysis Module."""
 
+from typing import Any
+
 import numpy as np
 
 from algorithms.hierarchical_clustering import HierarchicalClustering
@@ -23,7 +25,9 @@ class ComponentAnalyzer:
         self.clustering_algorithm = HierarchicalClustering()
         self.distance_calculator = DistanceCalculator()
 
-    def component_analysis_from_model(self, components, grid):
+    def component_analysis_from_model(
+        self, components: list[dict[str, Any]], grid: np.ndarray
+    ):
         """
         Analyze the components and return a list of feature vectors.
         """
@@ -63,7 +67,9 @@ class ComponentAnalyzer:
                     "aspect_ratio": aspect_ratio,
                     "border_density": border_density,
                     "content_density": content_density,
-                    "char_frequencies": dict(zip(unique_chars, char_frequencies)),
+                    "char_frequencies": dict(
+                        zip(unique_chars, char_frequencies, strict=False)
+                    ),
                     "bounding_box": comp["bounding_box"],
                 }
             )
@@ -86,18 +92,22 @@ class ComponentAnalyzer:
                 )
 
                 # Spatial distance between components
-                bb_i = components[i]["bounding_box"]
-                bb_j = components[j]["bounding_box"]
+                bb_i = [
+                    int(x) for x in components[i]["bounding_box"]
+                ]  # Convert to integers
+                bb_j = [
+                    int(x) for x in components[j]["bounding_box"]
+                ]  # Convert to integers
 
-                # Calculate minimum distance between bounding boxes
+                # Calculate minimum distance between bounding boxes using integer operations
                 spatial_distance = max(
                     0,
-                    max(bb_i[0], bb_j[0]) - min(bb_i[2], bb_j[2]),
-                    max(bb_i[1], bb_j[1]) - min(bb_i[3], bb_j[3]),
+                    int(max(bb_i[0], bb_j[0])) - int(min(bb_i[2], bb_j[2])),
+                    int(max(bb_i[1], bb_j[1])) - int(min(bb_i[3], bb_j[3])),
                 )
 
                 # Combined distance
-                distance_matrix[i, j] = distance_matrix[j, i] = (
+                distance_matrix[i, j] = distance_matrix[j, i] = float(
                     0.6 * feature_distance + 0.4 * spatial_distance
                 )
 
@@ -165,7 +175,9 @@ class ComponentAnalyzer:
                     "aspect_ratio": aspect_ratio,
                     "border_density": border_density,
                     "content_density": content_density,
-                    "char_frequencies": dict(zip(unique_chars, char_frequencies)),
+                    "char_frequencies": dict(
+                        zip(unique_chars, char_frequencies, strict=False)
+                    ),
                     "bounding_box": comp["bounding_box"],
                 }
             )
@@ -188,18 +200,22 @@ class ComponentAnalyzer:
                 )
 
                 # Spatial distance between components
-                bb_i = components[i]["bounding_box"]
-                bb_j = components[j]["bounding_box"]
+                bb_i = [
+                    int(x) for x in components[i]["bounding_box"]
+                ]  # Convert to integers
+                bb_j = [
+                    int(x) for x in components[j]["bounding_box"]
+                ]  # Convert to integers
 
-                # Calculate minimum distance between bounding boxes
+                # Calculate minimum distance between bounding boxes using integer operations
                 spatial_distance = max(
                     0,
-                    max(bb_i[0], bb_j[0]) - min(bb_i[2], bb_j[2]),
-                    max(bb_i[1], bb_j[1]) - min(bb_i[3], bb_j[3]),
+                    int(max(bb_i[0], bb_j[0])) - int(min(bb_i[2], bb_j[2])),
+                    int(max(bb_i[1], bb_j[1])) - int(min(bb_i[3], bb_j[3])),
                 )
 
                 # Combined distance
-                distance_matrix[i, j] = distance_matrix[j, i] = (
+                distance_matrix[i, j] = distance_matrix[j, i] = float(
                     0.6 * feature_distance + 0.4 * spatial_distance
                 )
 

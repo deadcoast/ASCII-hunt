@@ -6,10 +6,11 @@ A script to generate a comprehensive .gitignore file for Python projects with Cu
 import os
 import sys
 
-def generate_gitignore(output_path='.gitignore'):
+
+def generate_gitignore(output_path=".gitignore"):
     """
     Generate a .gitignore file with common patterns for Python projects and Cursor IDE.
-    
+
     Args:
         output_path (str): Path where the .gitignore file will be created. Default is current directory.
     """
@@ -161,14 +162,15 @@ Thumbs.db
 """
 
     try:
-        with open(output_path, 'w') as f:
+        with open(output_path, "w") as f:
             f.write(gitignore_content)
         print(f".gitignore file successfully created at {os.path.abspath(output_path)}")
     except Exception as e:
         print(f"Error creating .gitignore file: {e}", file=sys.stderr)
         return False
-    
+
     return True
+
 
 if __name__ == "__main__":
     # If a path is provided as an argument, use it; otherwise, use the default

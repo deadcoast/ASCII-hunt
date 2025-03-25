@@ -1,10 +1,10 @@
 """Code Composition Engine Module."""
 
-from components.abstract_component import AbstractComponent
+from typing import Any
 
 
 class CodeCompositionEngine:
-    def __init__(self, generator):
+    def __init__(self, generator: Any):
         """
         Initialize a CodeCompositionEngine.
 
@@ -13,40 +13,56 @@ class CodeCompositionEngine:
         """
         self.generator = generator
 
-    def compose_container_with_children(self, container, child_codes):
+    def compose_container_with_children(
+        self, container: Any, child_codes: list[str]
+    ) -> str:
         """Compose container code with its children."""
         container_type = container.type
+        container_code = ""  # Initialize container_code
 
         if container_type == "Window":
             # For windows, we add child components into the window context
             container_code = self.generator.generate_window_code(container)
             child_codes = [
-                self.generator.generate_component_code(child)
+                str(self.generator.generate_component_code(child))
                 for child in container.children
             ]
             adjusted_child_codes = [
-                self._adjust_parent(code, container_code) for code in child_codes
+                self._adjust_parent(code, container_code)
+                for code in child_codes
+                if code is not None
             ]
 
-            return f"{container_code}\n\n" + "\n".join(adjusted_child_codes)
+            return f"{container_code}\n\n" + "\n".join(
+                code for code in adjusted_child_codes if code is not None
+            )
 
         elif container_type == "Panel":
             # For panels, we need to add child components as panel children
             panel_var = self._get_variable_name(container)
+            container_code = self.generator.generate_panel_code(
+                container
+            )  # Add this line
             adjusted_child_codes = [
-                self._adjust_parent(code, panel_var) for code in child_codes
+                self._adjust_parent(code, panel_var)
+                for code in child_codes
+                if code is not None
             ]
-            return f"{container_code}\n\n" + "\n".join(adjusted_child_codes)
+            return f"{container_code}\n\n" + "\n".join(
+                code for code in adjusted_child_codes if code is not None
+            )
 
         else:
             # Handle other container types...
-            pass
+            return container_code
 
-    def _get_variable_name(self, component):
+    def _get_variable_name(self, component: Any) -> str:
         """Get the variable name used for a component."""
         return f"{component.type.lower()}_{component.id}"
 
-    def _adjust_parent(self, child_code, parent_var):
+    def _adjust_parent(self, child_code: str | None, parent_var: str) -> str | None:
         """Adjust child code to use the correct parent variable."""
+        if child_code is None:
+            return None
         # This would be framework-specific logic
-        pass
+        return child_code  # Return the child_code for now
