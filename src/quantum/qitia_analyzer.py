@@ -1,11 +1,15 @@
 import random
 from collections import defaultdict
+from typing import Any
 
 import gudhi as gd
 import networkx as nx
 import numpy as np
 from gudhi.representations import Landscape
 from sklearn.manifold import TSNE
+
+# Add type annotation to ignore gudhi type checking issues
+RipsComplex = Any  # This is a workaround for missing type stubs
 
 
 class QuantumStateVector:
@@ -62,7 +66,8 @@ class TopologicalFeatureExtractor:
 
     def build_simplicial_complex(self, distance_matrix):
         """Build a Vietoris-Rips complex from a distance matrix."""
-        rips_complex = gd.RipsComplex(distance_matrix=distance_matrix)
+        # Use type ignore to silence the error about RipsComplex not being a known member
+        rips_complex = gd.RipsComplex(distance_matrix=distance_matrix)  # type: ignore
         simplex_tree = rips_complex.create_simplex_tree(
             max_dimension=self.max_dimension
         )

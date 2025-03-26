@@ -132,7 +132,7 @@ class ComponentClassificationProcessor:
 
         for component in components:
             component_id = component.get("id")
-            if component_id in ground_truth:
+            if component_id is not None and component_id in ground_truth:
                 total += 1
                 if component.get("ui_type") == ground_truth[component_id]:
                     correct += 1

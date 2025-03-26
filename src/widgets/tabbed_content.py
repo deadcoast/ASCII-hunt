@@ -6,10 +6,13 @@ A widget that combines Tabs and ContentSwitcher to create a tabbed interface.
 from textual.message import Message
 from textual.reactive import reactive
 from textual.widget import Widget
+
+# Import the Textual widgets directly
 from textual.widgets import ContentSwitcher, Tabs
 
-from .content_switcher import ContentSwitcher
-from .tabs import Tabs
+# No need to import the same widgets again
+# from .content_switcher import ContentSwitcher
+# from .tabs import Tabs
 
 
 class TabPane(Widget):
@@ -128,5 +131,12 @@ class TabbedContent(Widget):
         if self._tabs:
             self._tabs.clear()
         if self._content:
-            self._content.clear()
+            # Check if the content switcher has a clear method
+            if hasattr(self._content, "clear"):
+                self._content.clear()
+            # Alternative fallback for Textual's ContentSwitcher
+            else:
+                # Remove all widgets from the content switcher
+                while self._content.children:
+                    self._content.remove(self._content.children[0])
         self.post_message(self.Cleared())
