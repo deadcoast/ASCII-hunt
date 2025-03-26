@@ -1,15 +1,14 @@
-from components.component_analysis import ComponentAnalyzer
-from components.component_model_representation import ComponentModel
+from components.ascii_grid_widget import AsciiGridWidget
 from components.connected_component_analysis import ConnectedComponentAnalyzer
 from dsl.parser import DSLParser
 from dsl.standard_library import DSLStandardLibrary
-from widgets.ascii_grid_widget import AsciiGridWidget
+from src.components.component_analysis import ComponentAnalyzer
+from src.components.component_model_representation import ComponentModel
 
 
 class MappingRegistry:
     def __init__(self):
-        """
-        Initialize a MappingRegistry.
+        """Initialize a MappingRegistry.
 
         The MappingRegistry manages a collection of mappings, allowing for
         registration, retrieval, and code generation using these mappings.
@@ -17,7 +16,6 @@ class MappingRegistry:
         Attributes:
         mappings (dict): A dictionary to store mappings identified by their names.
         """
-
         self.mappings = {
             "ascii_grid": AsciiGridWidget,
             "component_analysis": ComponentAnalyzer,

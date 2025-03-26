@@ -5,7 +5,7 @@ from transformers import GPT2Tokenizer, TFGPT2Model
 
 
 class NeuromorphicImportAnalyzer:
-    def __init__(self, model_path="gpt2"):
+    def __init__(self, model_path: str = "gpt2") -> None:
         self.tokenizer = GPT2Tokenizer.from_pretrained(model_path)
         self.model = TFGPT2Model.from_pretrained(model_path)
         self.synapse_graph = nx.DiGraph()
@@ -15,7 +15,9 @@ class NeuromorphicImportAnalyzer:
         self.learning_rate = 0.01
         self.plasticity = 0.5  # Hebbian learning parameter
 
-    def analyze_module(self, module_path, content=None):
+    def analyze_module(
+        self, module_path: str, content: str | None = None
+    ) -> list[dict]:
         """Analyze a module using neuromorphic-inspired methods."""
         if content is None:
             with open(module_path) as f:
@@ -79,7 +81,7 @@ class NeuromorphicImportAnalyzer:
 
         return import_network
 
-    def strengthen_connections(self, activation_pattern):
+    def strengthen_connections(self, activation_pattern: list[tuple[str, str]]) -> None:
         """Strengthen connections based on activation patterns (Hebbian learning)."""
         for source, target in activation_pattern:
             if self.synapse_graph.has_edge(source, target):
@@ -88,7 +90,9 @@ class NeuromorphicImportAnalyzer:
                 new_weight = current_weight + self.learning_rate * (1 - current_weight)
                 self.synapse_graph[source][target]["weight"] = new_weight
 
-    def predict_missing_imports(self, code_context, existing_imports=None):
+    def predict_missing_imports(
+        self, code_context: str, existing_imports: list[str] | None = None
+    ) -> list[dict]:
         """Predict necessary imports for a code context using the neuromorphic network."""
         # Get semantic embedding for the code context
         context_embedding = self._create_semantic_embedding(code_context)
@@ -313,8 +317,12 @@ class NeuromorphicImportAnalyzer:
             code_text, return_tensors="tf", max_length=512, truncation=True
         )
 
-        # Get the model's output
-        outputs = self.model(inputs)
+        # Get the model's output - unpack tuple if needed
+        if isinstance(self.model, tuple):
+            model_obj = self.model[0]  # Extract the actual model from the tuple
+            outputs = model_obj(inputs)
+        else:
+            outputs = self.model(inputs)
 
         # Use the last hidden state's mean as the embedding
         embedding = tf.reduce_mean(outputs.last_hidden_state, axis=1)

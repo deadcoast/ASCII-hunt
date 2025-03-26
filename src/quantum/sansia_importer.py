@@ -1,13 +1,24 @@
 import ast
 import json
+import os
 from collections import defaultdict
-from typing import TypeVar
+from typing import Any, TypeVar
 
 import networkx as nx
 import numpy as np
 import numpy.typing as npt
-import z3
-from tensorflow import keras
+import z3  # Import z3 module directly
+
+try:
+    from tensorflow import keras
+
+    KERAS_AVAILABLE = True
+except ImportError:
+    print(
+        "Warning: tensorflow.keras not found. Neural prediction features will be limited."
+    )
+    keras = None
+    KERAS_AVAILABLE = False
 
 # Type variables
 Component = TypeVar("Component")
@@ -17,21 +28,21 @@ Context = list[str]
 
 
 class SymbolicImportReasoner:
-    def __init__(self):
-        self.solver = z3.Solver()
-        self.symbol_vars: dict[str, z3.BoolRef] = {}
-        self.module_vars: dict[str, z3.BoolRef] = {}
-        self.constraints: list[z3.BoolRef] = []
+    def __init__(self) -> None:
+        self.solver = z3.Solver()  # type: ignore
+        self.symbol_vars: dict[str, z3.BoolRef] = {}  # type: ignore
+        self.module_vars: dict[str, z3.BoolRef] = {}  # type: ignore
+        self.constraints: list[z3.BoolRef] = []  # type: ignore
 
     def add_symbol(self, symbol_name: str) -> None:
         """Add a symbol to the reasoner."""
         if symbol_name not in self.symbol_vars:
-            self.symbol_vars[symbol_name] = z3.Bool(f"sym_{symbol_name}")
+            self.symbol_vars[symbol_name] = z3.Bool(f"sym_{symbol_name}")  # type: ignore
 
     def add_module(self, module_name: str) -> None:
         """Add a module to the reasoner."""
         if module_name not in self.module_vars:
-            self.module_vars[module_name] = z3.Bool(f"mod_{module_name}")
+            self.module_vars[module_name] = z3.Bool(f"mod_{module_name}")  # type: ignore
 
     def add_provides_constraint(self, module_name: str, symbol_name: str) -> None:
         """Add constraint that a module provides a symbol."""
@@ -42,7 +53,7 @@ class SymbolicImportReasoner:
         sym_var = self.symbol_vars[symbol_name]
 
         # If the module is imported, it can provide the symbol
-        constraint = z3.Implies(mod_var, sym_var)
+        constraint = z3.Implies(mod_var, sym_var)  # type: ignore
         self.constraints.append(constraint)
         self.solver.add(constraint)
 
@@ -55,7 +66,7 @@ class SymbolicImportReasoner:
         req_var = self.module_vars[required_module]
 
         # If a module is imported, its requirements must also be imported
-        constraint = z3.Implies(mod_var, req_var)
+        constraint = z3.Implies(mod_var, req_var)  # type: ignore
         self.constraints.append(constraint)
         self.solver.add(constraint)
 
@@ -68,7 +79,7 @@ class SymbolicImportReasoner:
         mod2_var = self.module_vars[module2]
 
         # Both modules cannot be imported together
-        constraint = z3.Not(z3.And(mod1_var, mod2_var))
+        constraint = z3.Not(z3.And(mod1_var, mod2_var))  # type: ignore
         self.constraints.append(constraint)
         self.solver.add(constraint)
 
@@ -80,7 +91,7 @@ class SymbolicImportReasoner:
             self.solver.add(self.symbol_vars[symbol])
 
         # Objective: minimize the number of imported modules
-        if self.solver.check() == z3.sat:
+        if self.solver.check() == z3.sat:  # type: ignore
             model = self.solver.model()
 
             # Find modules that should be imported
@@ -90,8 +101,7 @@ class SymbolicImportReasoner:
                     imported_modules.append(module)
 
             return True, imported_modules
-        else:
-            return False, []
+        return False, []
 
     def reset(self) -> None:
         """Reset the reasoner."""
@@ -103,7 +113,10 @@ class SymbolicImportReasoner:
 class NeuralImportPredictor:
     def __init__(self, model_path: str | None = None) -> None:
         """Initialize the neural import predictor."""
-        self.model: keras.Model | None = None
+        if not KERAS_AVAILABLE:
+            raise ImportError("tensorflow.keras is required for NeuralImportPredictor")
+
+        self.model: Any | None = None  # Using Any for keras.Model type
         self.symbol_embeddings: dict[str, npt.NDArray[np.float32]] = {}
         self.module_embeddings: dict[str, npt.NDArray[np.float32]] = {}
         self.embedding_dim = 128
@@ -115,133 +128,196 @@ class NeuralImportPredictor:
 
     def _build_model(self) -> None:
         """Build the neural network model."""
-        # Symbol input
-        symbol_input = keras.layers.Input(shape=(self.embedding_dim,))
+        if not KERAS_AVAILABLE or not keras:
+            raise ImportError("tensorflow.keras is required for model building")
 
-        # Context input (sequence of symbol embeddings)
-        context_input = keras.layers.Input(shape=(None, self.embedding_dim))
+        try:
+            # Symbol input
+            symbol_input = keras.layers.Input(shape=(self.embedding_dim,))
 
-        # Process context using LSTM
-        context_encoded = keras.layers.LSTM(64)(context_input)
+            # Context input (sequence of symbol embeddings)
+            context_input = keras.layers.Input(shape=(None, self.embedding_dim))
 
-        # Combine symbol and context
-        combined = keras.layers.Concatenate()([symbol_input, context_encoded])
+            # Process context using LSTM
+            context_encoded = keras.layers.LSTM(64)(context_input)
 
-        # Dense layers
-        x = keras.layers.Dense(128, activation="relu")(combined)
-        x = keras.layers.Dropout(0.2)(x)
-        x = keras.layers.Dense(64, activation="relu")(x)
+            # Combine symbol and context
+            combined = keras.layers.Concatenate()([symbol_input, context_encoded])
 
-        # Output layer (probability for each module)
-        outputs = keras.layers.Dense(len(self.module_embeddings), activation="sigmoid")(
-            x
-        )
+            # Dense layers
+            x = keras.layers.Dense(128, activation="relu")(combined)
+            x = keras.layers.Dropout(0.2)(x)
+            x = keras.layers.Dense(64, activation="relu")(x)
 
-        self.model = keras.Model(inputs=[symbol_input, context_input], outputs=outputs)
-        self.model.compile(
-            optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"]
-        )
+            # Output layer (probability for each module)
+            outputs = keras.layers.Dense(
+                len(self.module_embeddings), activation="sigmoid"
+            )(x)
 
-    def train(
-        self, training_data: list[tuple[str, list[str], list[str]]], epochs: int = 10
-    ) -> None:
+            self.model = keras.Model(
+                inputs=[symbol_input, context_input], outputs=outputs
+            )
+            self.model.compile(
+                optimizer="adam", loss="binary_crossentropy", metrics=["accuracy"]
+            )
+        except Exception as e:
+            print(f"Error building model: {e}")
+            raise
+
+    def train(self, training_data: list[dict[str, Any]], epochs: int = 10) -> None:
         """Train the model on symbol-context-module examples."""
+        if not KERAS_AVAILABLE or not keras:
+            raise ImportError("tensorflow.keras is required for training")
+
         if not self.model:
             self._build_model()
 
-        if not isinstance(self.model, keras.Model):
-            raise ValueError("Model not properly initialized")
+        try:
+            # Prepare training data
+            symbol_inputs = []
+            context_inputs = []
+            module_outputs = []
 
-        # Prepare training data
-        symbol_inputs = []
-        context_inputs = []
-        module_outputs = []
+            for data in training_data:
+                symbol = data["symbol"]
+                context = data.get("context", [])
+                module = data["module"]
 
-        for symbol, context, modules in training_data:
-            # Get symbol embedding
-            symbol_emb = self._get_symbol_embedding(symbol)
-            symbol_inputs.append(symbol_emb)
+                # Get symbol embedding
+                symbol_emb = self._get_symbol_embedding(symbol)
+                symbol_inputs.append(symbol_emb)
 
-            # Get context embeddings
-            context_embs = [self._get_symbol_embedding(s) for s in context]
-            context_inputs.append(np.array(context_embs))
+                # Get context embeddings
+                context_embs = [self._get_symbol_embedding(s) for s in context]
+                context_inputs.append(np.array(context_embs))
 
-            # Create one-hot encoded module vector
-            module_vector = np.zeros(len(self.module_embeddings))
-            for module in modules:
+                # Create one-hot encoded module vector
+                module_vector = np.zeros(len(self.module_embeddings))
                 if module in self.module_embeddings:
                     idx = list(self.module_embeddings.keys()).index(module)
                     module_vector[idx] = 1
-            module_outputs.append(module_vector)
+                module_outputs.append(module_vector)
 
-        # Convert to numpy arrays
-        symbol_inputs = np.array(symbol_inputs)
-        context_inputs = keras.preprocessing.sequence.pad_sequences(
-            context_inputs, padding="post", dtype="float32"
-        )
-        module_outputs = np.array(module_outputs)
+            # Convert to numpy arrays
+            symbol_inputs = np.array(symbol_inputs)
+            if keras and hasattr(keras.preprocessing, "sequence"):
+                context_inputs = keras.preprocessing.sequence.pad_sequences(
+                    context_inputs, padding="post", dtype="float32"
+                )
+            else:
+                # Fallback padding implementation if keras is not available
+                max_len = max(len(x) for x in context_inputs)
+                padded = np.zeros(
+                    (len(context_inputs), max_len, self.embedding_dim), dtype=np.float32
+                )
+                for i, seq in enumerate(context_inputs):
+                    padded[i, : len(seq)] = seq
+                context_inputs = padded
 
-        # Train the model
-        self.model.fit(
-            [symbol_inputs, context_inputs],
-            module_outputs,
-            epochs=epochs,
-            batch_size=32,
-            validation_split=0.2,
-        )
+            module_outputs = np.array(module_outputs)
+
+            # Train the model
+            if self.model is not None:  # Check if model is not None before calling fit
+                self.model.fit(
+                    [symbol_inputs, context_inputs],
+                    module_outputs,
+                    epochs=epochs,
+                    batch_size=32,
+                    validation_split=0.2,
+                )
+        except Exception as e:
+            print(f"Error during training: {e}")
+            raise
 
     def predict_modules(
         self, symbol: str, context: list[str]
     ) -> list[tuple[str, float]]:
         """Predict likely modules for a symbol given its context."""
+        if not KERAS_AVAILABLE or not keras:
+            raise ImportError("tensorflow.keras is required for prediction")
+
         if not self.model:
             raise ValueError("Model not initialized")
 
-        # Get embeddings
-        symbol_emb = self._get_symbol_embedding(symbol)
-        context_embs = [self._get_symbol_embedding(s) for s in context]
+        try:
+            # Get embeddings
+            symbol_emb = self._get_symbol_embedding(symbol)
+            context_embs = [self._get_symbol_embedding(s) for s in context]
 
-        # Prepare inputs
-        symbol_input = np.array([symbol_emb])
-        context_input = np.array([context_embs])
+            # Prepare inputs
+            symbol_input = np.array([symbol_emb])
+            context_input = np.array([context_embs])
 
-        # Get predictions
-        predictions = self.model.predict([symbol_input, context_input])[0]
+            # Pad context input if needed
+            if keras and hasattr(keras.preprocessing, "sequence"):
+                context_input = keras.preprocessing.sequence.pad_sequences(
+                    [context_embs], padding="post", dtype="float32"
+                )
+            else:
+                # Fallback padding implementation
+                max_len = max(len(context_embs), 1)  # At least length 1
+                padded = np.zeros((1, max_len, self.embedding_dim), dtype=np.float32)
+                padded[0, : len(context_embs)] = context_embs
+                context_input = padded
 
-        # Convert to module-probability pairs
-        modules = list(self.module_embeddings.keys())
-        module_probs = [
-            (mod, float(prob)) for mod, prob in zip(modules, predictions, strict=False)
-        ]
+            # Get predictions
+            predictions = self.model.predict([symbol_input, context_input])[0]
 
-        # Sort by probability
-        return sorted(module_probs, key=lambda x: x[1], reverse=True)
+            # Convert to module-probability pairs
+            modules = list(self.module_embeddings.keys())
+            module_probs = [
+                (mod, float(prob))
+                for mod, prob in zip(modules, predictions, strict=False)
+            ]
+
+            # Sort by probability
+            return sorted(module_probs, key=lambda x: x[1], reverse=True)
+        except Exception as e:
+            print(f"Error during prediction: {e}")
+            return []
 
     def _get_symbol_embedding(self, symbol: str) -> npt.NDArray[np.float32]:
         """Get or create embedding vector for a symbol."""
-        if symbol not in self.symbol_embeddings:
-            # Create random embedding if not seen before
-            self.symbol_embeddings[symbol] = np.random.normal(
-                0, 1, self.embedding_dim
-            ).astype(np.float32)
-        return self.symbol_embeddings[symbol]
+        try:
+            if symbol not in self.symbol_embeddings:
+                # Create random embedding if not seen before
+                self.symbol_embeddings[symbol] = np.random.normal(
+                    0, 1, self.embedding_dim
+                ).astype(np.float32)
+            return self.symbol_embeddings[symbol]
+        except Exception as e:
+            print(f"Error getting symbol embedding: {e}")
+            return np.zeros(self.embedding_dim, dtype=np.float32)
 
     def save_model(self, path: str) -> None:
         """Save the model and embeddings."""
-        if self.model:
-            self.model.save(f"{path}_model")
+        if not KERAS_AVAILABLE or not keras:
+            raise ImportError("tensorflow.keras is required for saving model")
 
-        # Save embeddings as arrays
-        symbol_arrays = {k: v.tolist() for k, v in self.symbol_embeddings.items()}
-        module_arrays = {k: v.tolist() for k, v in self.module_embeddings.items()}
-        embeddings = {"symbols": symbol_arrays, "modules": module_arrays}
-        with open(f"{path}_embeddings.json", "w") as f:
-            json.dump(embeddings, f)
+        try:
+            if self.model:
+                self.model.save(f"{path}_model")
+
+            # Save embeddings as arrays
+            symbol_arrays = {k: v.tolist() for k, v in self.symbol_embeddings.items()}
+            module_arrays = {k: v.tolist() for k, v in self.module_embeddings.items()}
+            embeddings = {"symbols": symbol_arrays, "modules": module_arrays}
+            with open(f"{path}_embeddings.json", "w") as f:
+                json.dump(embeddings, f)
+        except Exception as e:
+            print(f"Error saving model: {e}")
+            raise
 
     def load_model(self, path: str) -> None:
         """Load the model and embeddings."""
+        if not KERAS_AVAILABLE or not keras:
+            raise ImportError("tensorflow.keras is required for loading model")
+
         try:
+            if not keras:
+                raise ImportError("keras is not available")
             self.model = keras.models.load_model(f"{path}_model")
+
             with open(f"{path}_embeddings.json") as f:
                 embeddings = json.load(f)
 
@@ -254,7 +330,7 @@ class NeuralImportPredictor:
                 k: np.array(v, dtype=np.float32)
                 for k, v in embeddings["modules"].items()
             }
-        except (OSError, ValueError, json.JSONDecodeError) as e:
+        except Exception as e:
             print(f"Error loading model: {e}")
             self._build_model()
 
@@ -262,59 +338,104 @@ class NeuralImportPredictor:
 class SANSIA:
     """Self-Adaptive Neural-Symbolic Import Architecture"""
 
-    def __init__(self, codebase_path):
+    def __init__(self, codebase_path: str) -> None:
         self.codebase_path = codebase_path
-        self.neural_predictor = NeuralImportPredictor()
-        self.symbolic_reasoner = SymbolicImportReasoner()
-        self.module_graph = nx.DiGraph()
+        self.module_graph: nx.DiGraph = nx.DiGraph()  # Initialize directly
+        self.symbolic_reasoner: SymbolicImportReasoner = (
+            SymbolicImportReasoner()
+        )  # Initialize directly
+        try:
+            self.neural_predictor: NeuralImportPredictor | None = (
+                NeuralImportPredictor() if KERAS_AVAILABLE else None
+            )
+        except ImportError:
+            self.neural_predictor = None
+            print("Neural prediction features will be disabled")
         self.symbol_providers = defaultdict(list)
         self.module_requirements = defaultdict(list)
         self.conflicting_modules = []
         self.feedback_data = []
 
-    def initialize(self):
-        """Initialize the system by analyzing the codebase."""
-        print("Initializing SANSIA...")
+    def initialize(self) -> None:
+        """Initialize SANSIA components."""
+        try:
+            self._build_module_graph()
+            self._initialize_symbolic_reasoner()
+            self._generate_initial_feedback_data()
+            if self.neural_predictor and self.feedback_data:
+                self.neural_predictor.train(self.feedback_data)
+        except Exception as e:
+            print(f"Error during initialization: {e}")
+            raise
 
-        # Build the module graph and extract symbol providers
-        self._build_module_graph()
+    def _build_module_graph(self) -> nx.DiGraph:
+        """Build the module dependency graph."""
+        try:
+            # Scan codebase for Python files
+            for root, _, files in os.walk(self.codebase_path):
+                for file in files:
+                    if file.endswith(".py"):
+                        file_path = os.path.join(root, file)
+                        self._analyze_file_dependencies(file_path)
+            return self.module_graph
+        except Exception as e:
+            print(f"Error building module graph: {e}")
+            raise
 
-        # Initialize the symbolic reasoner with module relationships
-        self._initialize_symbolic_reasoner()
+    def _analyze_file_dependencies(self, file_path: str) -> None:
+        """Analyze a Python file for its dependencies."""
+        try:
+            with open(file_path) as f:
+                content = f.read()
 
-        # Generate initial feedback data for training
-        self._generate_initial_feedback_data()
+            tree = ast.parse(content)
+            imports = []
 
-        # Train the neural predictor with initial data
-        if self.feedback_data:
-            self.neural_predictor.train(self.feedback_data)
+            for node in ast.walk(tree):
+                if isinstance(node, ast.Import):
+                    for name in node.names:
+                        imports.append(name.name)
+                elif isinstance(node, ast.ImportFrom):
+                    if node.module:
+                        imports.append(node.module)
 
-        print("SANSIA initialization complete.")
+            # Add node and edges to graph
+            module_name = os.path.splitext(os.path.basename(file_path))[0]
+            self.module_graph.add_node(
+                module_name, file_path=file_path, imports=imports
+            )
+            for imp in imports:
+                self.module_graph.add_edge(module_name, imp)
+                self.module_requirements[module_name].append(imp)
+        except Exception as e:
+            print(f"Error analyzing {file_path}: {e}")
 
-    def _build_module_graph(self):
-        """Build a graph of module relationships and symbol providers."""
-        # Implementation of module graph building
-        pass
+    def _initialize_symbolic_reasoner(self) -> None:
+        """Initialize the symbolic reasoning component."""
+        try:
+            # Add module relationships to the symbolic reasoner
+            for module, requirements in self.module_requirements.items():
+                for required_module in requirements:
+                    self.symbolic_reasoner.add_requires_constraint(
+                        module, required_module
+                    )
 
-    def _initialize_symbolic_reasoner(self):
-        """Initialize the symbolic reasoner with module relationships."""
-        # Add module relationships to the symbolic reasoner
-        for module, requirements in self.module_requirements.items():
-            for required_module in requirements:
-                self.symbolic_reasoner.add_requires_constraint(module, required_module)
+            # Add symbol providers
+            for symbol, providers in self.symbol_providers.items():
+                for provider in providers:
+                    self.symbolic_reasoner.add_provides_constraint(provider, symbol)
 
-        # Add symbol providers
-        for symbol, providers in self.symbol_providers.items():
-            for provider in providers:
-                self.symbolic_reasoner.add_provides_constraint(provider, symbol)
+            # Add conflicting modules
+            for module1, module2 in self.conflicting_modules:
+                self.symbolic_reasoner.add_conflict_constraint(module1, module2)
+        except Exception as e:
+            print(f"Error initializing symbolic reasoner: {e}")
+            raise
 
-        # Add conflicting modules
-        for module1, module2 in self.conflicting_modules:
-            self.symbolic_reasoner.add_conflict_constraint(module1, module2)
-
-    def _generate_initial_feedback_data(self):
-        """Generate initial feedback data for training the neural predictor."""
-        feedback_data = []
+    def _generate_initial_feedback_data(self) -> None:
+        """Generate initial feedback data for training."""
+        if not self.module_graph:
+            raise ValueError("Module graph not initialized")
 
         # For each symbol and its providers
         for symbol, providers in self.symbol_providers.items():
@@ -324,11 +445,9 @@ class SANSIA:
 
                 # Add feedback data entries
                 for context in contexts:
-                    feedback_data.append(
+                    self.feedback_data.append(
                         {"symbol": symbol, "module": provider, "context": context}
                     )
-
-        self.feedback_data.extend(feedback_data)
 
     def _generate_example_contexts(self, symbol: str, module: str) -> list[list[str]]:
         """Generate example contexts for a symbol-module pair."""
@@ -360,13 +479,14 @@ class SANSIA:
 
         # Get suggestions from neural predictor
         neural_suggestions: dict[str, str] = {}
-        for symbol in symbols:
-            context = self._extract_context(code, symbol)
-            predictions = self.neural_predictor.predict_modules(symbol, context)
-            if predictions:  # Check if we got any predictions
-                module, confidence = predictions[0]  # Get top prediction
-                if confidence > 0.7:  # Confidence threshold
-                    neural_suggestions[symbol] = module
+        if self.neural_predictor is not None:  # Check if neural_predictor exists
+            for symbol in symbols:
+                context = self._extract_context(code, symbol)
+                predictions = self.neural_predictor.predict_modules(symbol, context)
+                if predictions:  # Check if we got any predictions
+                    module, confidence = predictions[0]  # Get top prediction
+                    if confidence > 0.7:  # Confidence threshold
+                        neural_suggestions[symbol] = module
 
         # Get suggestions from symbolic reasoner
         symbolic_suggestions = self._get_symbolic_suggestions(symbols)
@@ -451,7 +571,8 @@ class SANSIA:
     def adapt(self) -> None:
         """Adapt the system based on accumulated feedback."""
         # Retrain neural predictor with all feedback data
-        self.neural_predictor.train(self.feedback_data, epochs=5)
+        if self.neural_predictor is not None:  # Add null check
+            self.neural_predictor.train(self.feedback_data, epochs=5)
 
         # Reset and reinitialize symbolic reasoner
         self.symbolic_reasoner.reset()

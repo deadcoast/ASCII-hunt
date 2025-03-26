@@ -1,10 +1,22 @@
+from typing import Any
+
+from recognition.hunt_recognition_processor import HuntRecognitionProcessor
+from src.dsl.hunt_grid import HuntGrid
+from src.dsl.hunt_parser import HuntParser
+from src.patterns.pattern_matcher import PatternMatcher
+from src.patterns.pattern_registry import PatternRegistry
+from visualization.hunt_visualizer import HuntVisualizer
+
+
 class PatternDevelopmentEnvironment:
-    def __init__(self, pattern_registry, interpreter):
+    def __init__(
+        self, pattern_registry: PatternRegistry, interpreter: HuntParser
+    ) -> None:
         self.pattern_registry = pattern_registry
         self.interpreter = interpreter
         self.visualizer = HuntVisualizer(pattern_registry)
 
-    def interactive_session(self, grid_data):
+    def interactive_session(self, grid_data: HuntGrid) -> None:
         """Start an interactive pattern development session."""
         # Display grid
         print("ASCII Grid:")
@@ -67,7 +79,7 @@ class PatternDevelopmentEnvironment:
             else:
                 print("Invalid choice. Please try again.")
 
-    def _create_pattern(self):
+    def _create_pattern(self) -> str | None:
         """Create a new pattern."""
         print("Enter HUNT DSL code for the pattern (end with a blank line):")
 
@@ -84,7 +96,7 @@ class PatternDevelopmentEnvironment:
 
         return pattern_code
 
-    def _apply_patterns(self, grid_data):
+    def _apply_patterns(self, grid_data: HuntGrid) -> list[dict[str, Any]]:
         """Apply patterns to the grid."""
         # Process the grid using the pattern registry
         processor = HuntRecognitionProcessor(self.pattern_registry)
@@ -101,7 +113,7 @@ class PatternDevelopmentEnvironment:
 
         return processed_components
 
-    def _edit_pattern(self):
+    def _edit_pattern(self) -> None:
         """Edit an existing pattern."""
         # Show available patterns
         tracking_patterns = self.pattern_registry.get_all_tracking_patterns()
@@ -148,7 +160,7 @@ class PatternDevelopmentEnvironment:
         except (ValueError, IndexError):
             print("Invalid choice. Please try again.")
 
-    def _test_pattern(self, grid_data):
+    def _test_pattern(self, grid_data: HuntGrid) -> None:
         """Test a pattern on the grid."""
         # Show available patterns
         tracking_patterns = self.pattern_registry.get_all_tracking_patterns()
@@ -181,10 +193,18 @@ class PatternDevelopmentEnvironment:
             # Create a pattern matcher
             pattern_matcher = PatternMatcher(self.pattern_registry)
 
+            # Convert grid_data to dictionary format
+            grid_dict = {
+                "grid": grid_data.grid,
+                "width": grid_data.width,
+                "height": grid_data.height,
+                "components": grid_data.components,
+            }
+
             # Test pattern on each component
             for component in components:
                 matches = pattern_matcher.match_component(
-                    grid_data, component, {"test_pattern": name}
+                    grid_dict, component, {"test_pattern": name}
                 )
 
                 if matches:
@@ -215,7 +235,7 @@ class PatternDevelopmentEnvironment:
         except (ValueError, IndexError):
             print("Invalid choice. Please try again.")
 
-    def _save_patterns(self):
+    def _save_patterns(self) -> None:
         """Save patterns to a file."""
         filename = input("Enter filename to save patterns: ")
 

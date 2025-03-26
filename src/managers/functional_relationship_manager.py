@@ -3,8 +3,7 @@
 
 class FunctionalRelationshipPattern:
     def __init__(self, pattern_id, description, apply_function):
-        """
-        Initialize a new FunctionalRelationshipPattern.
+        """Initialize a new FunctionalRelationshipPattern.
 
         :param pattern_id: The unique identifier for the pattern.
         :type pattern_id: str
@@ -27,8 +26,7 @@ class FunctionalRelationshipPattern:
 
 class FunctionalRelationshipManager:
     def __init__(self):
-        """
-        Initialize a new FunctionalRelationshipManager.
+        """Initialize a new FunctionalRelationshipManager.
 
         The manager has an empty list of registered relationship patterns.
         """
@@ -52,8 +50,7 @@ class FunctionalRelationshipManager:
 
 class FunctionalRelationshipAnalyzer:
     def __init__(self):
-        """
-        Initialize a new FunctionalRelationshipAnalyzer.
+        """Initialize a new FunctionalRelationshipAnalyzer.
 
         The analyzer has an empty list of registered relationship patterns.
         """

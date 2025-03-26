@@ -1,12 +1,11 @@
 """Application Controller Module."""
 
-from managers.backend_manager import BackendManager
+from src.managers.backend_manager import BackendManager
 
 
 class ApplicationController:
     def __init__(self, main_window):
-        """
-        Initialize the ApplicationController.
+        """Initialize the ApplicationController.
 
         This method sets up the main application window, a backend manager for
         processing ASCII art, and the current file, grid data, and component
@@ -24,8 +23,7 @@ class ApplicationController:
 
     def setup_connections(self):
         # Connect UI signals to controller methods
-        """
-        Connect the UI signals to the corresponding controller methods.
+        """Connect the UI signals to the corresponding controller methods.
 
         This method connects the main application window's UI signals to the
         corresponding methods in the ApplicationController.
@@ -39,36 +37,30 @@ class ApplicationController:
 
     def new_file(self):
         # Create new empty grid
-        """
-        Create a new empty grid for the application.
+        """Create a new empty grid for the application.
 
         This method will create a new, empty, ASCII grid for the application.
         It will also reset the current file and component model.
 
         """
-        pass
 
     def open_file(self):
         # Open and load ASCII file
-        """
-        Open a file dialog for the user to select an ASCII file.
+        """Open a file dialog for the user to select an ASCII file.
 
         This method will prompt the user to select an ASCII file to open. The
         file contents will be read and stored as the current grid data.
 
         """
-        pass
 
     def save_file(self):
         # Save current ASCII grid to file
-        """
-        Save the current ASCII grid to a file.
+        """Save the current ASCII grid to a file.
 
         This method will prompt the user to select a save location and filename.
         The current grid data will be written to the selected file.
 
         """
-        pass
 
     def run_recognition(self):
         """Run component recognition on current grid."""

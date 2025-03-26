@@ -1,16 +1,17 @@
 """Backend Manager Module."""
 
-from algorithms.decision_tree_classifier import DecisionTreeClassifier
-from algorithms.flood_fill_processor import FloodFillProcessor
-from algorithms.hierarchical_clustering import HierarchicalClustering
-from components.component_analysis import ComponentAnalysis
-from generators.code_generator import CodeGenerator
+import numpy as np
+
+from src.algorithms.decision_tree import DecisionTree
+from src.algorithms.flood_fill_processor import FloodFillProcessor
+from src.algorithms.hierarchical_clustering import HierarchicalClustering
+from src.analysis.component_analysis import ComponentAnalyzer
+from src.generators.code_generator import CodeGenerator
 
 
 class BackendManager:
     def __init__(self):
-        """
-        Initialize the BackendManager with all necessary processing components.
+        """Initialize the BackendManager with all necessary processing components.
 
         This constructor sets up the processing pipeline by instantiating
         the following components:
@@ -20,12 +21,19 @@ class BackendManager:
         - DecisionTreeClassifier for classifying UI components.
         - CodeGenerator for generating code based on recognized components.
         """
-
         self.flood_fill_processor = FloodFillProcessor()
-        self.connected_component_analyzer = ComponentAnalysis()
+        self.connected_component_analyzer = ComponentAnalyzer()
         self.hierarchical_clustering = HierarchicalClustering()
-        self.decision_tree_classifier = DecisionTreeClassifier()
+        self.decision_tree_classifier = DecisionTree()
         self.code_generator = CodeGenerator()
+
+    def convert_to_numpy_array(self, grid_data):
+        """Convert grid data to NumPy array."""
+        if isinstance(grid_data, np.ndarray):
+            return grid_data
+        if isinstance(grid_data, list):
+            return np.array(grid_data)
+        raise ValueError("Unsupported grid data format")
 
     def process_ascii_grid(self, grid_data):
         """Process ASCII grid and return recognized components."""
@@ -59,4 +67,4 @@ class BackendManager:
 
     def generate_code(self, components, framework, options):
         """Generate code for the given components."""
-        return self.code_generator.generate(components, framework, options)
+        return self.code_generator.generate(components, framework)

@@ -5,8 +5,7 @@ from PyQt5.QtGui import QColor
 
 class ComponentOverlayManager:
     def __init__(self, grid_widget):
-        """
-        Initialize a ComponentOverlayManager object.
+        """Initialize a ComponentOverlayManager object.
 
         :param grid_widget: The grid widget on which overlays should be drawn.
         :type grid_widget: :class:`QGraphicsWidget`

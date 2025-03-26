@@ -4,8 +4,7 @@ import numpy as np
 
 
 def flood_fill_component(grid, start_x, start_y, boundary_chars):
-    """
-    Implements the mathematical flood fill algorithm using NumPy operations.
+    """Implements the mathematical flood fill algorithm using NumPy operations.
 
     Parameters
     ----------
@@ -18,7 +17,7 @@ def flood_fill_component(grid, start_x, start_y, boundary_chars):
     boundary_chars : set of characters
         The set of characters that mark the boundary of a component.
 
-    Returns
+    Returns:
     -------
     component : dict
         A dictionary containing information about the connected component

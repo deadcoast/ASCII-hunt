@@ -1,3 +1,8 @@
+"""Component Mapping Module."""
+
+from src.components.component_template_engine import TemplateEngine
+
+
 class Mapping:
     def __init__(self, component_mappings):
         self.component_mappings = component_mappings

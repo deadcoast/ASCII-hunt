@@ -1,11 +1,10 @@
 """Command-line interface for the ASCII UI Translation Engine."""
 
-from data_stack.ascii_ui_translation_engine import ASCIIUITranslationEngine
+from src.data_stack.ascii_ui_translation_engine import ASCIIUITranslationEngine
 
 
 def create_cli():
-    """
-    Create the command-line interface for the ASCII UI Translation Engine.
+    """Create the command-line interface for the ASCII UI Translation Engine.
 
     This function creates an argparse ArgumentParser instance with the
     following commands:

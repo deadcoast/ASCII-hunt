@@ -5,8 +5,7 @@ from typing import Any
 
 class CodeCompositionEngine:
     def __init__(self, generator: Any):
-        """
-        Initialize a CodeCompositionEngine.
+        """Initialize a CodeCompositionEngine.
 
         The CodeCompositionEngine has the following properties:
         - self.generator: the code generator to use for generating code
@@ -16,7 +15,19 @@ class CodeCompositionEngine:
     def compose_container_with_children(
         self, container: Any, child_codes: list[str]
     ) -> str:
-        """Compose container code with its children."""
+        """Compose container code with its children.
+
+        For windows, we add child components into the window context.
+        For panels, we need to add child components as panel children.
+        For other container types, we handle it differently.
+
+        Args:
+            container (Any): the container component
+            child_codes (list[str]): the code of the child components
+
+        Returns:
+            str: the composed code
+        """
         container_type = container.type
         container_code = ""  # Initialize container_code
 
@@ -37,7 +48,7 @@ class CodeCompositionEngine:
                 code for code in adjusted_child_codes if code is not None
             )
 
-        elif container_type == "Panel":
+        if container_type == "Panel":
             # For panels, we need to add child components as panel children
             panel_var = self._get_variable_name(container)
             container_code = self.generator.generate_panel_code(
@@ -52,16 +63,30 @@ class CodeCompositionEngine:
                 code for code in adjusted_child_codes if code is not None
             )
 
-        else:
-            # Handle other container types...
-            return container_code
+        # Handle other container types...
+        return container_code
 
     def _get_variable_name(self, component: Any) -> str:
-        """Get the variable name used for a component."""
+        """Get a variable name for a component, based on its type and ID.
+
+        Args:
+            component (Any): the component to get a variable name for
+
+        Returns:
+            str: the variable name
+        """
         return f"{component.type.lower()}_{component.id}"
 
     def _adjust_parent(self, child_code: str | None, parent_var: str) -> str | None:
-        """Adjust child code to use the correct parent variable."""
+        """Adjust child code to use the correct parent variable.
+
+        Args:
+            child_code (str | None): the code of the child component
+            parent_var (str): the variable name of the parent component
+
+        Returns:
+            str | None: the adjusted code
+        """
         if child_code is None:
             return None
         # This would be framework-specific logic

@@ -1,22 +1,40 @@
+import re
+from typing import Any
+
+import numpy as np
+from numpy.typing import NDArray
+
+from src.data_structures.ascii_grid import ASCIIGrid
+
+
 class FloodFillProcessor:
     def __init__(self):
         self.boundary_chars = set("┌┐└┘│─┬┴├┤┼╔╗╚╝║═╦╩╠╣╬┏┓┗┛┃━┳┻┣┫╋╭╮╰╯")
+        self.grid: ASCIIGrid | None = None
+        self.data: NDArray | None = None
+        self.boundary_mask: NDArray | None = None
+        self.visited: NDArray | None = None
 
-    def process(self, grid_data, context=None):
+    def process(
+        self,
+        grid_data: ASCIIGrid | str | NDArray,
+        context: dict[str, Any] | None = None,
+    ) -> list[dict[str, Any]]:
         """Process a grid to identify enclosed regions using flood fill."""
         if context is None:
             context = {}
 
         # Convert input to ASCIIGrid if needed
-        if not isinstance(grid_data, ASCIIGrid):
-            if isinstance(grid_data, str):
-                grid = ASCIIGrid(grid_data)
-            elif isinstance(grid_data, np.ndarray):
-                grid = ASCIIGrid(data=grid_data)
-            else:
-                raise ValueError("Input must be ASCIIGrid, string, or NumPy array")
-        else:
+        grid: ASCIIGrid
+        if isinstance(grid_data, ASCIIGrid):
             grid = grid_data
+        elif isinstance(grid_data, str):
+            grid = ASCIIGrid(grid_data)
+        elif isinstance(grid_data, np.ndarray):
+            height, width = grid_data.shape
+            grid = ASCIIGrid(width=width, height=height, data=grid_data)
+        else:
+            raise ValueError("Input must be ASCIIGrid, string, or NumPy array")
 
         # Get NumPy array for processing
         grid_array = grid.to_numpy()
@@ -30,7 +48,7 @@ class FloodFillProcessor:
         visited[boundary_mask] = True
 
         # Store detected components
-        components = []
+        components: list[dict[str, Any]] = []
 
         # Process all cells
         for y in range(height):
@@ -55,12 +73,14 @@ class FloodFillProcessor:
 
         return processed_components
 
-    def _flood_fill(self, grid_array, visited, start_x, start_y):
+    def _flood_fill(
+        self, grid_array: NDArray, visited: NDArray, start_x: int, start_y: int
+    ) -> dict[str, Any] | None:
         """Perform flood fill from a starting point."""
         height, width = grid_array.shape
-        queue = [(start_x, start_y)]
-        interior_points = set([(start_x, start_y)])
-        boundary_points = set()
+        queue: list[tuple[int, int]] = [(start_x, start_y)]
+        interior_points: set[tuple[int, int]] = {(start_x, start_y)}
+        boundary_points: set[tuple[int, int]] = set()
 
         # Process all connected points
         while queue:
@@ -88,30 +108,35 @@ class FloodFillProcessor:
         if boundary_points:
             # Calculate bounding box
             if interior_points:
-                x_coords = [x for x, y in interior_points]
-                y_coords = [y for x, y in interior_points]
+                x_coords = [int(x) for x, y in interior_points]
+                y_coords = [int(y) for x, y in interior_points]
 
                 min_x = min(x_coords)
                 max_x = max(x_coords)
                 min_y = min(y_coords)
                 max_y = max(y_coords)
 
-                # Create component
-                component = {
+                # Create component with explicit integer arithmetic
+                width = int(max_x) - int(min_x) + 1
+                height = int(max_y) - int(min_y) + 1
+
+                component: dict[str, Any] = {
                     "interior_points": interior_points,
                     "boundary_points": boundary_points,
                     "bounding_box": (min_x, min_y, max_x, max_y),
-                    "width": max_x - min_x + 1,
-                    "height": max_y - min_y + 1,
+                    "width": width,
+                    "height": height,
                 }
 
                 return component
 
         return None
 
-    def _process_components(self, components, grid_array):
+    def _process_components(
+        self, components: list[dict[str, Any]], grid_array: NDArray
+    ) -> list[dict[str, Any]]:
         """Post-process detected components to extract additional information."""
-        processed_components = []
+        processed_components: list[dict[str, Any]] = []
 
         for i, component in enumerate(components):
             # Assign ID
@@ -133,15 +158,17 @@ class FloodFillProcessor:
 
         return processed_components
 
-    def _extract_component_content(self, component, grid_array):
+    def _extract_component_content(
+        self, component: dict[str, Any], grid_array: NDArray
+    ) -> list[str]:
         """Extract the content (characters) from a component's interior."""
         # Get bounding box
         min_x, min_y, max_x, max_y = component["bounding_box"]
 
         # Extract content rows
-        content_rows = []
+        content_rows: list[str] = []
         for y in range(min_y, max_y + 1):
-            row = []
+            row: list[str] = []
             for x in range(min_x, max_x + 1):
                 if (x, y) in component["interior_points"]:
                     row.append(grid_array[y, x])
@@ -150,28 +177,33 @@ class FloodFillProcessor:
 
         return content_rows
 
-    def _determine_component_type(self, component, grid_array):
+    def _determine_component_type(
+        self, component: dict[str, Any], grid_array: NDArray
+    ) -> str:
         """Determine the type of component based on boundary characters."""
-        # Extract boundary characters
-        boundary_chars = [grid_array[y, x] for x, y in component["boundary_points"]]
+        # Extract boundary characters and convert to strings
+        boundary_chars = [
+            str(grid_array[y, x]) for x, y in component["boundary_points"]
+        ]
         char_set = set(boundary_chars)
 
         # Check for specific boundary patterns
         if all(c in "┌┐└┘│─" for c in char_set):
             return "single_line_box"
-        elif all(c in "╔╗╚╝║═" for c in char_set):
+        if all(c in "╔╗╚╝║═" for c in char_set):
             return "double_line_box"
-        elif all(c in "┏┓┗┛┃━" for c in char_set):
+        if all(c in "┏┓┗┛┃━" for c in char_set):
             return "heavy_line_box"
-        elif all(c in "╭╮╰╯│─" for c in char_set):
+        if all(c in "╭╮╰╯│─" for c in char_set):
             return "rounded_box"
-        else:
-            return "custom_box"
+        return "custom_box"
 
-    def _extract_special_features(self, component, grid_array):
+    def _extract_special_features(
+        self, component: dict[str, Any], grid_array: NDArray
+    ) -> dict[str, Any]:
         """Extract special features from a component."""
         # Look for special characters in content
-        special_features = {}
+        special_features: dict[str, Any] = {}
 
         # Check for button markers [text]
         content_text = " ".join(component["content"])
@@ -197,7 +229,9 @@ class FloodFillProcessor:
 
         return special_features
 
-    def process_incremental(self, delta, context):
+    def process_incremental(
+        self, delta: dict[str, Any], context: dict[str, Any]
+    ) -> list[dict[str, Any]]:
         """Process incremental updates to the grid."""
         # Check if we have the original grid in context
         if "grid" not in context:
@@ -231,15 +265,28 @@ class FloodFillProcessor:
 
         elif delta["type"] == "full_update":
             # Full grid update
-            updated_grid = delta["data"]
+            updated_grid = ASCIIGrid(delta["data"])
 
         else:
             raise ValueError(f"Unknown delta type: {delta['type']}")
 
         # Process the updated grid
-        result = self.process(updated_grid, context)
+        return self.process(updated_grid, context)
 
-        # Update the grid in context
-        context["grid"] = updated_grid
+    def process_data(self, data: str) -> None:
+        """Process the input data.
 
-        return result
+        Args:
+            data: Input data to process
+        """
+        # Create grid from input data
+        self.grid = ASCIIGrid(data)
+
+        # Convert to numpy array for processing
+        self.data = self.grid.to_numpy()
+
+        # Get boundary mask
+        self.boundary_mask = self.grid.get_boundary_mask()
+
+        # Initialize visited array
+        self.visited = np.zeros_like(self.data, dtype=bool)

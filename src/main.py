@@ -1,4 +1,11 @@
-def register_hunt_processor(pipeline):
+from typing import Any
+
+from .dsl.hunt_error_handler import HuntErrorHandler
+from .dsl.hunt_recognition_processor import HuntRecognitionProcessor
+from .dsl.pattern_registry import PatternRegistry
+
+
+def register_hunt_processor(pipeline: Any) -> HuntRecognitionProcessor:
     """Register the HUNT processor with the processing pipeline."""
     # Create pattern registry
     pattern_registry = PatternRegistry()

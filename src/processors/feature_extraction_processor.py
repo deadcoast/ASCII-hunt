@@ -8,18 +8,16 @@ class FeatureExtractionProcessor:
 
     def __init__(self):
         """Initialize the FeatureExtractionProcessor class."""
-        pass
 
     def extract_features(self, component):
-        """
-        Extract features from a component.
+        """Extract features from a component.
 
         Parameters
         ----------
         component : dict
             The component to extract features from
 
-        Returns
+        Returns:
         -------
         dict
             A dictionary containing the extracted features

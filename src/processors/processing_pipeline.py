@@ -183,5 +183,3 @@ class ProcessingPipeline:
 
 class PipelineError(Exception):
     """Exception raised for errors in the processing pipeline."""
-
-    pass

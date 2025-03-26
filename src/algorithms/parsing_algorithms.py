@@ -1,52 +1,55 @@
 """Parsing Algorithms Module."""
 
+from typing import Any
+
 import numpy as np
+from numpy.typing import NDArray
 
 
 class DistanceCalculator:
     """A class that calculates distances between components."""
 
     def __init__(self):
-        """Initialize the DistanceCalculator class."""
-        pass
+        """Initialize the DistanceCalculator class.
 
-    def calculate_distance_matrix(self, features):
+        This class is used to calculate distances between components.
         """
-        Calculate the distance matrix between components based on their features.
+
+    def calculate_distance_matrix(
+        self, features: list[dict[str, Any]]
+    ) -> NDArray[np.float64]:
+        """Calculate the distance matrix between components based on their features.
 
         Parameters
         ----------
-        features : list
+        features : List[Dict[str, Any]]
             List of feature vectors for components
 
-        Returns
+        Returns:
         -------
-        numpy.ndarray
+        NDArray[np.float64]
             The distance matrix between components
         """
         n = len(features)
-        distance_matrix = np.zeros((n, n))
+        distance_matrix = np.zeros((n, n), dtype=np.float64)
 
         for i in range(n):
             for j in range(i + 1, n):
+                # Convert feature dictionaries to float arrays
+                feat_i = np.array(list(features[i].values()), dtype=np.float64)
+                feat_j = np.array(list(features[j].values()), dtype=np.float64)
+
                 # Calculate Euclidean distance between feature vectors
-                distance = np.sqrt(
-                    np.sum(
-                        (
-                            np.array(list(features[i].values()))
-                            - np.array(list(features[j].values()))
-                        )
-                        ** 2
-                    )
-                )
+                diff = feat_i - feat_j
+                distance = np.sqrt(np.sum(diff * diff))
+
                 distance_matrix[i, j] = distance_matrix[j, i] = distance
 
         return distance_matrix
 
 
 def needleman_wunsch(seq1, seq2, match_score=2, mismatch_penalty=-1, gap_penalty=-2):
-    """
-    Implements the Needleman-Wunsch algorithm for global sequence alignment.
+    """Implements the Needleman-Wunsch algorithm for global sequence alignment.
 
     Parameters
     ----------
@@ -59,7 +62,7 @@ def needleman_wunsch(seq1, seq2, match_score=2, mismatch_penalty=-1, gap_penalty
     gap_penalty : int
         The penalty for creating a gap in the alignment.
 
-    Returns
+    Returns:
     -------
     score : int
         The optimal alignment score.
@@ -120,9 +123,7 @@ def needleman_wunsch(seq1, seq2, match_score=2, mismatch_penalty=-1, gap_penalty
 
 
 def levenshtein_distance(str1, str2):
-    """
-    Implements the Levenshtein distance (edit distance) algorithm.
-    """
+    """Implements the Levenshtein distance (edit distance) algorithm."""
     n, m = len(str1), len(str2)
 
     # Create a matrix to store the edit distances
@@ -148,8 +149,17 @@ def levenshtein_distance(str1, str2):
 
 
 def longest_common_subsequence(str1, str2):
-    """
-    Implements the Longest Common Subsequence algorithm.
+    """Implements the Longest Common Subsequence algorithm.
+
+    Parameters
+    ----------
+    str1, str2 : str
+        The two strings to be compared.
+
+    Returns:
+    -------
+    lcs : str
+        The longest common subsequence of str1 and str2.
     """
     n, m = len(str1), len(str2)
 
@@ -182,8 +192,21 @@ def longest_common_subsequence(str1, str2):
 
 
 def pattern_match_with_dp(pattern, grid, threshold=0.8):
-    """
-    Uses dynamic programming to find pattern matches in a grid.
+    """Uses dynamic programming to find pattern matches in a grid.
+
+    Parameters
+    ----------
+    pattern : 2D list of str
+        The pattern to be matched.
+    grid : 2D array of str
+        The grid to search for the pattern.
+    threshold : float, optional
+        The minimum similarity required for a match, by default 0.8.
+
+    Returns:
+    -------
+    matches : list of dict
+        A list of dictionaries containing the position (x, y) and similarity of each match.
     """
     height, width = grid.shape
     pattern_height, pattern_width = len(pattern), len(pattern[0])

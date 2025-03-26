@@ -1,19 +1,24 @@
 """Framework Adapter Module."""
 
-from generators.code_generator import CodeGenerator
+from collections.abc import Callable
+from typing import Any
+
+from src.generators.code_generator import CodeGenerator
 
 
 class FrameworkAdapter:
-    def __init__(self, name):
-        """
-        Initialize the FrameworkAdapter.
+    def __init__(self, name: str):
+        """Initialize the FrameworkAdapter.
 
         :param name: The name of the framework.
         :type name: str
         """
         self.name = name
         self.generator = CodeGenerator()
-        self.property_mappers = {}
+        self.property_mappers: dict[str, dict[str, Callable]] = {}
+        self.templates: dict[str, Callable] = {}
+        self.transformers: dict[str, Callable] = {}
+        self.validators: dict[str, Callable] = {}
 
         self.register_python_templates(self.generator)
         self.register_property_mappers()
@@ -28,30 +33,50 @@ class FrameworkAdapter:
         self.register_component_transformers()
         self.register_code_generator()
 
-    def register_python_templates(self, generator):
-        """Register Python-specific templates."""
-        self.generator.register_template("window", self.window_template)
-        self.generator.register_template("button", self.button_template)
-        self.generator.register_template("label", self.label_template)
-        self.generator.register_template("text_input", self.text_input_template)
-        self.generator.register_template("checkbox", self.checkbox_template)
-        self.generator.register_template("radio_button", self.radio_button_template)
-        self.generator.register_template("text_area", self.text_area_template)
-        self.generator.register_template("dropdown", self.dropdown_template)
-        self.generator.register_template("slider", self.slider_template)
-        self.generator.register_template("progress_bar", self.progress_bar_template)
-        self.generator.register_template("tab_view", self.tab_view_template)
-        self.generator.register_template("dialog", self.dialog_template)
-        self.generator.register_template("list_view", self.list_view_template)
-        self.generator.register_template("table_view", self.table_view_template)
-        self.generator.register_template("tree_view", self.tree_view_template)
-        self.generator.register_template("chart", self.chart_template)
-        self.generator.register_template("calendar", self.calendar_template)
-        self.generator.register_template("file_picker", self.file_picker_template)
-        self.generator.register_template("image", self.image_template)
+    def register_transformations(self) -> None:
+        """Register component transformations."""
 
-    def register_property_mappers(self):
-        """Register property mappers for the framework."""
+    def register_code_generator(self) -> None:
+        """Register code generator configurations."""
+
+    def register_property_validators(self) -> None:
+        """Register property validators."""
+
+    def register_component_transformers(self) -> None:
+        """Register component transformers."""
+
+    def register_python_templates(self, generator: CodeGenerator) -> None:
+        """Register Python-specific UI component templates.
+
+        :param generator: The code generator instance.
+        """
+        self.templates = {
+            "window": self.window_template,
+            "button": self.button_template,
+            "label": self.label_template,
+            "text_input": self.text_input_template,
+            "checkbox": self.checkbox_template,
+            "radio_button": self.radio_button_template,
+            "text_area": self.text_area_template,
+            "dropdown": self.dropdown_template,
+            "slider": self.slider_template,
+            "progress_bar": self.progress_bar_template,
+            "tab_view": self.tab_view_template,
+            "dialog": self.dialog_template,
+            "list_view": self.list_view_template,
+            "table_view": self.table_view_template,
+            "tree_view": self.tree_view_template,
+            "chart": self.chart_template,
+            "calendar": self.calendar_template,
+            "file_picker": self.file_picker_template,
+            "image": self.image_template,
+        }
+
+        for name, template in self.templates.items():
+            self.generator.register_template(name, template)
+
+    def register_property_mappers(self) -> None:
+        """Register property mappers for different UI components."""
         self.property_mappers = {
             "Window": {
                 "modal": lambda v: "window.transient(parent)" if v else "",
@@ -119,13 +144,39 @@ class FrameworkAdapter:
         }
 
     def register_property_mapper(self, component_type, property_name, mapper_func):
-        """Register a function to map an abstract property to framework-specific code."""
+        """Register a property mapper for the given component type and property name.
+
+        :param component_type: The type of component to register the mapper for.
+        :param property_name: The name of the property to register the mapper for.
+        :param mapper_func: A function that takes a value and returns a string
+                            representing the framework-specific code required to
+                            set the property to the given value.
+        """
         if component_type not in self.property_mappers:
             self.property_mappers[component_type] = {}
         self.property_mappers[component_type][property_name] = mapper_func
 
     def map_property(self, component, property_name):
-        """Map a component property to framework-specific code."""
+        """Map a property of a component to framework-specific code.
+
+        This method takes a component and a property name as input and
+        returns a string representing the framework-specific code required
+        to set the property to the given value.
+
+        If a property mapper is registered for the given component type and
+        property name, the mapper function is called with the value of the
+        property as an argument. The return value of the mapper function is
+        used as the output of this method.
+
+        If no property mapper is registered, the value of the property is
+        converted to a string using the built-in repr() function and returned
+        as the output of this method.
+
+        :param component: The component for which to map a property.
+        :param property_name: The name of the property to map.
+        :return: A string representing the framework-specific code required
+                to set the property to the given value.
+        """
         if (
             component.type in self.property_mappers
             and property_name in self.property_mappers[component.type]
@@ -136,11 +187,23 @@ class FrameworkAdapter:
         return repr(component.properties.get(property_name))
 
     def generate_code(self, root_component):
-        """Generate framework-specific code for the component tree."""
+        """Generate framework-specific code for the given component tree.
+
+        This method takes a component tree as input and returns a string
+        representing the framework-specific code required to create the
+        component tree.
+
+        :param root_component: The root component of the component tree.
+        :return: A string representing the framework-specific code required
+                to create the component tree.
+        """
         return self.generator.generate_full_source(root_component)
 
-    def create_tkinter_adapter():
-        """Create an adapter for Tkinter."""
+    def create_tkinter_adapter(self):
+        """Create a FrameworkAdapter instance configured for Tkinter.
+
+        :return: A FrameworkAdapter instance configured for Tkinter.
+        """
         adapter = FrameworkAdapter("Tkinter")
 
         # Register Tkinter-specific templates
@@ -160,15 +223,21 @@ class FrameworkAdapter:
 
         return adapter
 
-    def create_textual_adapter():
-        """Create an adapter for Textual."""
+    def create_textual_adapter(self):
+        """Create a FrameworkAdapter instance configured for Textual.
+
+        :return: A FrameworkAdapter instance configured for Textual.
+        """
         adapter = FrameworkAdapter("Textual")
 
         # Register Textual-specific templates
         return adapter
 
-    def create_pyqt_adapter():
-        """Create an adapter for PyQt."""
+    def create_pyqt_adapter(self):
+        """Create a FrameworkAdapter instance configured for PyQt.
+
+        :return: A FrameworkAdapter instance configured for PyQt.
+        """
         adapter = FrameworkAdapter("PyQt")
 
         adapter.register_python_templates(adapter.generator)
@@ -183,8 +252,11 @@ class FrameworkAdapter:
         # Register PyQt-specific templates
         return adapter
 
-    def create_wxpython_adapter():
-        """Create an adapter for wxPython."""
+    def create_wxpython_adapter(self):
+        """Create a FrameworkAdapter instance configured for wxPython.
+
+        :return: A FrameworkAdapter instance configured for wxPython.
+        """
         adapter = FrameworkAdapter("wxPython")
 
         adapter.register_python_templates(adapter.generator)
@@ -199,59 +271,91 @@ class FrameworkAdapter:
         # Register wxPython-specific templates
         return adapter
 
-    # Window template
-    def window_template(context):
-        """Generate a template for a window component."""
-        component = context["component"]
-        indent = context["indent"]
-        code = f"{indent}window = tk.Tk()\n"
-        code += (
-            f"{indent}window.title('{component.properties.get('title', 'Untitled')}')\n"
-        )
-        code += f"{indent}window.geometry('{component.properties.get('width', 800)}x{component.properties.get('height', 600)}')\n"
-        return code
+    # Template methods
+    def window_template(self, context: dict[str, Any]) -> str:
+        """Generate window template code."""
+        return "window = tk.Tk()"
 
-    def map_property(self, component, property_name):
-        """Map a component property to framework-specific code."""
-        if (
-            component.type in self.property_mappers
-            and property_name in self.property_mappers[component.type]
-        ):
-            return self.property_mappers[component.type][property_name](
-                component.properties.get(property_name)
-            )
-        return repr(component.properties.get(property_name))
+    def button_template(self, context: dict[str, Any]) -> str:
+        """Generate button template code."""
+        return "button = tk.Button(window)"
 
-    def generate_code(self, root_component):
-        """Generate framework-specific code for the component tree."""
-        return self.generator.generate_full_source(root_component)
+    def label_template(self, context: dict[str, Any]) -> str:
+        """Generate label template code."""
+        return "label = tk.Label(window)"
 
-    def create_tkinter_adapter():
-        """Create an adapter for Tkinter."""
-        adapter = FrameworkAdapter("Tkinter")
+    def text_input_template(self, context: dict[str, Any]) -> str:
+        """Generate text input template code."""
+        return "text_input = tk.Entry(window)"
 
-        # Register Tkinter-specific templates
-        adapter.register_python_templates(adapter.generator)
-        adapter.register_property_mappers()
-        adapter.register_transformations()
-        adapter.register_code_generator()
-        adapter.register_property_mappers()
-        adapter.register_property_validators()
-        adapter.register_component_transformers()
-        adapter.register_code_generator()
+    def checkbox_template(self, context: dict[str, Any]) -> str:
+        """Generate checkbox template code."""
+        return "checkbox = tk.Checkbutton(window)"
 
-        # Register property mappers
-        adapter.register_property_mapper(
-            "Window",
-            "modal",
-            lambda v: "window.transient(parent)" if v else "",
-        )
-        adapter.register_property_mapper(
-            "Button",
-            "enabled",
-            lambda v: (
-                "button['state'] = tk.NORMAL" if v else "button['state'] = tk.DISABLED"
-            ),
-        )
+    def radio_button_template(self, context: dict[str, Any]) -> str:
+        """Generate radio button template code."""
+        return "radio_button = tk.Radiobutton(window)"
 
-        return adapter
+    def text_area_template(self, context: dict[str, Any]) -> str:
+        """Generate text area template code."""
+        return "text_area = tk.Text(window)"
+
+    def dropdown_template(self, context: dict[str, Any]) -> str:
+        """Generate dropdown template code."""
+        return "dropdown = ttk.Combobox(window)"
+
+    def slider_template(self, context: dict[str, Any]) -> str:
+        """Generate slider template code."""
+        return "slider = ttk.Scale(window)"
+
+    def progress_bar_template(self, context: dict[str, Any]) -> str:
+        """Generate progress bar template code."""
+        return "progress_bar = ttk.Progressbar(window)"
+
+    def tab_view_template(self, context: dict[str, Any]) -> str:
+        """Generate tab view template code."""
+        return "tab_view = ttk.Notebook(window)"
+
+    def dialog_template(self, context: dict[str, Any]) -> str:
+        """Generate dialog template code."""
+        return "dialog = tk.Toplevel(window)"
+
+    def list_view_template(self, context: dict[str, Any]) -> str:
+        """Generate list view template code."""
+        return "list_view = tk.Listbox(window)"
+
+    def table_view_template(self, context: dict[str, Any]) -> str:
+        """Generate table view template code."""
+        return "table_view = ttk.Treeview(window)"
+
+    def tree_view_template(self, context: dict[str, Any]) -> str:
+        """Generate tree view template code."""
+        return "tree_view = ttk.Treeview(window)"
+
+    def chart_template(self, context: dict[str, Any]) -> str:
+        """Generate chart template code."""
+        return "# Chart implementation"
+
+    def calendar_template(self, context: dict[str, Any]) -> str:
+        """Generate calendar template code."""
+        return "# Calendar implementation"
+
+    def file_picker_template(self, context: dict[str, Any]) -> str:
+        """Generate file picker template code."""
+        return "file_picker = tk.filedialog.askopenfilename()"
+
+    def image_template(self, context: dict[str, Any]) -> str:
+        """Generate image template code."""
+        return "image = tk.PhotoImage()"
+
+    def __getitem__(self, key: str) -> Any:
+        """Support dictionary-style access to registered items."""
+        if key in self.templates:
+            return self.templates[key]
+        if key in self.property_mappers:
+            return self.property_mappers[key]
+        if key in self.transformers:
+            return self.transformers[key]
+        if key in self.validators:
+            return self.validators[key]
+        raise KeyError(f"No item registered for key: {key}")

@@ -53,12 +53,12 @@ class TemplateEngine:
 
             return value
 
-        elif expr.startswith("properties."):
+        if expr.startswith("properties."):
             key = expr[11:]
             return data["properties"].get(key)
 
         # Support for simple conditionals
-        elif " if " in expr and " else " in expr:
+        if " if " in expr and " else " in expr:
             condition, rest = expr.split(" if ", 1)
             then_part, else_part = rest.split(" else ", 1)
 
@@ -66,21 +66,20 @@ class TemplateEngine:
 
             if condition_value:
                 return self._evaluate_expression(then_part, data)
-            else:
-                return self._evaluate_expression(else_part, data)
+            return self._evaluate_expression(else_part, data)
 
         # Handle literals
-        elif expr == "true":
+        if expr == "true":
             return True
-        elif expr == "false":
+        if expr == "false":
             return False
-        elif expr == "null" or expr == "none":
+        if expr == "null" or expr == "none":
             return None
-        elif expr.isdigit():
+        if expr.isdigit():
             return int(expr)
-        elif expr.replace(".", "", 1).isdigit() and expr.count(".") <= 1:
+        if expr.replace(".", "", 1).isdigit() and expr.count(".") <= 1:
             return float(expr)
-        elif expr.startswith('"') and expr.endswith('"'):
+        if expr.startswith('"') and expr.endswith('"'):
             return expr[1:-1]
 
         return f"{{Unknown: {expr}}}"

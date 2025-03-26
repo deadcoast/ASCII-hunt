@@ -1,10 +1,11 @@
 """Containment Analyzer Module."""
 
+from .spatial_analysis import SpatialIndex
+
 
 class ContainmentAnalyzer:
     def __init__(self):
-        """
-        Initialize a new ContainmentAnalyzer.
+        """Initialize a new ContainmentAnalyzer.
 
         This constructor creates a new ContainmentAnalyzer instance with an empty
         containment_graph attribute.
@@ -84,7 +85,7 @@ class ContainmentAnalyzer:
         """Get the bounding box of a component."""
         if "refined_bounding_box" in component.properties:
             return component.properties["refined_bounding_box"]
-        elif "bounding_box" in component.properties:
+        if "bounding_box" in component.properties:
             return component.properties["bounding_box"]
         return None
 

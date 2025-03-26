@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Rich Directory Tree Generator
+"""Rich Directory Tree Generator
 
 A simple script that uses the Rich library to generate beautiful directory trees.
 This approach uses a third-party library instead of custom code for reliability.
@@ -18,9 +17,9 @@ Author: Space Muck Team
 """
 
 import argparse
-import glob
 import os
 import sys
+from fnmatch import fnmatch
 from pathlib import Path
 
 try:
@@ -114,6 +113,11 @@ DEFAULT_IGNORE = [
     "*.snap",
     "CodeBase_Docs/CodeBase_Error_Log.md",
     "CodeBase_Docs/CodeBase_Linting_Progress.md",
+    ".mypy_cache",
+    ".misc/",
+    "cv2/",
+    "ctypes/",
+    ".textual_docs/",
 ]
 
 
@@ -150,7 +154,7 @@ def should_ignore(path, ignore_patterns):
 
         # Handle glob patterns with fnmatch
         if "*" in pattern or "?" in pattern:
-            if glob.fnmatch.fnmatch(name, pattern):
+            if fnmatch(name, pattern):
                 return True
 
         # Direct substring match in full path

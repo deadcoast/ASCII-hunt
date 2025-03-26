@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-ASCII Character and Width Analyzer
+"""ASCII Character and Width Analyzer
 
 A reliable tool for measuring character count and display width
 with perfectly aligned borders.
@@ -8,7 +7,6 @@ with perfectly aligned borders.
 
 import os
 import shutil
-import sys
 import unicodedata
 
 try:
@@ -17,6 +15,7 @@ try:
     CLIPBOARD_AVAILABLE = True
 except ImportError:
     CLIPBOARD_AVAILABLE = False
+    pyperclip = None
 
 
 # Set up terminal colors
@@ -49,7 +48,7 @@ def get_display_width(text):
         if unicodedata.category(char) in ["Mn", "Me", "Cf"]:
             continue
         # Handle wide characters (CJK, emoji, etc.)
-        elif unicodedata.east_asian_width(char) in ["F", "W"]:
+        if unicodedata.east_asian_width(char) in ["F", "W"]:
             width += 2
         # Normal characters
         else:
@@ -58,8 +57,7 @@ def get_display_width(text):
 
 
 def draw_box(lines, title=None, width=None, padding=1):
-    """
-    Draw a perfectly aligned box around the given lines.
+    """Draw a perfectly aligned box around the given lines.
 
     Args:
         lines: List of strings to display in the box
@@ -246,53 +244,49 @@ def show_welcome():
     print()
 
 
+def get_clipboard_content():
+    """Get content from clipboard if available."""
+    if not CLIPBOARD_AVAILABLE or pyperclip is None:
+        print(
+            f"{Colors.RED}Clipboard feature not available. Install pyperclip module:{Colors.RESET}"
+        )
+        print(f"{Colors.YELLOW}pip install pyperclip{Colors.RESET}")
+        return None
+
+    try:
+        clipboard_text = pyperclip.paste()
+        if clipboard_text:
+            print(
+                f"{Colors.YELLOW}Analyzing clipboard content ({len(clipboard_text)} chars){Colors.RESET}"
+            )
+            return clipboard_text
+        print(f"{Colors.RED}Clipboard appears to be empty{Colors.RESET}")
+        return None
+    except Exception as e:
+        print(f"{Colors.RED}Error accessing clipboard: {e!s}{Colors.RESET}")
+        return None
+
+
 def main():
-    """Main program function."""
-    clear_screen()
+    """Main program loop."""
     show_welcome()
 
     while True:
         try:
-            print(f"\n{Colors.BOLD}Enter text to analyze (or command):{Colors.RESET}")
-            user_input = input(f"{Colors.GREEN}> {Colors.RESET}")
+            print(
+                f"\n{Colors.CYAN}Enter text to analyze (or 'q' to quit, 'clip' for clipboard):{Colors.RESET}"
+            )
+            user_input = input("> ").strip()
 
-            # Handle commands
-            if user_input.lower() in ["exit", "quit"]:
-                print(
-                    f"\n{Colors.CYAN}Thank you for using the ASCII analyzer. Goodbye!{Colors.RESET}"
-                )
+            if user_input.lower() in ["q", "quit", "exit"]:
+                print(f"\n{Colors.CYAN}Goodbye!{Colors.RESET}")
                 break
 
-            elif user_input.lower() == "clear":
-                clear_screen()
-                show_welcome()
-                continue
-
-            elif user_input.lower() in ["clip", "clipboard"]:
-                if CLIPBOARD_AVAILABLE:
-                    try:
-                        clipboard_text = pyperclip.paste()
-                        if clipboard_text:
-                            user_input = clipboard_text
-                            print(
-                                f"{Colors.YELLOW}Analyzing clipboard content ({len(clipboard_text)} chars){Colors.RESET}"
-                            )
-                        else:
-                            print(
-                                f"{Colors.RED}Clipboard appears to be empty{Colors.RESET}"
-                            )
-                            continue
-                    except Exception as e:
-                        print(
-                            f"{Colors.RED}Error accessing clipboard: {str(e)}{Colors.RESET}"
-                        )
-                        continue
-                else:
-                    print(
-                        f"{Colors.RED}Clipboard feature not available. Install pyperclip module:{Colors.RESET}"
-                    )
-                    print(f"{Colors.YELLOW}pip install pyperclip{Colors.RESET}")
+            if user_input.lower() in ["clip", "clipboard"]:
+                clipboard_text = get_clipboard_content()
+                if clipboard_text is None:
                     continue
+                user_input = clipboard_text
 
             # Skip empty input
             if not user_input:
@@ -318,7 +312,7 @@ def main():
             break
 
         except Exception as e:
-            print(f"\n{Colors.RED}Error: {str(e)}{Colors.RESET}")
+            print(f"\n{Colors.RED}Error: {e!s}{Colors.RESET}")
 
 
 if __name__ == "__main__":

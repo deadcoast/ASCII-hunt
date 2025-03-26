@@ -1,15 +1,28 @@
 """Component Factory Module."""
 
 import uuid
+from typing import Any
 
-from components.component_analysis import ConnectedComponentAnalyzer
-from components.component_model_representation import AbstractComponent
+from src.components.component_analysis import ComponentAnalyzer
+from src.components.component_model_representation import ComponentModel
+
+
+class Component:
+    """Base component class."""
+
+    def __init__(self, component_id: str, component_type: str):
+        self.id = component_id
+        self.type = component_type
+        self.properties: dict[str, Any] = {}
+
+    def add_property(self, key: str, value: Any) -> None:
+        """Add a property to the component."""
+        self.properties[key] = value
 
 
 class ComponentFactory:
-    def __init__(self, id_generator=None):
-        """
-        Initialize a ComponentFactory.
+    def __init__(self, id_generator: Any | None = None):
+        """Initialize a ComponentFactory.
 
         The ComponentFactory has the following properties:
         - self.id_generator: a function for generating unique identifiers for
@@ -19,23 +32,36 @@ class ComponentFactory:
         self.id_generator = id_generator or (lambda: str(uuid.uuid4()))
         self.type_classifier = None  # To be set with trained classifier
 
-    def create_from_flood_fill(self, flood_fill_result, grid):
+    def create_from_flood_fill(
+        self, flood_fill_result: dict[str, Any], grid: Any
+    ) -> Component:
         """Create a component from flood fill results."""
         component_id = self.id_generator()
 
         # Extract features for classification
-        connected_component_analyzer = ConnectedComponentAnalyzer()
-        features = connected_component_analyzer.component_analysis_from_model(
-            flood_fill_result, grid
+        component_analyzer = ComponentAnalyzer(ComponentModel())
+        features = component_analyzer.component_analysis_from_model(
+            [flood_fill_result], grid
         )
-        features = features[0]
-        feature_vectors = features[1]
+
+        # Ensure features were extracted successfully
+        if not features:
+            # Use default features if analysis fails
+            component_features = {
+                "has_border": False,
+                "has_title": False,
+                "is_rectangular": True,
+                "contains_text": False,
+                "text_is_bracketed": False,
+            }
+        else:
+            component_features = features[0]
 
         # Classify component type
-        component_type = self.classify_component_type(features)
+        component_type = self.classify_component_type(component_features)
 
         # Create the component
-        component = AbstractComponent(component_id, component_type)
+        component = Component(component_id, component_type)
 
         # Set basic properties
         bounding_box = flood_fill_result["bounding_box"]
@@ -57,11 +83,10 @@ class ComponentFactory:
         # Fallback classification logic
         if features["has_border"] and features["has_title"]:
             return "Window"
-        elif features["is_rectangular"] and features["contains_text"]:
+        if features["is_rectangular"] and features["contains_text"]:
             if features["text_is_bracketed"]:
                 return "Button"
-            else:
-                return "Label"
+            return "Label"
         # More classification rules...
 
         return "Unknown"

@@ -65,10 +65,10 @@ class ImportAgent:
         """Choose the next position to explore."""
         if random.random() < 0.2:  # 20% chance to explore new regions
             return self._explore_new_regions()
-        elif random.random() < 0.5:  # 30% chance to exploit known good regions
+        if random.random() < 0.5:  # 30% chance to exploit known good regions
             return self._exploit_knowledge()
-        else:  # 50% chance to follow pheromone trails
-            return self._follow_pheromone_trail()
+        # 50% chance to follow pheromone trails
+        return self._follow_pheromone_trail()
 
     def _exploit_knowledge(self) -> NDArray[np.float64]:
         """Exploit known good regions."""
@@ -244,7 +244,7 @@ class ImportSwarmOptimizer:
         if position is None or not isinstance(position, np.ndarray):
             return None
 
-        position_array = cast(NDArray, position)
+        position_array = cast("NDArray", position)
         if len(position_array) == 0:
             return None
 
@@ -365,7 +365,7 @@ class ImportSwarmOptimizer:
             "Exception": "builtins",
             "open": "builtins",
         }
-        return common_modules.get(symbol, None)
+        return common_modules.get(symbol)
 
     def _evaluate_style_consistency(self, solution: list[dict[str, Any]]) -> float:
         """Evaluate style consistency of imports."""
@@ -525,17 +525,17 @@ class ImportSwarmOptimizer:
 
         if import_type == "import":
             return ast.Import(names=[ast.alias(name=module_name, asname=alias_name)])
-        else:  # from import
-            level = 0
-            while module_name.startswith("."):
-                level += 1
-                module_name = module_name[1:]
+        # from import
+        level = 0
+        while module_name.startswith("."):
+            level += 1
+            module_name = module_name[1:]
 
-            return ast.ImportFrom(
-                module=module_name,
-                names=[ast.alias(name=symbol_name, asname=alias_name)],
-                level=level,
-            )
+        return ast.ImportFrom(
+            module=module_name,
+            names=[ast.alias(name=symbol_name, asname=alias_name)],
+            level=level,
+        )
 
     def _apply_imports_to_file(
         self, file_path: str, imports: list[dict[str, Any]]

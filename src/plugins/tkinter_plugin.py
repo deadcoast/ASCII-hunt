@@ -1,3 +1,7 @@
+from plugins.plugin_base import Plugin
+from src.adapters.tkinter_adapter import create_tkinter_adapter
+
+
 class TkinterPlugin(Plugin):
     def __init__(self):
         super().__init__("tkinter", "Tkinter UI Framework", "1.0")

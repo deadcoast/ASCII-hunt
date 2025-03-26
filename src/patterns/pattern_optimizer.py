@@ -1,17 +1,30 @@
+from typing import Any
+
+import numpy as np
+from numpy.typing import NDArray
+
+from src.dsl.hunt_parser import HuntParser
+from src.patterns.pattern_registry import PatternRegistry
+
+
 class PatternOptimizer:
-    def __init__(self, pattern_registry, interpreter):
+    def __init__(
+        self, pattern_registry: PatternRegistry, interpreter: HuntParser
+    ) -> None:
         self.pattern_registry = pattern_registry
         self.interpreter = interpreter
 
-    def optimize_patterns(self, grid_data, components):
+    def optimize_patterns(
+        self, grid_data: NDArray[np.str_], components: list[dict[str, Any]]
+    ) -> str:
         """Optimize patterns for better matching performance and accuracy."""
         # Get all patterns
         tracking_patterns = self.pattern_registry.get_all_tracking_patterns()
 
-        optimized_patterns = {}
+        optimized_patterns: dict[str, dict[str, Any]] = {}
 
         # Group components by type
-        grouped_components = {}
+        grouped_components: dict[str, list[dict[str, Any]]] = {}
 
         for component in components:
             component_type = component.get("ui_type")
@@ -41,11 +54,16 @@ class PatternOptimizer:
 
         return hunt_code
 
-    def _optimize_pattern(self, pattern, components, grid_data):
+    def _optimize_pattern(
+        self,
+        pattern: dict[str, Any],
+        components: list[dict[str, Any]],
+        grid_data: NDArray[np.str_],
+    ) -> dict[str, Any]:
         """Optimize a pattern for better matching with specific components."""
         # Extract common features from components
-        boundary_chars = set()
-        content_patterns = []
+        boundary_chars: set[str] = set()
+        content_patterns: list[tuple[str, str]] = []
 
         for component in components:
             # Extract boundary characters
@@ -53,7 +71,7 @@ class PatternOptimizer:
 
             for x, y in boundary_points:
                 if 0 <= y < grid_data.shape[0] and 0 <= x < grid_data.shape[1]:
-                    char = grid_data[y, x]
+                    char = str(grid_data[y, x])  # Convert numpy array element to string
                     boundary_chars.add(char)
 
             # Extract content patterns
@@ -110,7 +128,7 @@ class PatternOptimizer:
 
         return optimized_pattern
 
-    def _generate_hunt_code(self, patterns):
+    def _generate_hunt_code(self, patterns: dict[str, dict[str, Any]]) -> str:
         """Generate HUNT DSL code from patterns."""
         hunt_code = []
 

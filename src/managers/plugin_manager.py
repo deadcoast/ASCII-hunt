@@ -2,33 +2,230 @@
 
 import glob
 import importlib
+import importlib.util
 import os
+from collections.abc import Callable
+from importlib.util import module_from_spec, spec_from_file_location
+from types import ModuleType
+from typing import TYPE_CHECKING, Any, cast
 
-from components.abstract_component import AbstractComponent
-from components.component_model_representation import ComponentModel
-from managers.cache_manager import CacheManager
+if TYPE_CHECKING:
+    from importlib.machinery import ModuleSpec
+
 from managers.code_generator import CodeGenerator
-from managers.component_overlay_manager import ComponentOverlayManager
 from managers.dsl_code_generator import DSLCodeGenerator
-from managers.functional_relationship_manager import FunctionalRelationshipManager
 from managers.hunt_code_generator import HuntCodeGenerator
-from managers.layout_management import LayoutManager
 from managers.python_tkinter_generator import PythonTkinterGenerator
+from src.components.abstract_component import AbstractComponent
+from src.components.component_model_representation import ComponentModel
+from src.managers.cache_manager import CacheManager
+from src.managers.component_overlay_manager import ComponentOverlayManager
+from src.managers.functional_relationship_manager import \
+    FunctionalRelationshipManager
+from src.managers.layout_management import LayoutManager
 
 
 class PluginManager:
+    components: list[Any]
+    selected_component: Any | None
+    highlight_colors: dict[str, str]
+    grid_widget: Any | None
+    layout_handlers: dict[str, Any]
+    relationship_patterns: list[Any]
+    mapping_source: dict[str, Any]
+    layout_manager: LayoutManager
+    functional_relationship_manager: FunctionalRelationshipManager
+    cache_manager: CacheManager
+    component_overlay_manager: ComponentOverlayManager
+    abstract_component: AbstractComponent
+
+    # Additional template attributes
+    checkbutton_template: str
+    radiobutton_template: str
+    listbox_template: str
+    canvas_template: str
+    frame_template: str
+    menu_template: str
+    scrollbar_template: str
+    scale_template: str
+    spinbox_template: str
+    treeview_template: str
+    toplevel_template: str
+    message_template: str
+    labelframe_template: str
+
+    # Layout handlers
+    default_layout_handler: Callable[[], None]
+    grid_layout_handler: Callable[[], None]
+    flex_layout_handler: Callable[[], None]
+    absolute_layout_handler: Callable[[], None]
+    relative_layout_handler: Callable[[], None]
+    sticky_layout_handler: Callable[[], None]
+    pack_layout_handler: Callable[[], None]
+    place_layout_handler: Callable[[], None]
+
+    # Relationship patterns
+    parent_child_pattern: Callable[[], None]
+    sibling_pattern: Callable[[], None]
+    ancestor_pattern: Callable[[], None]
+    descendant_pattern: Callable[[], None]
+
+    # Templates
+    window_template: str
+    button_template: str
+    label_template: str
+    entry_template: str
+    text_template: str
+    default_template: str
+
     def __init__(self):
-        """
-        Initialize the PluginManager.
+        """Initialize the PluginManager.
 
         The PluginManager is responsible for managing the plugins, which provide
         functionality to the system. It keeps track of the plugins and provides
         an interface to register and retrieve plugins.
-
-        :ivar plugins: A dictionary mapping plugin names to plugin instances.
-        :ivar extension_points: A dictionary mapping extension point names to
-            extension point instances.
         """
+        # Initialize instance attributes
+        self.components = []
+        self.selected_component = None
+        self.highlight_colors = {
+            "selected": "#ff0000",
+            "hover": "#00ff00",
+            "active": "#0000ff",
+        }
+        self.grid_widget = None
+        self.layout_handlers = {}
+        self.relationship_patterns = []
+        self.mapping_source = {}
+
+        # Initialize managers
+        self.layout_manager = LayoutManager()
+        self.functional_relationship_manager = FunctionalRelationshipManager()
+        self.cache_manager = CacheManager(max_size=100)
+        self.component_overlay_manager = ComponentOverlayManager(
+            grid_widget=self.grid_widget
+        )
+        self.abstract_component = AbstractComponent(
+            component_id="default_id", component_type="default_type"
+        )
+
+        # Initialize layout handlers
+        self.default_layout_handler = lambda: None
+        self.grid_layout_handler = lambda: None
+        self.flex_layout_handler = lambda: None
+        self.absolute_layout_handler = lambda: None
+        self.relative_layout_handler = lambda: None
+        self.sticky_layout_handler = lambda: None
+        self.pack_layout_handler = lambda: None
+        self.place_layout_handler = lambda: None
+
+        # Initialize relationship patterns
+        self.parent_child_pattern = lambda: None
+        self.sibling_pattern = lambda: None
+        self.ancestor_pattern = lambda: None
+        self.descendant_pattern = lambda: None
+
+        # Initialize template attributes
+        self.window_template = """
+        def create_window(self, title: str, width: int, height: int) -> Any:
+            window = tk.Tk()
+            window.title(title)
+            window.geometry(f"{width}x{height}")
+            return window
+        """
+
+        self.button_template = """
+        def create_button(self, parent: Any, text: str, command: Callable[[], None]) -> Any:
+            return tk.Button(parent, text=text, command=command)
+        """
+
+        self.label_template = """
+        def create_label(self, parent: Any, text: str) -> Any:
+            return tk.Label(parent, text=text)
+        """
+
+        self.entry_template = """
+        def create_entry(self, parent: Any) -> Any:
+            return tk.Entry(parent)
+        """
+
+        self.text_template = """
+        def create_text(self, parent: Any) -> Any:
+            return tk.Text(parent)
+        """
+
+        self.default_template = """
+        def create_default(self, parent: Any) -> Any:
+            return tk.Frame(parent)
+        """
+
+        # Initialize additional templates
+        self.checkbutton_template = """
+        def create_checkbutton(self, parent: Any, text: str, variable: Any) -> Any:
+            return tk.Checkbutton(parent, text=text, variable=variable)
+        """
+
+        self.radiobutton_template = """
+        def create_radiobutton(self, parent: Any, text: str, variable: Any, value: Any) -> Any:
+            return tk.Radiobutton(parent, text=text, variable=variable, value=value)
+        """
+
+        self.listbox_template = """
+        def create_listbox(self, parent: Any) -> Any:
+            return tk.Listbox(parent)
+        """
+
+        self.canvas_template = """
+        def create_canvas(self, parent: Any, width: int, height: int) -> Any:
+            return tk.Canvas(parent, width=width, height=height)
+        """
+
+        self.frame_template = """
+        def create_frame(self, parent: Any) -> Any:
+            return tk.Frame(parent)
+        """
+
+        self.menu_template = """
+        def create_menu(self, parent: Any) -> Any:
+            return tk.Menu(parent)
+        """
+
+        self.scrollbar_template = """
+        def create_scrollbar(self, parent: Any, orient: str) -> Any:
+            return tk.Scrollbar(parent, orient=orient)
+        """
+
+        self.scale_template = """
+        def create_scale(self, parent: Any, from_: float, to: float, orient: str) -> Any:
+            return tk.Scale(parent, from_=from_, to=to, orient=orient)
+        """
+
+        self.spinbox_template = """
+        def create_spinbox(self, parent: Any, from_: float, to: float) -> Any:
+            return tk.Spinbox(parent, from_=from_, to=to)
+        """
+
+        self.treeview_template = """
+        def create_treeview(self, parent: Any) -> Any:
+            return ttk.Treeview(parent)
+        """
+
+        self.toplevel_template = """
+        def create_toplevel(self, parent: Any) -> Any:
+            return tk.Toplevel(parent)
+        """
+
+        self.message_template = """
+        def create_message(self, parent: Any, text: str) -> Any:
+            return tk.Message(parent, text=text)
+        """
+
+        self.labelframe_template = """
+        def create_labelframe(self, parent: Any, text: str) -> Any:
+            return tk.LabelFrame(parent, text=text)
+        """
+
+        # Initialize plugins dictionary
         self.plugins = {
             "python_tkinter": PythonTkinterGenerator(
                 template_registry={
@@ -76,148 +273,16 @@ class PluginManager:
                 },
                 default_template=self.default_template,
             ),
-            "layout_manager": LayoutManager(
-                layout_handlers={
-                    "default": self.default_layout_handler,
-                    "grid": self.grid_layout_handler,
-                    "flex": self.flex_layout_handler,
-                    "absolute": self.absolute_layout_handler,
-                    "relative": self.relative_layout_handler,
-                    "sticky": self.sticky_layout_handler,
-                    "pack": self.pack_layout_handler,
-                    "place": self.place_layout_handler,
-                },
-            ),
-            "functional_relationship_manager": FunctionalRelationshipManager(
-                relationship_patterns=[
-                    self.parent_child_pattern,
-                    self.sibling_pattern,
-                    self.ancestor_pattern,
-                    self.descendant_pattern,
-                ],
-            ),
-            "cache_manager": CacheManager(
-                max_size=100,
-            ),
-            "component_overlay_manager": ComponentOverlayManager(
-                grid_widget=self.grid_widget,
-                components=self.components,
-                selected_component=self.selected_component,
-                highlight_colors=self.highlight_colors,
-            ),
+            "layout_manager": self.layout_manager,
+            "functional_relationship_manager": self.functional_relationship_manager,
+            "cache_manager": self.cache_manager,
+            "component_overlay_manager": self.component_overlay_manager,
             "component_model": ComponentModel(),
-            "abstract_component": AbstractComponent(
-                properties={
-                    "x": 0,
-                    "y": 0,
-                    "width": 0,
-                    "height": 0,
-                    "color": "#000000",
-                },
-                children=[],
-                parent=None,
-                type="",
-                id="",
-                name="",
-                description="",
-                visible=True,
-                enabled=True,
-                focusable=True,
-                focusable_in_parent=True,
-                focusable_in_window=True,
-                focusable_in_application=True,
-                focusable_in_system=True,
-                focusable_in_screen=True,
-            ),
+            "abstract_component": self.abstract_component,
         }
-        self.extension_points = {
-            "python_tkinter": PythonTkinterGenerator(
-                template_registry={
-                    "Window": self.window_template,
-                    "Button": self.button_template,
-                    "Label": self.label_template,
-                    "Entry": self.entry_template,
-                    "Text": self.text_template,
-                },
-                default_template=self.default_template,
-            ),
-            "hunt": HuntCodeGenerator(
-                template_registry={
-                    "Window": self.window_template,
-                    "Button": self.button_template,
-                    "Label": self.label_template,
-                    "Entry": self.entry_template,
-                    "Text": self.text_template,
-                },
-                default_template=self.default_template,
-            ),
-            "dsl": DSLCodeGenerator(
-                mapping_source=self.mapping_source,
-            ),
-            "code_generator": CodeGenerator(
-                template_registry={
-                    "Window": self.window_template,
-                    "Button": self.button_template,
-                    "Label": self.label_template,
-                    "Entry": self.entry_template,
-                    "Text": self.text_template,
-                },
-                default_template=self.default_template,
-            ),
-            "layout_manager": LayoutManager(
-                layout_handlers={
-                    "default": self.default_layout_handler,
-                    "grid": self.grid_layout_handler,
-                    "flex": self.flex_layout_handler,
-                    "absolute": self.absolute_layout_handler,
-                    "relative": self.relative_layout_handler,
-                    "sticky": self.sticky_layout_handler,
-                    "pack": self.pack_layout_handler,
-                    "place": self.place_layout_handler,
-                },
-            ),
-            "functional_relationship_manager": FunctionalRelationshipManager(
-                relationship_patterns=[
-                    self.parent_child_pattern,
-                    self.sibling_pattern,
-                    self.ancestor_pattern,
-                    self.descendant_pattern,
-                ],
-            ),
-            "cache_manager": CacheManager(
-                max_size=100,
-            ),
-            "component_overlay_manager": ComponentOverlayManager(
-                grid_widget=self.grid_widget,
-                components=self.components,
-                selected_component=self.selected_component,
-                highlight_colors=self.highlight_colors,
-            ),
-            "component_model": ComponentModel(),
-            "abstract_component": AbstractComponent(
-                properties={
-                    "x": 0,
-                    "y": 0,
-                    "width": 0,
-                    "height": 0,
-                    "color": "#000000",
-                },
-                children=[],
-                parent=None,
-                type="",
-                id="",
-                name="",
-                description="",
-                visible=True,
-                enabled=True,
-                focusable=True,
-                focusable_in_parent=True,
-                focusable_in_window=True,
-                focusable_in_application=True,
-                focusable_in_system=True,
-                focusable_in_screen=True,
-            ),
-        }
+
+        # Initialize extension points with the same configuration
+        self.extension_points = self.plugins.copy()
 
     def register_plugin(self, plugin_name, plugin):
         """Register a plugin."""
@@ -300,6 +365,29 @@ class PluginManager:
             for plugin_name in self.plugins
         }
 
+    def load_plugin(self, plugin_path: str) -> ModuleType | None:
+        """Load a plugin from the specified path."""
+        try:
+            spec = spec_from_file_location("plugin", plugin_path)
+            if spec is None or spec.loader is None:
+                print(
+                    f"Failed to load plugin at {plugin_path}: Invalid module specification"
+                )
+                return None
+
+            # Create module from spec and ensure it's not None
+            module = module_from_spec(cast("ModuleSpec", spec))
+
+            # Execute the module if loader exists
+            if spec.loader is not None:
+                spec.loader.exec_module(module)
+
+            return module
+
+        except Exception as e:
+            print(f"Error loading plugin at {plugin_path}: {e!s}")
+            return None
+
     def load_plugin_from_file(self, plugin_path):
         """Load a plugin from a file."""
         import importlib.util
@@ -312,6 +400,11 @@ class PluginManager:
         # Load module from file
         module_name = os.path.basename(plugin_path).replace(".py", "")
         spec = importlib.util.spec_from_file_location(module_name, plugin_path)
+        if spec is None or spec.loader is None:
+            raise ValueError(
+                f"Failed to load plugin at {plugin_path}: Invalid module specification"
+            )
+
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
 
@@ -348,52 +441,63 @@ class PluginManager:
             self.register_plugin(plugin_name, plugin)
 
             return plugin_name
-        else:
-            raise ValueError(f"Invalid plugin file: {plugin_path}")
+        raise ValueError(f"Invalid plugin file: {plugin_path}")
 
     def load_plugin_from_directory(self, plugin_dir):
         """Load all plugins from a directory."""
-        for plugin_path in glob.glob(os.path.join(plugin_dir, "*.py")):
-            self.load_plugin_from_file(plugin_path)
+        plugin_paths = glob.glob(os.path.join(plugin_dir, "*.py"))
+        loaded_plugins = []
 
-        # Create plugin instance
-        module_name = os.path.basename(plugin_path).replace(".py", "")
-        spec = importlib.util.spec_from_file_location(module_name, plugin_path)
-        module = importlib.util.module_from_spec(spec)
-        spec.loader.exec_module(module)
+        for plugin_path in plugin_paths:
+            try:
+                # Create plugin instance
+                module_name = os.path.basename(plugin_path).replace(".py", "")
+                spec = importlib.util.spec_from_file_location(module_name, plugin_path)
+                if spec is None or spec.loader is None:
+                    print(
+                        f"Failed to load plugin at {plugin_path}: Invalid module specification"
+                    )
+                    continue
 
-        # Create plugin instance
-        if hasattr(module, "create_plugin"):
-            plugin = module.create_plugin(
-                extension_points=self.extension_points,
-                plugins=self.plugins,
-                grid_widget=self.grid_widget,
-                components=self.components,
-                selected_component=self.selected_component,
-                highlight_colors=self.highlight_colors,
-                layout_manager=self.layout_manager,
-                functional_relationship_manager=self.functional_relationship_manager,
-                cache_manager=self.cache_manager,
-                component_overlay_manager=self.component_overlay_manager,
-                abstract_component=self.abstract_component,
-            )
-            plugin_name = plugin.get_name(
-                extension_points=self.extension_points,
-                plugins=self.plugins,
-                grid_widget=self.grid_widget,
-                components=self.components,
-                selected_component=self.selected_component,
-                highlight_colors=self.highlight_colors,
-                layout_manager=self.layout_manager,
-                functional_relationship_manager=self.functional_relationship_manager,
-                cache_manager=self.cache_manager,
-                component_overlay_manager=self.component_overlay_manager,
-                abstract_component=self.abstract_component,
-            )
+                module = importlib.util.module_from_spec(spec)
+                spec.loader.exec_module(module)
 
-            # Register plugin
-            self.register_plugin(plugin_name, plugin)
+                # Create plugin instance
+                if hasattr(module, "create_plugin"):
+                    plugin = module.create_plugin(
+                        extension_points=self.extension_points,
+                        plugins=self.plugins,
+                        grid_widget=self.grid_widget,
+                        components=self.components,
+                        selected_component=self.selected_component,
+                        highlight_colors=self.highlight_colors,
+                        layout_manager=self.layout_manager,
+                        functional_relationship_manager=self.functional_relationship_manager,
+                        cache_manager=self.cache_manager,
+                        component_overlay_manager=self.component_overlay_manager,
+                        abstract_component=self.abstract_component,
+                    )
+                    plugin_name = plugin.get_name(
+                        extension_points=self.extension_points,
+                        plugins=self.plugins,
+                        grid_widget=self.grid_widget,
+                        components=self.components,
+                        selected_component=self.selected_component,
+                        highlight_colors=self.highlight_colors,
+                        layout_manager=self.layout_manager,
+                        functional_relationship_manager=self.functional_relationship_manager,
+                        cache_manager=self.cache_manager,
+                        component_overlay_manager=self.component_overlay_manager,
+                        abstract_component=self.abstract_component,
+                    )
 
-            return plugin_name
-        else:
-            raise ValueError(f"Invalid plugin file: {plugin_path}")
+                    # Register plugin
+                    self.register_plugin(plugin_name, plugin)
+                    loaded_plugins.append(plugin_name)
+                else:
+                    raise ValueError(f"Invalid plugin file: {plugin_path}")
+            except Exception as e:
+                print(f"Error loading plugin at {plugin_path}: {e!s}")
+                continue
+
+        return loaded_plugins

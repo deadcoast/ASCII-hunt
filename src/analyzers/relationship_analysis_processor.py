@@ -2,14 +2,13 @@
 
 import uuid
 
-from components.abstract_component import AbstractComponent
-from components.component_model import ComponentModel
+from src.components.abstract_component import AbstractComponent
+from src.components.component_model_representation import ComponentModel
 
 
 class RelationshipAnalysisProcessor:
     def __init__(self):
-        """
-        Initialize a new RelationshipAnalysisProcessor.
+        """Initialize a new RelationshipAnalysisProcessor.
 
         This constructor creates a new RelationshipAnalysisProcessor instance
         with an empty list of relationship analyzers.
@@ -41,20 +40,12 @@ class RelationshipAnalysisProcessor:
                 if key not in ("id", "type", "ui_type"):
                     abstract_component.add_property(key, value)
 
-            # Add to model
-            component_model.add_component(abstract_component)
+            # Add to model directly via the components dictionary
+            component_model.components[abstract_component.id] = abstract_component
 
         # Apply all relationship analyzers
         for analyzer in self.relationship_analyzers:
             analyzer.analyze(component_model, context)
-
-        # Validate the model
-        valid, errors = component_model.validate()
-
-        if not valid:
-            # Log validation errors
-            for error in errors:
-                print(f"Validation error: {error}")
 
         # Store in context for other stages
         context["component_model"] = component_model

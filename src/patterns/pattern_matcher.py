@@ -1,8 +1,24 @@
+from typing import Any, TypedDict
+
+from .pattern_registry import PatternRegistry
+
+
+class MatchResult(TypedDict):
+    match: bool
+    confidence: float
+    properties: dict[str, Any]
+
+
 class PatternMatcher:
-    def __init__(self, pattern_registry):
+    def __init__(self, pattern_registry: PatternRegistry) -> None:
         self.pattern_registry = pattern_registry
 
-    def match_component(self, grid, component, context=None):
+    def match_component(
+        self,
+        grid: dict[str, Any],
+        component: dict[str, Any],
+        context: dict[str, Any] | None = None,
+    ) -> list[dict[str, Any]]:
         """Match a component against registered patterns."""
         if context is None:
             context = {}
@@ -11,7 +27,7 @@ class PatternMatcher:
         component_patterns = self.pattern_registry.get_all_component_patterns()
 
         # Try to match the component with each pattern
-        matches = []
+        matches: list[dict[str, Any]] = []
 
         for component_type, pattern in component_patterns.items():
             match_result = self._match_component_pattern(
@@ -32,9 +48,15 @@ class PatternMatcher:
 
         return matches
 
-    def _match_component_pattern(self, grid, component, pattern, context):
+    def _match_component_pattern(
+        self,
+        grid: dict[str, Any],
+        component: dict[str, Any],
+        pattern: dict[str, Any],
+        context: dict[str, Any],
+    ) -> MatchResult:
         """Match a component against a specific pattern."""
-        result = {"match": False, "confidence": 0.0, "properties": {}}
+        result: MatchResult = {"match": False, "confidence": 0.0, "properties": {}}
 
         # Extract pattern rules
         rules = pattern.get("rules", [])
@@ -81,9 +103,15 @@ class PatternMatcher:
 
         return result
 
-    def _match_tag_rule(self, grid, component, rule, context):
+    def _match_tag_rule(
+        self,
+        grid: dict[str, Any],
+        component: dict[str, Any],
+        rule: dict[str, Any],
+        context: dict[str, Any],
+    ) -> MatchResult:
         """Match a tag rule against a component."""
-        result = {"match": False, "confidence": 0.0, "properties": {}}
+        result: MatchResult = {"match": False, "confidence": 0.0, "properties": {}}
 
         # Get tag name and rules
         tag_name = rule.get("tag_name")
@@ -129,9 +157,15 @@ class PatternMatcher:
 
         return result
 
-    def _match_pluck_rule(self, grid, component, rule, context):
+    def _match_pluck_rule(
+        self,
+        grid: dict[str, Any],
+        component: dict[str, Any],
+        rule: dict[str, Any],
+        context: dict[str, Any],
+    ) -> MatchResult:
         """Match a pluck rule against a component."""
-        result = {"match": False, "confidence": 0.0, "properties": {}}
+        result: MatchResult = {"match": False, "confidence": 0.0, "properties": {}}
 
         # Get target and rules
         target = rule.get("target")
@@ -181,7 +215,12 @@ class PatternMatcher:
 
         return result
 
-    def match_relationships(self, grid, components, context=None):
+    def match_relationships(
+        self,
+        grid: dict[str, Any],
+        components: list[dict[str, Any]],
+        context: dict[str, Any] | None = None,
+    ) -> list[dict[str, Any]]:
         """Match relationships between components."""
         if context is None:
             context = {}
@@ -190,7 +229,7 @@ class PatternMatcher:
         relationship_patterns = self.pattern_registry.get_all_relationship_patterns()
 
         # Try to match relationships
-        relationships = []
+        relationships: list[dict[str, Any]] = []
 
         for relationship_type, pattern in relationship_patterns.items():
             relationship_matches = self._match_relationship_pattern(

@@ -4,7 +4,7 @@ from textual.app import App, ComposeResult
 from textual.containers import Container
 from textual.widgets import Label
 
-from widgets.tabbed_content import TabbedContent, TabPane
+from src.widgets.tabbed_content import TabbedContent, TabPane
 
 
 class TabbedContentExample(App):

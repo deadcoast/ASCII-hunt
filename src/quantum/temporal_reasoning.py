@@ -310,9 +310,11 @@ class TemporalImportReasoner:
                                 "premise": import_a,
                                 "conclusion": import_b,
                                 "confidence": follows_count / len(seq_a),
-                                "avg_time_delta": total_follows / follows_count
-                                if total_follows
-                                else 0,
+                                "avg_time_delta": (
+                                    total_follows / follows_count
+                                    if total_follows
+                                    else 0
+                                ),
                             }
 
                             # Create a temporal logic formula

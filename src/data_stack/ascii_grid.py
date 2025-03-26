@@ -1,5 +1,21 @@
+import numpy as np
+
+
 class ASCIIGrid:
     def __init__(self, data=None, width=0, height=0):
+        """Initialize a new ASCIIGrid instance.
+
+        Parameters
+        ----------
+        data : str or numpy.ndarray, optional
+            Existing data to initialize the grid from. If None, an empty grid of size
+            (width, height) is created.
+        width : int, optional
+            Width of the grid if data is None.
+        height : int, optional
+            Height of the grid if data is None.
+
+        """
         if data is not None:
             # Initialize from existing data
             if isinstance(data, str):
@@ -7,7 +23,7 @@ class ASCIIGrid:
                 lines = data.splitlines()
                 self.height = len(lines)
                 self.width = max(len(line) for line in lines) if self.height > 0 else 0
-                self._grid = np.zeros((self.height, self.width), dtype=np.unicode_)
+                self._grid = np.zeros((self.height, self.width), dtype=np.str_)
 
                 for y, line in enumerate(lines):
                     for x, char in enumerate(line):
@@ -18,7 +34,7 @@ class ASCIIGrid:
                 self.height, self.width = data.shape
         else:
             # Create empty grid of specified size
-            self._grid = np.full((height, width), " ", dtype=np.unicode_)
+            self._grid = np.full((height, width), " ", dtype=np.str_)
             self.height = height
             self.width = width
 

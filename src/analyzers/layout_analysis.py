@@ -9,8 +9,7 @@ Component = TypeVar("Component")
 
 class LayoutAnalyzer:
     def __init__(self):
-        """
-        Initialize a LayoutAnalyzer instance.
+        """Initialize a LayoutAnalyzer instance.
 
         This constructor creates a LayoutAnalyzer with an empty layout_graph
         dictionary to store layout relationships between components.
@@ -175,7 +174,7 @@ class LayoutAnalyzer:
         if "refined_bounding_box" in component.properties:
             bb = component.properties["refined_bounding_box"]
             return [int(x) for x in bb] if bb else None
-        elif "bounding_box" in component.properties:
+        if "bounding_box" in component.properties:
             bb = component.properties["bounding_box"]
             return [int(x) for x in bb] if bb else None
         return None
@@ -253,7 +252,7 @@ class LayoutAnalyzer:
 
         return {"rows": len(rows), "columns": len(cols), "grid_map": grid_map}
 
-    def _find_nearest_index(self, value: int | float, positions: list[int]) -> int:
+    def _find_nearest_index(self, value: float, positions: list[int]) -> int:
         """Find the index of the nearest position."""
         value = int(value)  # Convert to int for comparison
         return min(range(len(positions)), key=lambda i: abs(positions[i] - value))
@@ -325,7 +324,7 @@ class LayoutAnalyzer:
 
         return {
             "direction": "horizontal",
-            "components": [cast(Any, comp).id for comp in sorted_components],
+            "components": [cast("Any", comp).id for comp in sorted_components],
             "mean_gap": mean_gap,
             "gap_variation": gap_variation,
         }
@@ -362,7 +361,7 @@ class LayoutAnalyzer:
 
         return {
             "direction": "vertical",
-            "components": [cast(Any, comp).id for comp in sorted_components],
+            "components": [cast("Any", comp).id for comp in sorted_components],
             "mean_gap": mean_gap,
             "gap_variation": gap_variation,
         }

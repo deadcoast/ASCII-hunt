@@ -1,8 +1,9 @@
 import numpy as np
-from qiskit import Aer, IBMQ, QuantumCircuit, execute
 from qiskit.algorithms import QAOA, NumPyMinimumEigensolver
 from qiskit.optimization import QuadraticProgram
 from qiskit.optimization.algorithms import MinimumEigenOptimizer
+from qiskit_aer import Aer
+from qiskit_ibm_runtime import QiskitRuntimeService
 
 
 class QuantumImportOptimizer:
@@ -10,17 +11,16 @@ class QuantumImportOptimizer:
         self.use_real_quantum = use_real_quantum
         if use_real_quantum:
             # Connect to IBM Quantum Experience
-            IBMQ.load_account()
-            self.provider = IBMQ.get_provider()
-            self.backend = self.provider.get_backend("ibmq_qasm_simulator")
+            self.service = QiskitRuntimeService()
+            self.backend = self.service.get_backend("ibmq_qasm_simulator")
         else:
             # Use simulator
             self.backend = Aer.get_backend("qasm_simulator")
 
     def optimize_imports(self, module_dependencies, constraints):
         """Use quantum optimization to find the optimal import structure.
-        This solves the import ordering problem as a QUBO problem."""
-
+        This solves the import ordering problem as a QUBO problem.
+        """
         # Convert dependencies to an adjacency matrix
         n_modules = len(module_dependencies)
         adjacency_matrix = np.zeros((n_modules, n_modules))

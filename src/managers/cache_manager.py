@@ -3,8 +3,7 @@
 
 class CacheManager:
     def __init__(self, max_size=100):
-        """
-        Initialize a CacheManager.
+        """Initialize a CacheManager.
 
         :param max_size: The maximum size of each cache.
         :type max_size: int

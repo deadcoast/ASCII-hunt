@@ -4,18 +4,16 @@ from typing import Any
 
 import numpy as np
 
-from algorithms.hierarchical_clustering import HierarchicalClustering
-from algorithms.parsing_algorithms import DistanceCalculator
-from components.component_model_representation import ComponentModel
-from data_stack.ascii_ui_translation_engine import FeatureExtractionProcessor
+from src.algorithms.hierarchical_clustering import HierarchicalClustering
+from src.algorithms.parsing_algorithms import DistanceCalculator
+from src.components.component_model_representation import ComponentModel
+from src.data_stack.ascii_ui_translation_engine import \
+    FeatureExtractionProcessor
 
 
 class ConnectedComponentAnalyzer:
     def __init__(self):
-        """
-        Initialize the ConnectedComponentAnalyzer class.
-        """
-        pass
+        """Initialize the ConnectedComponentAnalyzer class."""
 
 
 class ComponentAnalyzer:
@@ -28,9 +26,7 @@ class ComponentAnalyzer:
     def component_analysis_from_model(
         self, components: list[dict[str, Any]], grid: np.ndarray
     ):
-        """
-        Analyze the components and return a list of feature vectors.
-        """
+        """Analyze the components and return a list of feature vectors."""
         feature_vectors = []
         for comp in components:
             # Convert sets to numpy arrays for efficient computation
@@ -135,9 +131,7 @@ class ComponentAnalyzer:
                 return grouped_components
 
     def connected_component_analysis(self, components, grid):
-        """
-        Implements the mathematical CCA using NumPy operations.
-        """
+        """Implements the mathematical CCA using NumPy operations."""
         # Extract feature vectors for each component
         feature_vectors = []
         for comp in components:
@@ -248,7 +242,11 @@ class ComponentAnalyzer:
             raise ValueError(f"Component with id {component_id} not found")
 
         features = self.feature_extractor.extract_features(component)
-        distance_matrix = self.distance_calculator.calculate_distance_matrix(features)
+        # Convert features to list if it's a dictionary
+        features_list = [features] if isinstance(features, dict) else features
+        distance_matrix = self.distance_calculator.calculate_distance_matrix(
+            features_list
+        )
         clusters = self.clustering_algorithm.cluster(distance_matrix)
 
         # Create a dictionary to store the component analysis results

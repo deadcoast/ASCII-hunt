@@ -3,16 +3,15 @@
 ## Workflow & Instructions
 
 Context First: Mandatory `PR` workflow when generating or correcting code.
-Do not assume or guess in code integrations. you must integrate the planning in the [docs](./docs) directory.
 Incremental Implementation: Generate code in manageable steps, maintaining consistency with existing codebase. 4. Knowledge Management: Document reusable components, fixes, and implementation decisions in the [System_Integration.md](./changelog/system_integration.md) file.
 
 5. Prime Rules (`PR`):
 
    1. Review `Scratchpad` for the `Tasklist` and plan implementation steps
-   2. Based on the request, search for relevant build plans in the [System_Integration.md](./changelog/system_integration.md) directory and adjust plan accordingly
+   2. Based on the request, search for relevant build plans in the [docs](/docs/build-docs/) directory and adjust plan accordingly
    3. Take action to complete the next Task
    4. Identify implementation gaps and plan necessary steps
-   5. Document code integration in `changelog/System_Integration.md` to maintain a record of the code integrations for consistency.
+   5. Document code integration in [System-Integration.md](/docs/build-docs/System_Integration.md) to maintain a record of the code integrations for consistency.
    6. Update the `Scratchpad`, with progress markers, to reflect the current state of the implementation.
 
 6. `Scratchpad` Usage: Maintain a task list in this file following this format:

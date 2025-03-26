@@ -3,8 +3,7 @@
 
 class PythonTkinterGenerator:
     def __init__(self):
-        """
-        Initialize the PythonTkinterGenerator.
+        """Initialize the PythonTkinterGenerator.
 
         The PythonTkinterGenerator has the following properties:
         - self.template_registry: a dictionary mapping component types to

@@ -1,15 +1,12 @@
 #!/usr/bin/env python3
-"""
-A script to generate a comprehensive .gitignore file for Python projects with Cursor IDE support.
-"""
+"""A script to generate a comprehensive .gitignore file for Python projects with Cursor IDE support."""
 
 import os
 import sys
 
 
 def generate_gitignore(output_path=".gitignore"):
-    """
-    Generate a .gitignore file with common patterns for Python projects and Cursor IDE.
+    """Generate a .gitignore file with common patterns for Python projects and Cursor IDE.
 
     Args:
         output_path (str): Path where the .gitignore file will be created. Default is current directory.

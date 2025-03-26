@@ -1,0 +1,1119 @@
+# 6.3 `hunt` Syntax Dictionary and Definitions
+
+### Syntax and Semantics
+
+1. TopLevel Commands:
+
+   hunt: Define a pattern or module
+   Track: Define a tracking pattern for UI elements
+   GATHER/GET: Extract characters and coordinates
+   HARVEST/HARV: Collect data from multiple regions
+   RACK: Preview pattern visualization
+   COOK: Generate code from recognized patterns
+
+2. Parameter Expressions:
+
+   tag: Define pattern tags for classification
+   pluck: Extract specific content based on patterns
+   trap: Define constraints or validation rules
+   skin: Extract from partial matches
+   log: Control debugging and logging output
+
+3. Execution Controls:
+   EXEC: Execute pattern processing
+   req: Make pattern requirements strict
+   prohib: Specify prohibited patterns
+   config: Configure processing options
+
+## 6.3.1 Pattern Recognition DSL Specification
+
+The pattern recognition DSL will be designed to allow declarative definition of ASCII UI patterns:
+
+| Command           | Cabin Bracket | Purpose                          | DSL Example Usage                     |
+| ----------------- | ------------- | -------------------------------- | ------------------------------------- |
+| Core Commands     | —             | —                                | —                                     |
+| hunt              | `< >`         | Top level Command Call/Modifier  | `< hunt: [INIT]`                      |
+| Slot              | `< >`         | Defines a new Core Command       | `< hunt Slot: [INIT ASSIGN]`          |
+| INIT              | `[ ]`         | Initiate a paramater             | `[INIT numpy = {param}`               |
+| ASSIGN            | `[ ]`         | Assigns a Core Command to a Slot | `[INIT ASSIGN =C{param}]`             |
+| `param`           | `{ }`         | assign paramater                 | `{param track = (val)`                |
+| val               | `( )`         | set value for the paramater      | `(val valueOne, valueTwo)`            |
+|                   |               |                                  |                                       |
+| Namespace         | —             | —                                | —                                     |
+| `Track`           | `< >`         | Search and map the canvas        | `track boxes:true labels:true`        |
+| `GATHER`, `GET`   | `[ ]`         | Extract char + coord data        | `skin region:main`                    |
+| `HARVEST`, `HARV` | `[ ]`         | Collect from multiple regions    | `harvest from:layer_1,layer_2`        |
+| `RACK`            | `[ ]`         | Visual preview                   | `rack view:ascii`                     |
+| `COOK`            | `[ ]`         | Generate Python code             | `cook format:tkinter`                 |
+| `tag`             | `{ }`         | Organize and label components    | `gather tags:true group:grid`         |
+| `pluck`           | `{ }`         | Extract specific target          | `pluck label:"Submit"`                |
+| `trap`            | `{ }`         | Define constraints or guards     | `trap "must contain at least 1 form"` |
+| `skin`            | `{ }`         | Attempt to extract from `scent`  |                                       |
+| `log`             | `{ }`         | Enable tracing or debug output   | `track level:verbose`                 |
+| `boil`            | `{ }`         | Reduce output                    | `boil mode:minimal`                   |
+| `scent`           | —             | Soft warnings, partial matches   | `scent check:missing_labels`          |
+| `snare`           | —             | Critical failure (halt pipeline) | `snare "missing sidebar"`             |
+
+## 6.3.2 Hunt Syntax Dictionary
+
+### BetaBracket `[ ]`
+
+[Tag:hunt](#cbhs-B)
+
+xExample of isolated BetaBracket Section of hunt Code Blocksx - BetaBrackets must always be closed and aligned vertically.
+
+```hunt
+    [INIT =
+        {prohib =
+            (placeholderOne)}
+    ]
+```
+
+### GammeBracket `{ }`
+
+[Tag:hunt](#cbhs-G)
+
+- xExample of isolated GammaBracket Section of hunt Code Blocksx
+
+```hunt
+		{
+		    (placeholderOne,
+		     placeholderTwo,
+		     placeholderThree
+		    )
+		}
+```
+
+### DeltaBracket `( )`
+
+[Tag:hunt](#cbhs-D)
+
+- xExample of isolated DeltaBracket Section of hunt Code Blocksx
+
+```hunt
+			(placeholderOne,
+			 placeholderTwo,
+			 placeholderThree)
+```
+
+## 6.3.3 hunt Controllers
+
+[Tag:hunt](#huntcon)
+
+### Link Director
+
+[Tag:hunt](#huntcon-lk)
+
+`&` Directs functions, methods, or commands on the same line to link together
+
+- Can only be used after the `:` Bridge Controller and before the @@ Chain method
+
+```hunt
+< hunt:
+    [INIT =
+        {param:{param} & (val ex_one, ex_two)}
+    ]
+>
+```
+
+### Chain Controller
+
+[Tag:hunt](#huntcon-ch)
+
+`@@` Chain Command Sequence
+
+```hunt
+##--#
+# Fourth Code Block Example of Initiating the config with a forced req statement
+# EXEC Statement with Bridge `:`, `req`, and `floop`
+#--##
+
+< hunt:
+    [INIT =
+        {param req:{tool} =
+            (val lint,
+             parse,
+             regex)}
+    ]
+><EXEC:{req} & {config} @@ {floop:(val regex(1))}>
+```
+
+### Bridge Controller
+
+[Tag:hunt](#huntcon-br)
+
+`:` Brige Commands Together
+
+```hunt
+< hunt:
+    [INIT =
+        {param exampleOne}:{exampleTwo =
+            (val one
+            )
+        }
+    ]
+>
+```
+
+### Assignment Marker
+
+[Tag:hunt](#huntcon-A)
+
+`=` Assignment Marker
+
+```hunt
+< hunt:
+    [INIT =
+    ]
+>
+```
+
+### Comma
+
+`,` Passes multiple values in a strig xorx a list.
+
+[Tag:hunt](#huntcon-cm)
+
+```hunt
+< hunt:
+    [INIT =
+        {param =
+            (val,
+             val2)}
+        {param example:(val one, val two)}
+    ]
+><EXEC>
+```
+
+### Documenting the Code
+
+[Tag:hunt](#huntdoc)
+
+`#` Global Documenting Character
+
+```hunt
+< hunt:
+    [INIT =
+        {prohibited =
+        # TODO: complete Values for the Above paramater
+        }
+    ]
+><EXEC>
+```
+
+### Docstring Sequence
+
+[Tag:hunt](#huntdoc-ds)
+
+`##--#` Docstring Opening Sequence
+`#--##` Docstring Closing Sequence
+
+```hunt
+##--#
+# Full Docstring Example
+#--##
+
+< hunt:
+    [
+        {
+            (
+            )
+        }
+    ]
+><EXEC>
+```
+
+## 6.3.4 hunt Commands
+
+[Tag:hunt](#huntcmd)
+
+`hunt` Top Level Default Command Call
+
+- Unless CLASS or other top level declaration defined, hunt fills top level with a bridge`:` to assert the top level encapsulation is intact and bridged.
+- Only top level `Alpha` Bracket can assert `:` bridge instead of the new line assignment marker `=`
+- xExample of a Complete hunt Code Blockx
+
+```hunt
+< hunt:
+    [INIT =
+        {param prohibited =
+            (val,
+             ex_one,
+             ex_two,
+             ex_three)}
+    ]
+><EXEC>
+```
+
+### INIT Sequence
+
+[Tag:hunt](#huntcmd-init)
+
+`INIT` Initiate Command Call for Paramaters
+
+- xExample of INIT with Nested Syntax of Expanded Hierarchy Bracketsx
+
+```hunt
+< hunt:
+    [INIT =
+        {param =
+            (val ex_one)}
+    ]
+><EXEC>
+```
+
+### PARAM Sequence
+
+[Tag:hunt](#huntcmd-param)
+
+`param` Initiate Command Call for Variables
+
+- xExample of PARAM with Strict Hierarchy Bracketsx
+
+- xExamplex
+
+```hunt
+< hunt:
+    [INIT =
+        {param =
+            (val ex_one
+            )
+        }
+    ]
+>!EXEC!
+```
+
+### true Sequence
+
+[Tag:hunt](#huntcmd-true)
+
+`true` Return `EXEC`
+
+- xExamplex
+
+```hunt
+< hunt:
+	[INIT =
+		{param config:true =
+			(val path
+			)
+		}
+	]
+><EXEC>
+```
+
+### false Sequence
+
+[Tag:hunt](#huntcmd-false)
+
+`false`: Passes the Return `EXEC`
+
+- xExamplex
+
+```hunt
+< hunt:
+    [INIT =
+        {param =
+            (val,
+             ex_one,
+             ex_two)
+        }
+    ]
+><EXEC:(val ex_two & (false))>
+```
+
+### EXEC Sequence
+
+[Tag:hunt](#huntcmd-exec)
+
+`EXEC`: Return `EXEC`
+
+- xExamplex
+
+```hunt
+<
+	[
+		{
+			(
+			)
+		}
+	]
+><EXEC>
+```
+
+### EXEC Modifiers and Variable Rules
+
+[Tag:hunt](#huntcmd-flo)
+
+`floop`
+
+```hunt
+<
+	[
+		{
+			()
+		}
+	]
+><EXEC:req & config @@ {floop:1}>
+```
+
+#### Universal EXEC Rules
+
+[Tag:hunt](#huntcmd-req)
+
+`req`
+
+```hunt
+<
+	[
+		{
+			(
+			)
+		}
+	]
+><EXEC:req = config>
+```
+
+`prohib`
+
+[Tag:hunt](#huntcmd-pro)
+
+```hunt
+<
+    [
+        {param prohib:config =
+	        ()
+	    }
+	]
+>
+```
+
+## 6.3.5 hunt Method Type Rules
+
+[Tag:hunt](#huntmtr)
+
+### hunt Class Rules
+
+[Tag:hunt](#huntmtr-cls)
+
+- [hunt:rule](#cls01): Pascal Case < huntClass: >
+
+### `hunt` Scan and map ASCII canvas
+
+Concept: The core parser. `hunt` moves across the canvas to identify characters, patterns, and regions of interest. It’s the entry point for finding UI elements or zones.
+
+Functions / Usage Ideas:
+
+- Perform a full grid scan for visual components.
+- Target glyphs, borders, labels, or boxes.
+- Set up for downstream `skin`, `pluck`, or `gather`.
+
+Example:
+
+```hunt
+hunt boxes:true labels:true
+```
+
+---
+
+### `skin` Extract character + coordinate data
+
+Concept: `skin` performs raw data extraction after a `hunt`, pulling characters and their coordinates from matched regions.
+
+Functions / Usage Ideas:
+
+- Collect bounding boxes and inner contents.
+- Extract character-level information for each region.
+- Prepare inputs for tagging, gathering, or analysis.
+
+Example:
+
+```hunt
+skin region:main
+```
+
+---
+
+### `gather` Organize and structure data
+
+Concept: Takes extracted elements and assembles them into logical, tagged UI components. Think of it as structuring your raw hunt/skin output.
+
+Functions / Usage Ideas:
+
+- Create a component tree or hierarchy.
+- Add tags like `button`, `input`, `header`.
+- Apply spatial grouping heuristics.
+
+Example:
+
+```hunt
+gather tags:true group:vertical
+```
+
+---
+
+### `harvest` Bulk collect from multiple layers
+
+Concept: Combines data from multiple `hunt` or `skin` passes, or pulls all data across a canvas or layered views.
+
+Functions / Usage Ideas:
+
+- Aggregate output from multiple grid scans.
+- Merge `skin` data into one source.
+- Useful in batch or composite analysis.
+
+Example:
+
+```hunt
+harvest from:all_layers
+```
+
+---
+
+### `boil` Refine or simplify data structure
+
+Concept: After `gather` or `cook`, use `boil` to strip down, reduce, or normalize structures. It’s a post-processing or reduction step, helping keep output lean.
+
+Functions / Usage Ideas:
+
+- Minify the Python output.
+- Deduplicate or flatten nested tags.
+- Drop debug fields, keep core essentials.
+
+Example:
+
+```hunt
+boil mode:minimal
+```
+
+---
+
+### `cook` Emit Python code from structured data
+
+Concept: Converts structured elements from `gather` into runnable Python code, typically UI generation or layout functions.
+
+Functions / Usage Ideas:
+
+- Generate tkinter, curses, or custom layout code.
+- Translate tagged components into widgets.
+- Optionally include styling or behavior hooks.
+
+Example:
+
+```hunt
+cook format:tkinter
+```
+
+---
+
+### `rack` Preview or simulate output
+
+Concept: `rack` provides a visual or simulated pass of the gathered data — think dry run or rendering layer.
+
+Functions / Usage Ideas:
+
+- Simulate layout output before generation.
+- Visually debug gathered UI structures.
+- Show transformations step by step.
+
+Example:
+
+```hunt
+rack mode:ascii
+```
+
+---
+
+### `track` Log, trace, and debug flow
+
+Concept: Enables logging, tracing, and inspection of the DSL pipeline. Use it to debug `hunt` sequences and internal state.
+
+Functions / Usage Ideas:
+
+- Log character matches, region counts.
+- Inspect transformations across stages.
+- Useful for visual or programmatic tracing.
+
+Example:
+
+```hunt
+track level:verbose
+```
+
+---
+
+### `trap` Set trigger conditions or constraints
+
+Concept: Think of `trap` as a pre-emptive boundary, rule, or breakpoint. It doesn’t _crash_ (that’s `snare`), but it prevents undesired patterns or captures anomalies early.
+
+Functions / Usage Ideas:
+
+- Define "illegal zones" or disallowed characters.
+- Assert certain preconditions before `hunt`/`skin`.
+- Lint-style warnings — not critical, but notable.
+- Set a watchpoint on certain coordinates.
+
+Example:
+
+```hunt
+trap "window must have border"
+```
+
+---
+
+### `scent` Soft warnings or partial matches
+
+Concept: `scent` is a non-fatal warning system. It flags suspicious patterns or incomplete structures that may still be usable.
+
+Functions / Usage Ideas:
+
+- Highlight elements missing borders or labels.
+- Trigger soft alerts for malformed regions.
+- Log issues without halting processing.
+
+Example:
+
+```hunt
+scent check:unlabeled_boxes
+```
+
+---
+
+### `snare` Critical error handling
+
+Concept: `snare` represents a fatal condition — the pipeline fails, and processing halts. Use this to guard against critical misconfigurations.
+
+Functions / Usage Ideas:
+
+- Halt if required structures are missing.
+- Validate critical layout constraints.
+- Crash intentionally with meaningful error messages.
+
+Example:
+
+```hunt
+snare "missing sidebar region"
+```
+
+---
+
+### `pluck` Selective extraction
+
+Concept: Unlike `skin` (bulk extraction), `pluck` is precision targeting — grab a single element, based on a refined filter (e.g. label, coordinates, proximity, tag).
+
+Functions / Usage Ideas:
+
+- Pull just the first matching label from a `hunt`.
+- Get only center points or specific glyphs.
+- Use for focused transformations or rewrites.
+
+Example:
+
+```hunt
+pluck label:"Submit"
+```
+
+---
+
+- “Hunt and Gather”: Thematically rich (especially with “gather” implying data extraction), but acronym-wise “HAG” has rougher vibes, unless you lean into it tongue-in-cheek.
+- Could also frame "Gather" as a _second phase_ or submodule of the full toolchain. Like:
+  ```
+  from hunt import gather
+  ```
+  or
+  ```
+  hunt -> gather -> generate
+  ```
+
+## 6.3.6 `hunt`- Codeblock Syntax Examples
+
+[Tag:hunt](#hunt-full)
+
+### Complete Code Block Examples
+
+```hunt
+##--#
+# First Code Block Strict Vertical Alignment
+#--##
+
+< hunt:
+    [INIT =
+        {param one =
+            (val,
+             one,
+             two)}
+        {param two =
+            (val one,
+             two
+             )
+        }
+    ]
+>
+><EXEC>
+
+##--#
+# Second Code Block Nested Hieratchal Cabin Brackets
+#--##
+
+< hunt:
+    [INIT =
+        {param list =
+            (val one, two, three)}
+    ]
+><EXEC:prohib & (val two)>
+```
+
+### Config Code Block
+
+- Below we cover a full docstring statement, and specifying the config in the exection of !EXEC!.
+
+```hunt
+##--#
+# Fourth Code Block Example of Initiating the config with a forced req statement
+# EXEC Statement with Bridge ':', 'req', and floop
+#--##
+
+< hunt:
+    [INIT =
+        {param req:{tool} =
+            (val lint,
+             parse,
+             regex)}
+    ]
+><EXEC:{req} & {config} @@ {floop:(val regex(1))}>
+```
+
+INIT CONFIG Example:
+In the next example we cover initiating the config with with yaml as the value syntax with the same Config load function. - We set the paramater as the config , set the value to all, and then execute the identifiers in the config with EXEC.
+
+```hunt
+##-#
+# Load and execute every value in the config
+#--##
+
+< hunt:
+    [INIT =
+        {param req}:{config =
+	        (val all)}
+    ]
+><EXEC:{config}>
+```
+
+- Alternatively, you can call single identifers or functions from the config by modifying the (all) value to the specific identifier or function.
+- In order to call a single identifer or function, we must modify the `:` Bridge to the End Line Assignment marker `=`.
+- This is required to ensure the hunt ZeroBracket Hierarchal system is aligned correctly, and all functions are encased correctly.
+
+```hunt
+##-#
+# INIT CONFIG Example
+#--##
+< hunt:
+    [INIT =
+        {param req:{config} =
+            (val config_one,
+             config_two,
+             config_three)
+        }
+    ]
+><EXEC:{config}>
+```
+
+### hunt Cass Rules
+
+1. xDeclaration:x
+   - Function Signature: PascalCase
+   - Cabin Bracket: `< Alpha_Bracket >`
+   - Call: `< hunt ClassName: >`
+   - x`hunt` Syntax Examplex: `< hunt ClassName: [INIT = {param = (variable)}] >`
+
+### Strict Hierarchy Syntax
+
+- The Strict Hierachy Syntax is designed to space out the code, and make it more readable. It excels at larger projects and code block execution. While taking up more space in the code, it is more customizable and readable that its more compact counterpart. This version is best used for advanced execution and code blocks that require multiple modifers, bridges, and chains.
+
+```hunt
+##-#
+# Define the class functiom, for all other cases a Class or Defintion is not defined, default AlphaBracket is 'hunt'
+#-##
+
+< hunt PdfManager:
+    [INIT OCR =
+        {param process_pdf =
+            (val
+             self,
+             file_path,
+             raw_pdf,
+             batch,
+             threading)
+        }
+
+        {param export =
+	        (val cleaned_data
+	        )
+	    }
+    ]
+><EXEC>
+```
+
+### Nested hunt Hierarchal Syntax
+
+- The Nested hunt Hierarchal Syntax is a more compact version of the Strict Hierarchy Syntax. It is designed as an alternatve to use for simple executions that take up less space in the code. In this codeblock, we nest the syntax to be more compact.
+- The Nested Version of the Syntax is designed to be readable and easy to follow, without the need for multiple lines of code.
+  Its only con is that it is less customizable than the Strict Hieracy Syntax.
+  In advanced function calls and larger code blocks, the Nested version can become confusing to follow.
+
+```hunt
+##-#
+# Define the class functiom, for all other cases a Class or Defintion is not defined, default AlphaBracket is 'hunt'
+#-##
+
+< hunt PdfManager:
+    [INIT OCR =
+        {param process_pdf =
+            (val self, file_path, raw_pdf, batch, threading)
+        {param export:(val cleaned_data)}
+        }
+    ]
+><EXEC>
+```
+
+Code Example Explanation:
+
+- `PdfManager` The name of the class, this function initializes the code block and encases its child functions and modifers.
+- `[BETA_BRACKET]` Defines the INITIATING PARAMATER `OCR`
+- `{GammaBracket}` Defines the paramter`{param}` as the `{processPdf}` function. Its then used to encase the values`(val)` of the functions `(self)`, `(file_path)`, `(raw_pdf)`, `(batch)`, `(threading)`. The`:` operator is used to bridge the `{param export}` and `(val cleaned_data)`. In the nested style of this syntax, Bridges `:` can be used to avoid starting a new line with the New Line Assignment Modifier `=`.
+
+## 6.3.7 Hunt Pattern Library
+
+A comprehensive library of pre-defined patterns for recognizing common UI elements will be developed:
+
+### Box and Container Patterns
+
+```hunt
+< hunt Track:
+    [INIT GATHER =
+        {param tag:window =
+            (val
+             top_left:(┌),
+             top_right:(┐),
+             bottom_left:(└),
+             bottom_right:(┘),
+             horizontal:(─),
+             vertical:(│)
+            )
+        }
+        {param pluck:title =
+            (val "^(.+)$")  # First line of content
+        }
+    ]
+><EXEC>
+
+< hunt Track:
+    [INIT GATHER =
+        {param tag:panel =
+            (val
+             top_left:(╔),
+             top_right:(╗),
+             bottom_left:(╚),
+             bottom_right:(╝),
+             horizontal:(═),
+             vertical:(║)
+            )
+        }
+    ]
+><EXEC>
+
+< hunt Track:
+    [INIT GATHER =
+        {param tag:group_box =
+            (val
+             top_left:(┏),
+             top_right:(┓),
+             bottom_left:(┗),
+             bottom_right:(┛),
+             horizontal:(━),
+             vertical:(┃)
+            )
+        }
+        {param pluck:group_title =
+            (val "^(.+)$")  # First line of content
+        }
+    ]
+><EXEC>
+```
+
+## 6.3.8 Control Patterns
+
+```hunt
+< hunt Track:
+    [INIT GATHER =
+        {param tag:button =
+            (val "[", "]")
+        }
+        {param pluck:button_text =
+            (val "\\[(.+?)\\]")  # Text between brackets
+        }
+    ]
+><EXEC>
+
+< hunt Track:
+    [INIT GATHER =
+        {param tag:checkbox =
+            (val "□", "■", "☐", "☑", "[ ]", "[X]")
+        }
+        {param pluck:checkbox_state =
+            (val "■|☑|\\[X\\]", "□|☐|\\[ \\]")
+        }
+        {param pluck:checkbox_label =
+            (val "(?:■|□|☑|☐|\\[X\\]|\\[ \\])\\s*(.+)")  # Text after checkbox
+        }
+    ]
+><EXEC>
+
+< hunt Track:
+    [INIT GATHER =
+        {param tag:radio_button =
+            (val "○", "●", "( )", "(•)")
+        }
+        {param pluck:radio_state =
+            (val "●|\\(•\\)", "○|\\( \\)")
+        }
+        {param pluck:radio_label =
+            (val "(?:●|○|\\(•\\)|\\( \\))\\s*(.+)")  # Text after radio button
+        }
+    ]
+><EXEC>
+
+< hunt Track:
+    [INIT GATHER =
+        {param tag:dropdown =
+            (val "▼", "▶", "[▼]", "[▶]")
+        }
+        {param pluck:dropdown_state =
+            (val "▼|\\[▼\\]", "▶|\\[▶\\]")
+        }
+        {param pluck:dropdown_label =
+            (val "(.+?)\\s*(?:▼|▶|\\[▼\\]|\\[▶\\])")  # Text before dropdown
+        }
+    ]
+><EXEC>
+```
+
+## 6.3.9 Text and Input Patterns
+
+```hunt
+< hunt Track:
+    [INIT GATHER =
+        {param tag:text_field =
+            (val "___", "...", "___________")
+        }
+        {param pluck:field_label =
+            (val "(.+?):\\s*(?:___|\\.\\.\\.|_________)")  # Label before field
+        }
+        {param pluck:field_value =
+            (val "(?:___|\\.\\.\\.|_________)(.*)")  # Text in field
+        }
+    ]
+><EXEC>
+
+< hunt Track:
+    [INIT GATHER =
+        {param tag:text_area =
+            (val
+             top_left:(┌),
+             top_right:(┐),
+             bottom_left:(└),
+             bottom_right:(┘),
+             horizontal:(─),
+             vertical:(│)
+            )
+        }
+        {param pluck:area_content =
+            (val "(?s)(?<=\\n)(.+?)(?=\\n[└┘])")  # Content between borders
+        }
+    ]
+><EXEC>
+
+< hunt Track:
+    [INIT GATHER =
+        {param tag:label =
+            (val ":", "=")
+        }
+        {param pluck:label_text =
+            (val "(.+?)(?::|=)")  # Text before colon or equals
+        }
+        {param pluck:label_value =
+            (val "(?::|=)\\s*(.+)")  # Text after colon or equals
+        }
+    ]
+><EXEC>
+```
+
+## 6.3.10 Relationship Patterns
+
+```hunt
+< hunt Track:
+    [INIT GATHER =
+        {param tag:contains =
+            (val "contains", "inside")
+        }
+    ]
+><EXEC>
+
+< hunt Track:
+    [INIT GATHER =
+        {param tag:adjacent =
+            (val "next_to", "adjacent")
+        }
+        {param pluck:direction =
+            (val "right", "left", "above", "below")
+        }
+    ]
+><EXEC>
+
+< hunt Track:
+    [INIT GATHER =
+        {param tag:labeled_by =
+            (val "labeled_by", "described_by")
+        }
+    ]
+><EXEC>
+```
+
+## 6.3.11 hunt - Syntax Examples
+
+```hunt
+< hunt GRID: # Declare or define the GRID as Perpetual (constant)
+	[ INIT numpy = # INITIATE numpy
+		{param hunt = # assign paramater to hunt for potential ASCII UI assets
+			(val, # define the value once
+			 top_left:(┌), # String for unicode characters
+		     top_right:(┐),
+		     bottom_left:(└),
+		     bottom_right:(┘),
+		     horizontal:(─),
+		     vertical:(│),
+		     top_t:(┬),
+		     bottom_t:(┴),
+		     left_t:(├),
+		     right_t:(┤),
+		     cross:(┼)
+		    )
+		}
+	]
+><EXEC>
+```
+
+### ASCII Pattern Definition Assingment Example
+
+```hunt
+< hunt Button:
+    [INIT GATHER =
+        {param tag:button =
+            (val
+             box_chars:(┌┐└┘│─),  # Optional box characters
+             bracket_chars:("[", "]")  # Button can be in [] brackets
+            )
+        }
+        {param pluck:button_text =
+            (val
+             bracket_pattern:"\\[(.+?)\\]",  # Extract text between []
+             box_pattern:"(?<=\\n\\s*)(.+?)(?=\\s*\\n)"  # Extract text in box
+            )
+        }
+        {param trap =
+            (val "text must not be empty")  # Validation rule
+        }
+    ]
+><EXEC>
+```
+
+### Assigning the string as a new Definition instead
+
+```hunt
+##-#
+# Create a new ASSIGNMENT of UNICODE_CHARACTERS
+#-##
+
+< hunt Slot: # ASSIGN the unicode_lines Slot
+	[INIT ASSIGN = # INITIATE a new Slot Definition
+		{param unicode_lines:{string} = Assign the new Definition as a paramater {unicode_lines}
+			(val,
+			 top_left:(┌), # Define the values of the unicode_lines
+		     top_right:(┐),
+		     bottom_left:(└),
+		     bottom_right:(┘),
+		     horizontal:(─),
+		     vertical:(│),
+		     top_t:(┬),
+		     bottom_t:(┴),
+		     left_t:(├),
+		     right_t:(┤),
+		     cross:(┼)
+		    )
+		}
+	]
+><EXEC>
+
+
+##-#
+# Now call the new ASSIGNMENT unicode_lines we just created
+#-##
+
+< hunt Track:
+	[ INIT numpy =
+		{param unicode_lines =
+			(val x, y)
+		}
+	]
+><EXEC>
+```
+
+## 6.3.12 Cabin Bracket Hierarchal System 'CBHS'
+
+- Cabin Brackets 'CBHS' is a system of brackets that are used to encase the code block
+- 'CBHS' is used to create a strict, structured and rigid enviornment when running code
+
+### AlphaBracket `< >`
+
+[Tag:hunt](#cbhs-A)
+
+hunt Syntax with expanded brackets matching Hierarchal Structure:
+
+```hunt
+< hunt:
+    [INIT =
+        {param =
+            (val,
+             exampleOne,
+             exampleTwo
+            )
+        }
+    ]
+><EXEC>
+```
+
+### hunt Syntax with nested brackets:
+
+- Collapsable brackets are restricted to Gamma and Delta brackets.
+- hunt Cabin Brackets xalwaysx enforce the the top two teirs in the hierarchal system.
+
+```hunt
+< hunt:
+    [INIT =
+	    {prohib =
+			(placeholderOne,
+			 placeholderTwo,
+			 placeholderThree)}
+    ]
+><EXEC>
+```
+
+## 6.3.13 Future Implementations
+
+- Future Implementations
+  - Lint & built-in check that warns if indentation rules are violated.
+  - A built-in check that warns if the CBHS is not used correctly.
+  - Providing a linter and parser to enforce hunt Syntax.
+  - Allowing advanced users an opt-out or “lax” mode—only to dismiss the Vertical Two Tier Heirarchal Enforcement.
+  - `strict mode` and `debug mode` that refuses to continue on syntax error.
+    - This way, advanced users can force early failures to track down issues quickly, without having to implement the "req" Paramater.

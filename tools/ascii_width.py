@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-ASCII Character and Width Analyzer - Enhanced Edition
+"""ASCII Character and Width Analyzer - Enhanced Edition
 
 An interactive CLI tool that provides comprehensive character analysis with dynamic
 borders that properly adjust to content and terminal dimensions.
@@ -12,12 +11,15 @@ import shutil
 import sys
 import unicodedata
 
+# Initialize pyperclip
+CLIPBOARD_AVAILABLE = False
+pyperclip = None
 try:
     import pyperclip
 
     CLIPBOARD_AVAILABLE = True
 except ImportError:
-    CLIPBOARD_AVAILABLE = False
+    pass
 
 
 # Get terminal dimensions
@@ -45,8 +47,7 @@ def clear_screen():
 
 
 def get_display_width(text):
-    """
-    Calculate the monospace display width of a string.
+    """Calculate the monospace display width of a string.
     Accounts for wide characters like CJK and emoji.
     """
     width = 0
@@ -55,7 +56,7 @@ def get_display_width(text):
         if unicodedata.category(char) in ["Mn", "Me", "Cf"]:
             continue
         # Handle wide characters (CJK, emoji, etc.)
-        elif unicodedata.east_asian_width(char) in ["F", "W"]:
+        if unicodedata.east_asian_width(char) in ["F", "W"]:
             width += 2
         # Standard width characters
         else:
@@ -83,10 +84,14 @@ def truncate_text(text, max_width):
 
 
 def create_dynamic_box(
-    content, title=None, padding=2, min_width=None, max_width=None, center=True
-):
-    """
-    Create a truly dynamic ASCII box that correctly adjusts to content and terminal width.
+    content: list[str],
+    title: str | None = None,
+    padding: int = 2,
+    min_width: int | None = None,
+    max_width: int | None = None,
+    center: bool = True,
+) -> list[str]:
+    """Create a truly dynamic ASCII box that correctly adjusts to content and terminal width.
 
     Args:
         content (list): List of strings to display in the box
@@ -115,24 +120,25 @@ def create_dynamic_box(
         clean_line = re.sub(r"\033\[[0-9;]*m", "", line)
         content_display_widths.append(get_display_width(clean_line))
 
-    # Find required content width
-    content_width = max(content_display_widths) if content_display_widths else 0
-
     # Calculate box width (content + padding + borders)
-    box_width = content_width + (padding * 2) + 2
+    base_width = 0
+    if content_display_widths:
+        max_display_width = max(content_display_widths)
+        # Ensure we're working with an integer
+        base_width = int(str(max_display_width))
+    box_width = base_width + (padding * 2) + 2
 
     # Adjust for title if needed
     if title:
-        # Remove ANSI color codes for width calculation
+        # Remove ANSI color codes for width calculation but keep for display
         clean_title = re.sub(r"\033\[[0-9;]*m", "", title)
         title_width = get_display_width(clean_title)
-        if (title_width + 4) > box_width:  # 4 for the spaces and box chars around title
-            box_width = title_width + 4
+        box_width = max(box_width, title_width + 4)
 
     # Apply constraints
-    if min_width and box_width < min_width:
+    if min_width is not None and box_width < min_width:
         box_width = min_width
-    if box_width > max_width:
+    if max_width is not None and box_width > max_width:
         box_width = max_width
 
     # Box drawing characters
@@ -152,6 +158,7 @@ def create_dynamic_box(
         clean_title = re.sub(r"\033\[[0-9;]*m", "", title)
         title_width = get_display_width(clean_title)
 
+        # Ensure box_width is not None before arithmetic operations
         remaining = box_width - 4 - title_width  # 4 for the spaces and box chars
         left = remaining // 2
         right = remaining - left
@@ -160,15 +167,16 @@ def create_dynamic_box(
     else:
         box_lines.append(f"{tl}{h_line * (box_width - 2)}{tr}")
 
-    # Content
+    # Content processing with proper type checking
     for line in content:
         # Remove ANSI color codes for width calculation but keep for display
         clean_line = re.sub(r"\033\[[0-9;]*m", "", line)
         display_width = get_display_width(clean_line)
 
         # Handle truncation if needed
-        if display_width > box_width - (padding * 2) - 2:
-            max_content_width = box_width - (padding * 2) - 2
+        content_space = box_width - (padding * 2) - 2
+        if display_width > content_space:
+            max_content_width = content_space
             truncated = ""
             current_width = 0
 
@@ -197,12 +205,14 @@ def create_dynamic_box(
                 while original_idx < len(line) and line[original_idx] != char:
                     if line[original_idx] == "\033":
                         # Copy the ANSI sequence
-                        ansi_seq = line[
-                            original_idx : original_idx
-                            + re.search(r"m", line[original_idx:]).end()
-                        ]
-                        colored_truncated += ansi_seq
-                        original_idx += len(ansi_seq)
+                        match = re.search(r"m", line[original_idx:])
+                        if match:
+                            ansi_end = match.end()
+                            ansi_seq = line[original_idx : original_idx + ansi_end]
+                            colored_truncated += ansi_seq
+                            original_idx += len(ansi_seq)
+                        else:
+                            original_idx += 1
                     else:
                         original_idx += 1
 
@@ -233,8 +243,7 @@ def create_dynamic_box(
 
 
 def analyze_string(text):
-    """
-    Perform comprehensive analysis of a string.
+    """Perform comprehensive analysis of a string.
 
     Returns a dictionary with analysis results.
     """
@@ -424,7 +433,7 @@ def main():
                 continue
 
             elif user_input.lower() in ["clip", "clipboard"]:
-                if CLIPBOARD_AVAILABLE:
+                if CLIPBOARD_AVAILABLE and pyperclip is not None:
                     try:
                         clipboard_text = pyperclip.paste()
                         if clipboard_text:
@@ -439,7 +448,7 @@ def main():
                             continue
                     except Exception as e:
                         print(
-                            f"{COLORS['red']}Error accessing clipboard: {str(e)}{COLORS['reset']}"
+                            f"{COLORS['red']}Error accessing clipboard: {e!s}{COLORS['reset']}"
                         )
                         continue
                 else:
@@ -468,7 +477,7 @@ def main():
             sys.exit(0)
 
         except Exception as e:
-            print(f"\n{COLORS['red']}Error: {str(e)}{COLORS['reset']}")
+            print(f"\n{COLORS['red']}Error: {e!s}{COLORS['reset']}")
             print(f"{COLORS['yellow']}Please try again.{COLORS['reset']}")
 
 

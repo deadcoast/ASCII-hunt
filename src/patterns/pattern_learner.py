@@ -1,8 +1,14 @@
+import re
+from typing import Any
+
+from .pattern_registry import PatternRegistry
+
+
 class PatternLearner:
-    def __init__(self, pattern_registry):
+    def __init__(self, pattern_registry: PatternRegistry) -> None:
         self.pattern_registry = pattern_registry
 
-    def learn_from_examples(self, examples):
+    def learn_from_examples(self, examples: list[dict[str, Any]]) -> str:
         """Learn patterns from annotated examples."""
         # Extract common patterns from examples
         patterns = self._extract_patterns(examples)
@@ -12,15 +18,17 @@ class PatternLearner:
 
         return hunt_code
 
-    def _extract_patterns(self, examples):
+    def _extract_patterns(
+        self, examples: list[dict[str, Any]]
+    ) -> dict[str, dict[str, Any]]:
         """Extract common patterns from examples."""
         # Implement pattern extraction logic
         # For example, finding common character sequences in components of the same type
 
-        patterns = {}
+        patterns: dict[str, dict[str, Any]] = {}
 
         # Group examples by component type
-        grouped_examples = {}
+        grouped_examples: dict[str, list[dict[str, Any]]] = {}
 
         for example in examples:
             component_type = example.get("ui_type")
@@ -38,12 +46,14 @@ class PatternLearner:
 
         return patterns
 
-    def _extract_type_patterns(self, component_type, components):
+    def _extract_type_patterns(
+        self, component_type: str, components: list[dict[str, Any]]
+    ) -> dict[str, Any]:
         """Extract patterns for a specific component type."""
         # Implement type-specific pattern extraction
 
         # For example, finding common boundary characters
-        boundary_chars = set()
+        boundary_chars: set[str] = set()
 
         for component in components:
             boundary_points = component.get("boundary_points", [])
@@ -55,7 +65,7 @@ class PatternLearner:
                     boundary_chars.add(char)
 
         # Find common content patterns
-        content_patterns = []
+        content_patterns: list[tuple[str, str]] = []
 
         for component in components:
             content = component.get("content", [])
@@ -87,7 +97,7 @@ class PatternLearner:
             "content_patterns": content_patterns,
         }
 
-    def _generate_hunt_code(self, patterns):
+    def _generate_hunt_code(self, patterns: dict[str, dict[str, Any]]) -> str:
         """Generate HUNT DSL code from extracted patterns."""
         hunt_code = []
 

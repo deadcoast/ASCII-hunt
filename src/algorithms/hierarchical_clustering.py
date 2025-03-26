@@ -9,29 +9,25 @@ class HierarchicalClustering:
 
     def __init__(self):
         """Initialize the HierarchicalClustering class."""
-        pass
 
     def cluster(self, distance_matrix):
-        """
-        Perform hierarchical clustering on the given distance matrix.
+        """Perform hierarchical clustering on the given distance matrix.
 
         Parameters
         ----------
         distance_matrix : numpy.ndarray
             The distance matrix between components
 
-        Returns
+        Returns:
         -------
         dict
             A dictionary containing the clustering results
         """
         # Implementation will be added based on specific requirements
-        pass
 
 
 def hierarchical_clustering(components, feature_vectors):
-    """
-    Implements the mathematical hierarchical clustering algorithm.
+    """Implements the mathematical hierarchical clustering algorithm.
 
     Parameters
     ----------
@@ -45,7 +41,7 @@ def hierarchical_clustering(components, feature_vectors):
             - 'id': int, the component id
             - additional feature information
 
-    Returns
+    Returns:
     -------
     tree : dict
         A tree structure representing the containment relationships

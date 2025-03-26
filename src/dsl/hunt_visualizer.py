@@ -1,8 +1,20 @@
+from typing import Any
+
+import numpy as np
+
+from ..patterns.pattern_registry import PatternRegistry
+
+
 class HuntVisualizer:
-    def __init__(self, pattern_registry):
+    def __init__(self, pattern_registry: PatternRegistry) -> None:
         self.pattern_registry = pattern_registry
 
-    def visualize_pattern_matches(self, grid, components, output_file=None):
+    def visualize_pattern_matches(
+        self,
+        grid: np.ndarray,
+        components: list[dict[str, Any]],
+        output_file: str | None = None,
+    ) -> None:
         """Visualize pattern matches on the grid."""
         # Create a copy of the grid for visualization
         visual_grid = grid.copy()
@@ -54,8 +66,16 @@ class HuntVisualizer:
                 line = "".join(visual_grid[y])
                 print(line)
 
-    def _colorize(self, char, color):
-        """Add ANSI color to a character."""
+    def _colorize(self, char: str, color: str) -> str:
+        """Add ANSI color to a character.
+
+        Args:
+            char: Character to colorize
+            color: Color name (black, red, green, yellow, blue, magenta, cyan, white)
+
+        Returns:
+            str: Colorized character
+        """
         color_codes = {
             "black": "\033[30m",
             "red": "\033[31m",
