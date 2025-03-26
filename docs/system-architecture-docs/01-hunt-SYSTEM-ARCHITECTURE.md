@@ -16,6 +16,8 @@ The HUNT ASCII UI Translation System provides the following core capabilities:
 4. **Pattern Definition**: Enables users to define custom patterns and rules for UI component recognition using the HUNT DSL.
 5. **Customization and Extension**: Provides a plugin architecture for extending the system's capabilities with new patterns, code generators, and algorithms.
 
+![hunt-svg.png](/Users/deadcoast/CursorProjects/ASCII-hunt/docs/assets/hunt-svg.png)
+
 ### 2.2 High-Level Architecture
 
 ```mermaid
