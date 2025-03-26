@@ -55,7 +55,8 @@ class NeuromorphicAnalyzer:
 
         # Hebbian update rule
         delta = self.learning_rate * (target - activation)
-        self.patterns[pattern_name] += delta
+        # Update pattern element-wise
+        self.patterns[pattern_name] = pattern + delta
 
     def analyze(
         self, input_data: NDArray[np.str_]

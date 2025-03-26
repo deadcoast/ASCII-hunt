@@ -1,0 +1,294 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 1000">
+  <!-- Background -->
+  <rect width="1500" height="1000" fill="#f8f9fa" />
+  
+  <!-- Background Grid -->
+  <pattern id="smallGrid" width="10" height="10" patternUnits="userSpaceOnUse">
+    <path d="M 10 0 L 0 0 0 10" fill="none" stroke="#f0f0f0" stroke-width="0.5"/>
+  </pattern>
+  <pattern id="grid" width="100" height="100" patternUnits="userSpaceOnUse">
+    <rect width="100" height="100" fill="url(#smallGrid)"/>
+    <path d="M 100 0 L 0 0 0 100" fill="none" stroke="#e8e8e8" stroke-width="1"/>
+  </pattern>
+  <rect width="1500" height="1000" fill="url(#grid)" />
+  
+  <!-- Title -->
+  <rect x="300" y="20" width="900" height="50" rx="5" fill="#2196f3" />
+  <text x="750" y="55" font-family="Arial" font-size="24" text-anchor="middle" fill="white" font-weight="bold">HUNT ASCII UI Translation System - Comprehensive Architecture</text>
+  
+  <!-- System Boundaries -->
+  
+  <!-- Input Layer -->
+  <rect x="50" y="100" width="250" height="160" rx="5" fill="#bbdefb" stroke="#1976d2" stroke-width="2" stroke-dasharray="5,5" />
+  <text x="175" y="125" font-family="Arial" font-size="18" text-anchor="middle" font-weight="bold" fill="#1976d2">Input Layer</text>
+  
+  <!-- DSL Processing Layer -->
+  <rect x="350" y="100" width="500" height="380" rx="5" fill="#e1f5fe" stroke="#0288d1" stroke-width="2" stroke-dasharray="5,5" />
+  <text x="600" y="125" font-family="Arial" font-size="18" text-anchor="middle" font-weight="bold" fill="#0288d1">HUNT DSL Processing Layer</text>
+
+  <!-- Pattern Recognition Layer -->
+  <rect x="900" y="100" width="550" height="380" rx="5" fill="#e8f5e9" stroke="#388e3c" stroke-width="2" stroke-dasharray="5,5" />
+  <text x="1175" y="125" font-family="Arial" font-size="18" text-anchor="middle" font-weight="bold" fill="#388e3c">Pattern Recognition Layer</text>
+  
+  <!-- Hierarchical Modeling Layer -->
+  <rect x="350" y="500" width="550" height="200" rx="5" fill="#fff3e0" stroke="#e65100" stroke-width="2" stroke-dasharray="5,5" />
+  <text x="625" y="525" font-family="Arial" font-size="18" text-anchor="middle" font-weight="bold" fill="#e65100">Hierarchical Modeling Layer</text>
+  
+  <!-- Code Generation Layer -->
+  <rect x="950" y="500" width="500" height="200" rx="5" fill="#f3e5f5" stroke="#7b1fa2" stroke-width="2" stroke-dasharray="5,5" />
+  <text x="1200" y="525" font-family="Arial" font-size="18" text-anchor="middle" font-weight="bold" fill="#7b1fa2">Code Generation Layer</text>
+  
+  <!-- Output Layer -->
+  <rect x="1200" y="720" width="250" height="140" rx="5" fill="#e8eaf6" stroke="#3f51b5" stroke-width="2" stroke-dasharray="5,5" />
+  <text x="1325" y="745" font-family="Arial" font-size="18" text-anchor="middle" font-weight="bold" fill="#3f51b5">Output Layer</text>
+  
+  <!-- Plugin & Extension Layer -->
+  <rect x="50" y="720" width="1100" height="140" rx="5" fill="#fce4ec" stroke="#c2185b" stroke-width="2" stroke-dasharray="5,5" />
+  <text x="600" y="745" font-family="Arial" font-size="18" text-anchor="middle" font-weight="bold" fill="#c2185b">Plugin & Extension Layer</text>
+  
+  <!-- Entity Boxes -->
+  
+  <!-- Input Layer Entities -->
+  <rect x="75" y="150" width="200" height="90" fill="#ffffff" stroke="#1976d2" stroke-width="2" rx="5" />
+  <text x="175" y="175" font-family="Arial" font-size="16" text-anchor="middle" font-weight="bold">ASCII Input</text>
+  <line x1="75" y1="185" x2="275" y2="185" stroke="#1976d2" stroke-width="1" />
+  <text x="85" y="205" font-family="Arial" font-size="12">+ content: String</text>
+  <text x="85" y="225" font-family="Arial" font-size="12">+ source: String</text>
+  
+  <!-- DSL Processing Layer Entities -->
+  
+  <!-- HuntParser -->
+  <rect x="375" y="150" width="200" height="130" fill="#ffffff" stroke="#0288d1" stroke-width="2" rx="5" />
+  <text x="475" y="175" font-family="Arial" font-size="16" text-anchor="middle" font-weight="bold">HuntParser</text>
+  <line x1="375" y1="185" x2="575" y2="185" stroke="#0288d1" stroke-width="1" />
+  <text x="385" y="205" font-family="Arial" font-size="12">+ parse(code: String): AST</text>
+  <text x="385" y="225" font-family="Arial" font-size="12">+ tokenize(code: String): Token[]</text>
+  <text x="385" y="245" font-family="Arial" font-size="12">+ parseAlphaBracket(): Node</text>
+  <text x="385" y="265" font-family="Arial" font-size="12">+ parseBetaBracket(): Node</text>
+  
+  <!-- HuntInterpreter -->
+  <rect x="615" y="150" width="210" height="110" fill="#ffffff" stroke="#0288d1" stroke-width="2" rx="5" />
+  <text x="720" y="175" font-family="Arial" font-size="16" text-anchor="middle" font-weight="bold">HuntInterpreter</text>
+  <line x1="615" y1="185" x2="825" y2="185" stroke="#0288d1" stroke-width="1" />
+  <text x="625" y="205" font-family="Arial" font-size="12">+ interpret(ast: AST): Pattern</text>
+  <text x="625" y="225" font-family="Arial" font-size="12">+ evaluateNode(node: Node): Any</text>
+  <text x="625" y="245" font-family="Arial" font-size="12">+ executeCommand(cmd: String): Any</text>
+  
+  <!-- CommandDispatcher -->
+  <rect x="375" y="320" width="200" height="110" fill="#ffffff" stroke="#0288d1" stroke-width="2" rx="5" />
+  <text x="475" y="345" font-family="Arial" font-size="16" text-anchor="middle" font-weight="bold">CommandDispatcher</text>
+  <line x1="375" y1="355" x2="575" y2="355" stroke="#0288d1" stroke-width="1" />
+  <text x="385" y="375" font-family="Arial" font-size="12">+ registerHandler(cmd: String)</text>
+  <text x="385" y="395" font-family="Arial" font-size="12">+ dispatch(cmd: String, params)</text>
+  <text x="385" y="415" font-family="Arial" font-size="12">+ getHandler(cmd: String)</text>
+  
+  <!-- PatternRegistry -->
+  <rect x="615" y="320" width="210" height="130" fill="#ffffff" stroke="#0288d1" stroke-width="2" rx="5" />
+  <text x="720" y="345" font-family="Arial" font-size="16" text-anchor="middle" font-weight="bold">PatternRegistry</text>
+  <line x1="615" y1="355" x2="825" y2="355" stroke="#0288d1" stroke-width="1" />
+  <text x="625" y="375" font-family="Arial" font-size="12">+ registerPattern(id: String)</text>
+  <text x="625" y="395" font-family="Arial" font-size="12">+ getPattern(id: String): Pattern</text>
+  <text x="625" y="415" font-family="Arial" font-size="12">+ getAllPatterns(): Pattern[]</text>
+  <text x="625" y="435" font-family="Arial" font-size="12">+ getPatternsByType(type: String)</text>
+  
+  <!-- Pattern Recognition Layer Entities -->
+  
+  <!-- ASCIIGrid -->
+  <rect x="925" y="150" width="200" height="130" fill="#ffffff" stroke="#388e3c" stroke-width="2" rx="5" />
+  <text x="1025" y="175" font-family="Arial" font-size="16" text-anchor="middle" font-weight="bold">ASCIIGrid</text>
+  <line x1="925" y1="185" x2="1125" y2="185" stroke="#388e3c" stroke-width="1" />
+  <text x="935" y="205" font-family="Arial" font-size="12">+ grid: Array2D</text>
+  <text x="935" y="225" font-family="Arial" font-size="12">+ width: Integer</text>
+  <text x="935" y="245" font-family="Arial" font-size="12">+ height: Integer</text>
+  <text x="935" y="265" font-family="Arial" font-size="12">+ boundaryMask: Boolean[][]</text>
+  
+  <!-- FloodFillProcessor -->
+  <rect x="1165" y="150" width="260" height="110" fill="#ffffff" stroke="#388e3c" stroke-width="2" rx="5" />
+  <text x="1295" y="175" font-family="Arial" font-size="16" text-anchor="middle" font-weight="bold">FloodFillProcessor</text>
+  <line x1="1165" y1="185" x2="1425" y2="185" stroke="#388e3c" stroke-width="1" />
+  <text x="1175" y="205" font-family="Arial" font-size="12">+ process(grid: ASCIIGrid): Component[]</text>
+  <text x="1175" y="225" font-family="Arial" font-size="12">+ floodFill(x: int, y: int): Component</text>
+  <text x="1175" y="245" font-family="Arial" font-size="12">+ processComponents(components[])</text>
+  
+  <!-- PatternMatcher -->
+  <rect x="925" y="320" width="250" height="130" fill="#ffffff" stroke="#388e3c" stroke-width="2" rx="5" />
+  <text x="1050" y="345" font-family="Arial" font-size="16" text-anchor="middle" font-weight="bold">PatternMatcher</text>
+  <line x1="925" y1="355" x2="1175" y2="355" stroke="#388e3c" stroke-width="1" />
+  <text x="935" y="375" font-family="Arial" font-size="12">+ matchComponent(comp: Component)</text>
+  <text x="935" y="395" font-family="Arial" font-size="12">+ matchPattern(pattern: Pattern)</text>
+  <text x="935" y="415" font-family="Arial" font-size="12">+ handleTagRule(rule: Rule): Match</text>
+  <text x="935" y="435" font-family="Arial" font-size="12">+ handlePluckRule(rule: Rule): Match</text>
+  
+  <!-- Component -->
+  <rect x="1215" y="320" width="210" height="130" fill="#ffffff" stroke="#388e3c" stroke-width="2" rx="5" />
+  <text x="1320" y="345" font-family="Arial" font-size="16" text-anchor="middle" font-weight="bold">Component</text>
+  <line x1="1215" y1="355" x2="1425" y2="355" stroke="#388e3c" stroke-width="1" />
+  <text x="1225" y="375" font-family="Arial" font-size="12">+ id: String</text>
+  <text x="1225" y="395" font-family="Arial" font-size="12">+ type: String</text>
+  <text x="1225" y="415" font-family="Arial" font-size="12">+ properties: Dictionary</text>
+  <text x="1225" y="435" font-family="Arial" font-size="12">+ content: String[]</text>
+  
+  <!-- Hierarchical Modeling Layer Entities -->
+  
+  <!-- ComponentModel -->
+  <rect x="375" y="545" width="230" height="130" fill="#ffffff" stroke="#e65100" stroke-width="2" rx="5" />
+  <text x="490" y="570" font-family="Arial" font-size="16" text-anchor="middle" font-weight="bold">ComponentModel</text>
+  <line x1="375" y1="580" x2="605" y2="580" stroke="#e65100" stroke-width="1" />
+  <text x="385" y="600" font-family="Arial" font-size="12">+ addComponent(comp: Component)</text>
+  <text x="385" y="620" font-family="Arial" font-size="12">+ addRelationship(src: String, target)</text>
+  <text x="385" y="640" font-family="Arial" font-size="12">+ getHierarchy(): Dictionary</text>
+  <text x="385" y="660" font-family="Arial" font-size="12">+ validate(): Boolean</text>
+  
+  <!-- RelationshipAnalyzer -->
+  <rect x="645" y="545" width="230" height="130" fill="#ffffff" stroke="#e65100" stroke-width="2" rx="5" />
+  <text x="760" y="570" font-family="Arial" font-size="16" text-anchor="middle" font-weight="bold">RelationshipAnalyzer</text>
+  <line x1="645" y1="580" x2="875" y2="580" stroke="#e65100" stroke-width="1" />
+  <text x="655" y="600" font-family="Arial" font-size="12">+ analyzeContainment(comps)</text>
+  <text x="655" y="620" font-family="Arial" font-size="12">+ analyzeAlignment(comps)</text>
+  <text x="655" y="640" font-family="Arial" font-size="12">+ analyzeRelationships(comps)</text>
+  <text x="655" y="660" font-family="Arial" font-size="12">+ buildHierarchy(comps)</text>
+  
+  <!-- Code Generation Layer Entities -->
+  
+  <!-- CodeGenerator -->
+  <rect x="975" y="545" width="220" height="130" fill="#ffffff" stroke="#7b1fa2" stroke-width="2" rx="5" />
+  <text x="1085" y="570" font-family="Arial" font-size="16" text-anchor="middle" font-weight="bold">CodeGenerator</text>
+  <line x1="975" y1="580" x2="1195" y2="580" stroke="#7b1fa2" stroke-width="1" />
+  <text x="985" y="600" font-family="Arial" font-size="12">+ generate(model: ComponentModel)</text>
+  <text x="985" y="620" font-family="Arial" font-size="12">+ registerFramework(name: String)</text>
+  <text x="985" y="640" font-family="Arial" font-size="12">+ getFrameworkAdapter(name)</text>
+  <text x="985" y="660" font-family="Arial" font-size="12">+ processTemplates(templates)</text>
+  
+  <!-- TemplateEngine -->
+  <rect x="1225" y="545" width="200" height="130" fill="#ffffff" stroke="#7b1fa2" stroke-width="2" rx="5" />
+  <text x="1325" y="570" font-family="Arial" font-size="16" text-anchor="middle" font-weight="bold">TemplateEngine</text>
+  <line x1="1225" y1="580" x2="1425" y2="580" stroke="#7b1fa2" stroke-width="1" />
+  <text x="1235" y="600" font-family="Arial" font-size="12">+ render(template: String, data)</text>
+  <text x="1235" y="620" font-family="Arial" font-size="12">+ evaluateExpression(expr)</text>
+  <text x="1235" y="640" font-family="Arial" font-size="12">+ applyIndentation(text: String)</text>
+  <text x="1235" y="660" font-family="Arial" font-size="12">+ callFunction(name: String, args)</text>
+  
+  <!-- Output Layer Entities -->
+  
+  <!-- GeneratedCode -->
+  <rect x="1225" y="770" width="200" height="70" fill="#ffffff" stroke="#3f51b5" stroke-width="2" rx="5" />
+  <text x="1325" y="795" font-family="Arial" font-size="16" text-anchor="middle" font-weight="bold">GeneratedCode</text>
+  <line x1="1225" y1="805" x2="1425" y2="805" stroke="#3f51b5" stroke-width="1" />
+  <text x="1235" y="825" font-family="Arial" font-size="12">+ code: String</text>
+  
+  <!-- Plugin Layer Entities -->
+  
+  <!-- PluginManager -->
+  <rect x="75" y="770" width="200" height="70" fill="#ffffff" stroke="#c2185b" stroke-width="2" rx="5" />
+  <text x="175" y="795" font-family="Arial" font-size="16" text-anchor="middle" font-weight="bold">PluginManager</text>
+  <line x1="75" y1="805" x2="275" y2="805" stroke="#c2185b" stroke-width="1" />
+  <text x="85" y="825" font-family="Arial" font-size="12">+ registerPlugin(plugin: Plugin)</text>
+  
+  <!-- PatternPlugin -->
+  <rect x="325" y="770" width="200" height="70" fill="#ffffff" stroke="#c2185b" stroke-width="2" rx="5" />
+  <text x="425" y="795" font-family="Arial" font-size="16" text-anchor="middle" font-weight="bold">PatternPlugin</text>
+  <line x1="325" y1="805" x2="525" y2="805" stroke="#c2185b" stroke-width="1" />
+  <text x="335" y="825" font-family="Arial" font-size="12">+ getPatterns(): Pattern[]</text>
+  
+  <!-- AlgorithmPlugin -->
+  <rect x="575" y="770" width="200" height="70" fill="#ffffff" stroke="#c2185b" stroke-width="2" rx="5" />
+  <text x="675" y="795" font-family="Arial" font-size="16" text-anchor="middle" font-weight="bold">AlgorithmPlugin</text>
+  <line x1="575" y1="805" x2="775" y2="805" stroke="#c2185b" stroke-width="1" />
+  <text x="585" y="825" font-family="Arial" font-size="12">+ getAlgorithms(): Dictionary</text>
+  
+  <!-- GeneratorPlugin -->
+  <rect x="825" y="770" width="200" height="70" fill="#ffffff" stroke="#c2185b" stroke-width="2" rx="5" />
+  <text x="925" y="795" font-family="Arial" font-size="16" text-anchor="middle" font-weight="bold">GeneratorPlugin</text>
+  <line x1="825" y1="805" x2="1025" y2="805" stroke="#c2185b" stroke-width="1" />
+  <text x="835" y="825" font-family="Arial" font-size="12">+ getGenerators(): Dictionary</text>
+  
+  <!-- Relationships -->
+  
+  <!-- Input to DSL Processing -->
+  <path d="M 275 195 L 375 195" fill="none" stroke="#333333" stroke-width="2" />
+  <polygon points="365,188 375,195 365,202" fill="#333333" stroke="#333333" stroke-width="1" />
+  
+  <!-- Parser to Interpreter -->
+  <path d="M 575 195 L 615 195" fill="none" stroke="#333333" stroke-width="2" />
+  <polygon points="605,188 615,195 605,202" fill="#333333" stroke="#333333" stroke-width="1" />
+  
+  <!-- Interpreter to Command Dispatcher -->
+  <path d="M 720 260 L 720 290 L 475 290 L 475 320" fill="none" stroke="#333333" stroke-width="2" />
+  <polygon points="468,310 475,320 482,310" fill="#333333" stroke="#333333" stroke-width="1" />
+  
+  <!-- Command Dispatcher to Pattern Registry -->
+  <path d="M 575 375 L 615 375" fill="none" stroke="#333333" stroke-width="2" />
+  <polygon points="605,368 615,375 605,382" fill="#333333" stroke="#333333" stroke-width="1" />
+  
+  <!-- Pattern Registry to Pattern Matcher -->
+  <path d="M 825 375 L 925 375" fill="none" stroke="#333333" stroke-width="2" />
+  <polygon points="915,368 925,375 915,382" fill="#333333" stroke="#333333" stroke-width="1" />
+  
+  <!-- ASCII Grid to Flood Fill Processor -->
+  <path d="M 1125 195 L 1165 195" fill="none" stroke="#333333" stroke-width="2" />
+  <polygon points="1155,188 1165,195 1155,202" fill="#333333" stroke="#333333" stroke-width="1" />
+  
+  <!-- Flood Fill Processor to Component -->
+  <path d="M 1295 260 L 1295 290 L 1320 290 L 1320 320" fill="none" stroke="#333333" stroke-width="2" />
+  <polygon points="1313,310 1320,320 1327,310" fill="#333333" stroke="#333333" stroke-width="1" />
+  
+  <!-- Pattern Matcher to Component -->
+  <path d="M 1175 375 L 1215 375" fill="none" stroke="#333333" stroke-width="2" />
+  <polygon points="1205,368 1215,375 1205,382" fill="#333333" stroke="#333333" stroke-width="1" />
+  
+  <!-- Component to Component Model -->
+  <path d="M 1320 450 L 1320 480 L 490 480 L 490 545" fill="none" stroke="#333333" stroke-width="2" />
+  <polygon points="483,535 490,545 497,535" fill="#333333" stroke="#333333" stroke-width="1" />
+  
+  <!-- Component Model to Relationship Analyzer -->
+  <path d="M 605 610 L 645 610" fill="none" stroke="#333333" stroke-width="2" />
+  <polygon points="635,603 645,610 635,617" fill="#333333" stroke="#333333" stroke-width="1" />
+  
+  <!-- Relationship Analyzer to Component Model -->
+  <path d="M 645 640 L 625 640 L 625 660 L 605 660" fill="none" stroke="#333333" stroke-width="2" />
+  <polygon points="615,667 605,660 615,653" fill="#333333" stroke="#333333" stroke-width="1" />
+  
+  <!-- Component Model to Code Generator -->
+  <path d="M 605 610 L 790 610 L 790 640 L 975 640" fill="none" stroke="#333333" stroke-width="2" />
+  <polygon points="965,633 975,640 965,647" fill="#333333" stroke="#333333" stroke-width="1" />
+  
+  <!-- Code Generator to Template Engine -->
+  <path d="M 1195 610 L 1225 610" fill="none" stroke="#333333" stroke-width="2" />
+  <polygon points="1215,603 1225,610 1215,617" fill="#333333" stroke="#333333" stroke-width="1" />
+  
+  <!-- Template Engine to Generated Code -->
+  <path d="M 1325 675 L 1325 770" fill="none" stroke="#333333" stroke-width="2" />
+  <polygon points="1318,760 1325,770 1332,760" fill="#333333" stroke="#333333" stroke-width="1" />
+  
+  <!-- Plugin Manager to Pattern Plugin -->
+  <path d="M 275 795 L 325 795" fill="none" stroke="#333333" stroke-width="2" />
+  <polygon points="315,788 325,795 315,802" fill="#333333" stroke="#333333" stroke-width="1" />
+  
+  <!-- Plugin Manager to Algorithm Plugin -->
+  <path d="M 275 805 L 300 805 L 300 825 L 560 825 L 560 805 L 575 805" fill="none" stroke="#333333" stroke-width="2" />
+  <polygon points="565,798 575,805 565,812" fill="#333333" stroke="#333333" stroke-width="1" />
+  
+  <!-- Plugin Manager to Generator Plugin -->
+  <path d="M 275 815 L 300 815 L 300 835 L 810 835 L 810 805 L 825 805" fill="none" stroke="#333333" stroke-width="2" />
+  <polygon points="815,798 825,805 815,812" fill="#333333" stroke="#333333" stroke-width="1" />
+  
+  <!-- Pattern Plugin to Pattern Registry -->
+  <path d="M 425 770 L 425 400 L 615 400" fill="none" stroke="#333333" stroke-width="2" />
+  <polygon points="605,393 615,400 605,407" fill="#333333" stroke="#333333" stroke-width="1" />
+  
+  <!-- Algorithm Plugin to Flood Fill Processor -->
+  <path d="M 675 770 L 675 690 L 1300 690 L 1300 260" fill="none" stroke="#333333" stroke-width="2" />
+  <polygon points="1293,270 1300,260 1307,270" fill="#333333" stroke="#333333" stroke-width="1" />
+  
+  <!-- Generator Plugin to Code Generator -->
+  <path d="M 925 770 L 925 690 L 1085 690 L 1085 675" fill="none" stroke="#333333" stroke-width="2" />
+  <polygon points="1078,685 1085,675 1092,685" fill="#333333" stroke="#333333" stroke-width="1" />
+  
+  <!-- DSL Legend -->
+  <rect x="80" y="900" width="1320" height="60" rx="5" fill="#eeeeee" stroke="#666666" stroke-width="1" />
+  <text x="100" y="930" font-family="Arial" font-size="16" font-weight="bold">HUNT DSL Syntax Example:</text>
+  <text x="350" y="930" font-family="Arial" font-size="14">
+    &lt; hunt Track: [INIT GATHER = {param tag:button = (val "[", "]")} {param pluck:button_text = (val "\\[(.+?)\\]")} ]&gt;&lt;EXEC&gt;
+  </text>
+  <text x="100" y="950" font-family="Arial" font-size="12" fill="#666666">Alpha Brackets: &lt; &gt;   |   Beta Brackets: [ ]   |   Gamma Brackets: { }   |   Delta Brackets: ( )</text>
+</svg>

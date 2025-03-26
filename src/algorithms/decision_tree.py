@@ -125,3 +125,100 @@ class DecisionTree:
         if x[cast(int, node.feature_index)] <= cast(float, node.threshold):
             return self._traverse_tree(x, cast(Node, node.left))
         return self._traverse_tree(x, cast(Node, node.right))
+
+    def classify(self, components: list, grid: np.ndarray = None) -> list:
+        """Classify components based on their features.
+
+        Args:
+            components: List of components to classify
+            grid: Optional grid data for additional feature extraction
+
+        Returns:
+            List of classified components with added classification information
+        """
+        if not components:
+            return []
+
+        # Check if tree is fitted
+        if self.root is None:
+            raise ValueError("Decision tree not fitted. Call fit() first.")
+
+        # Extract features from components
+        features = self._extract_features(components, grid)
+
+        # Apply classification
+        if isinstance(features, np.ndarray) and len(features.shape) == 2:
+            predictions = self.predict(features)
+        else:
+            # Handle case where features aren't in expected format
+            return components
+
+        # Map predictions to component classification
+        classified_components = []
+        for i, component in enumerate(components):
+            component_copy = (
+                component.copy() if hasattr(component, "copy") else component
+            )
+
+            # Add classification information
+            if i < len(predictions):
+                prediction = int(predictions[i])
+                component_copy["classification"] = {
+                    "type_id": prediction,
+                    "confidence": 1.0,  # Default confidence
+                }
+
+            classified_components.append(component_copy)
+
+        return classified_components
+
+    def _extract_features(
+        self, components: list, grid: np.ndarray = None
+    ) -> NDArray[np.float_]:
+        """Extract features from components for classification.
+
+        Args:
+            components: List of components
+            grid: Optional grid data
+
+        Returns:
+            Feature matrix for classification
+        """
+        # Simple feature extraction - expand as needed
+        features = []
+
+        for component in components:
+            # Handle different component formats
+            if isinstance(component, dict):
+                component_features = []
+
+                # Add bounding box features if available
+                if "bounds" in component:
+                    bounds = component["bounds"]
+                    if all(k in bounds for k in ["width", "height"]):
+                        component_features.extend(
+                            [
+                                float(bounds["width"]),
+                                float(bounds["height"]),
+                                float(bounds["width"])
+                                / max(float(bounds["height"]), 1.0),
+                            ]
+                        )
+
+                # Add character count features if available
+                if "content" in component and "char_counts" in component["content"]:
+                    char_counts = component["content"]["char_counts"]
+                    component_features.append(float(len(char_counts)))
+
+                features.append(component_features)
+
+        # Ensure consistent feature dimensionality
+        if features:
+            max_features = max(len(f) for f in features)
+            normalized_features = [
+                f + [0.0] * (max_features - len(f)) for f in features
+            ]
+            return np.array(normalized_features, dtype=np.float_)
+
+        # Return empty feature matrix if no features extracted
+        return np.array([], dtype=np.float_)

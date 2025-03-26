@@ -78,7 +78,7 @@ class ASCIIUtils:
         Returns:
             Tuple of (height, width)
         """
-        return grid.shape
+        return (int(grid.shape[0]), int(grid.shape[1]))
 
     @staticmethod
     def count_chars(grid: np.ndarray) -> dict[str, int]:

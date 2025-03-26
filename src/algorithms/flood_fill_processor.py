@@ -32,6 +32,90 @@ class FloodFillProcessor:
             directions.extend([(1, 1), (1, -1), (-1, -1), (-1, 1)])  # Diagonals
         return directions
 
+    def process(self, grid: np.ndarray) -> list[dict]:
+        """Process ASCII grid to identify and analyze components.
+
+        Args:
+            grid: 2D numpy array representing ASCII grid
+
+        Returns:
+            List of component dictionaries with position and metadata
+        """
+        if grid.size == 0:
+            return []
+
+        # Find all non-space characters (assuming spaces are background)
+        background_char = " "
+        components = []
+
+        # Find all unique characters in the grid
+        unique_chars = set(np.unique(grid))
+        if background_char in unique_chars:
+            unique_chars.remove(background_char)
+
+        # Process each character type separately
+        all_component_points = []
+        for char in unique_chars:
+            char_components = self.find_connected_components(grid, target_value=char)
+            all_component_points.extend(char_components)
+
+        for idx, component_points in enumerate(all_component_points):
+            if not component_points:
+                continue
+
+            # Extract component boundaries
+            min_x = int(min(x for x, y in component_points))
+            max_x = int(max(x for x, y in component_points))
+            min_y = int(min(y for x, y in component_points))
+            max_y = int(max(y for x, y in component_points))
+
+            # Create a component representation
+            component = {
+                "id": f"component_{idx}",
+                "points": list(component_points),
+                "bounds": {
+                    "min_x": min_x,
+                    "min_y": min_y,
+                    "max_x": max_x,
+                    "max_y": max_y,
+                    "width": max_x - min_x + 1,
+                    "height": max_y - min_y + 1,
+                },
+                "content": self._extract_component_content(grid, component_points),
+            }
+
+            components.append(component)
+
+        return components
+
+    def _extract_component_content(
+        self, grid: np.ndarray, points: set[tuple[int, int]]
+    ) -> dict:
+        """Extract content details from a component.
+
+        Args:
+            grid: ASCII grid containing the component
+            points: Set of (x, y) points in the component
+
+        Returns:
+            Dictionary with component content details
+        """
+        # Count character occurrences
+        char_counts = {}
+
+        for x, y in points:
+            char = grid[x, y]
+            char_counts[char] = char_counts.get(char, 0) + 1
+
+        # Get most common character
+        most_common = max(char_counts.items(), key=lambda x: x[1], default=("", 0))
+
+        return {
+            "char_counts": char_counts,
+            "most_common_char": most_common[0],
+            "unique_chars": list(char_counts.keys()),
+        }
+
     def flood_fill(
         self, grid: np.ndarray, start: Point, target_value: str, replacement_value: str
     ) -> np.ndarray:
