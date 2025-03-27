@@ -1,0 +1,44 @@
+# Markdown Newline Fixer Configuration
+
+# ----------------------------------------------------------------
+# RUN COMMAND
+# ----------------------------------------------------------------
+
+# cd .wash/n_line_fix && python3 n_line_fix.py --config config.yaml
+
+# ----------------------------------------------------------------
+# FILE PATH
+# ----------------------------------------------------------------
+
+# Path to your markdown files that need fixing
+path: "/Users/deadcoast/CursorProjects/ASCII-hunt/.wash/n_line_fix/"
+
+# ----------------------------------------------------------------
+# FILES TO PROCESS
+# ----------------------------------------------------------------
+
+# Files to process (list individual markdown files - these are relative to the path above)
+files:
+  - "n.file.md"
+
+# ----------------------------------------------------------------
+# OUTPUT DIRECTORY
+# ----------------------------------------------------------------
+
+# Output directory (where fixed files will be saved - relative to the path above)
+# If not specified or left empty, original files will be overwritten
+output_dir: "/Users/deadcoast/CursorProjects/ASCII-hunt/.wash/n_line_fix/"
+
+# ----------------------------------------------------------------
+# DIRECTORIES TO PROCESS
+# ----------------------------------------------------------------
+
+# Directories to process (will process all .md and .markdown files - relative to the path above)
+directories:
+  # Leave empty to avoid processing the same files twice
+
+# Global options
+options:
+  recursive: true          # Process subdirectories recursively
+  make_backup: true        # Create backups before modifying files
+  backup_dir: "backups"    # Optional: central location for all backups (relative to path)

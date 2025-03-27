@@ -1,0 +1,21 @@
+# Markdown Newline Fixer Configuration
+
+# Files to process (list individual markdown files)
+files:
+  - "docs/README.md"
+  - "docs/chapter1.md"
+
+# Output directory (where fixed files will be saved)
+# If not specified or left empty, original files will be overwritten
+output_dir: "fixed_docs"
+
+# Directories to process (will process all .md and .markdown files)
+directories:
+  - "docs/chapters"
+  - "docs/appendices"
+
+# Global options
+options:
+  recursive: true          # Process subdirectories
+  make_backup: true        # Create backups before modifying files
+  backup_dir: "backups"    # Optional: central location for all backups

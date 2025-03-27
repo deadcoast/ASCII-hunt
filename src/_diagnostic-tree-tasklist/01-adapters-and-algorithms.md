@@ -2,11 +2,13 @@
 
 **Provide a comprehensive diagnosis and analysis of each file one by one, ensuring you are covering all aspects.**
 
-## Tree Tasklist.
+## RULES
 
-[STEP-1] REVIEW ONE ENTIRE FILE AT A TIME.
-[STEP-2] CREATE THE DOCS AFTER A FULL FILE REVIEW -> MARK FILE AS COMPLETE ON TREE.
-[STEP-3] REPEAT FOR ALL FILES -> MARK ENTIRE TASK AS COMPLETE ON TITLE HEADER.
+{STEP-1} REVIEW ONE ENTIRE FILE AT A TIME.
+{STEP-2} CREATE THE DOCS AFTER A FULL FILE REVIEW -> MARK FILE AS COMPLETE ON TREE.
+{STEP-3} REPEAT FOR ALL FILES -> MARK ENTIRE TASK AS COMPLETE ON TITLE HEADER.
+
+## {DIAGNOSTIC-TREE} TASKSLIST
 
 ```
 ├── src/
@@ -28,6 +30,8 @@
 │   │   ├── - [ ] pattern_matcher.py
 │   │   └── - [ ] py.typed
 ```
+
+## {DIAGNOSTIC-REPORT}
 
 ## Adapters
 

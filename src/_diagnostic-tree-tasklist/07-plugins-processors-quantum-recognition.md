@@ -1,11 +1,14 @@
 # - [ ] plugins-processors-quantum-recognition
 
-1. Provide a comprehensive diagnosis and analysisof each file one by on, ensuring you are covering all aspects.
-2. When you cmplete a file, mark it as complete on the Directory Tree Tasklist.
-3. Write your comprehensive diagnostic and analysis findings in the section below the Directory Tree Tasklist.
-4. When you have completed all files, mark the entire task as complete on the Directory
+**Provide a comprehensive diagnosis and analysis of each file one by one, ensuring you are covering all aspects.**
 
-## Tree Tasklist
+## RULES
+
+{STEP-1} REVIEW ONE ENTIRE FILE AT A TIME.
+{STEP-2} CREATE THE DOCS AFTER A FULL FILE REVIEW -> MARK FILE AS COMPLETE ON TREE.
+{STEP-3} REPEAT FOR ALL FILES -> MARK ENTIRE TASK AS COMPLETE ON TITLE HEADER.
+
+## {DIAGNOSTIC-TREE} TASKSLIST
 
 ```
 │   ├── - [ ] plugins/
@@ -44,6 +47,8 @@
 │   │   ├── - [ ] __init__.py
 │   │   └── - [ ] py.typed
 ```
+
+## {DIAGNOSTIC-REPORT}
 
 ## Plugins
 
