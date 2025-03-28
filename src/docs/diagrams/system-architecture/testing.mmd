@@ -1,0 +1,43 @@
+graph TD
+    %% Testing Infrastructure
+    subgraph Testing ["Testing System"]
+        direction TB
+        UnitTests["Unit Tests"]
+        IntegTests["Integration Tests"]
+        E2ETests["End-to-End Tests"]
+        TestFixtures["Test Fixtures"]
+        MockObjects["Mock Objects"]
+        TestUtils["Test Utilities"]
+    end
+
+    %% Test Categories
+    subgraph TestTypes ["Test Categories"]
+        CoreTests["Core Tests"]
+        DSLTests["DSL Tests"]
+        RecogTests["Recognition Tests"]
+        ModelTests["Modeling Tests"]
+        GenTests["Generation Tests"]
+        UITests["UI Tests"]
+    end
+
+    %% Test Dependencies
+    UnitTests --> TestFixtures
+    UnitTests --> MockObjects
+    IntegTests --> TestFixtures
+    E2ETests --> TestUtils
+
+    %% Test Coverage
+    CoreTests --> UnitTests
+    DSLTests --> UnitTests
+    RecogTests --> IntegTests
+    ModelTests --> UnitTests
+    GenTests --> E2ETests
+    UITests --> E2ETests
+
+    %% Style definitions
+    classDef default fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef test fill:#e6ffe6,stroke:#333,stroke-width:2px;
+    classDef fixture fill:#ffe6cc,stroke:#333,stroke-width:2px;
+
+    class UnitTests,IntegTests,E2ETests test;
+    class TestFixtures,MockObjects,TestUtils fixture; 

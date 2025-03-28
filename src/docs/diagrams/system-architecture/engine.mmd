@@ -1,0 +1,67 @@
+graph TD
+%% Engine System Components
+%% Analysis Components
+Analysis["Analysis\n(engine.analysis)"]
+CompAnalysis["ComponentAnalysis\n(engine.analysis.component_analysis)"]
+CompAnalysis2["ComponentAnalysis2\n(engine.analysis.component_analysis_two)"]
+SpatialAnalysis["SpatialAnalysis\n(engine.analysis.spatial_analysis)"]
+TemporalReasoning["TemporalReasoning\n(engine.analysis.temporal_reasoning)"]
+DecisionTree["DecisionTree\n(engine.analysis.decision_tree)"]
+DTClassifier["DecisionTreeClassifier\n(engine.analysis.decision_tree_classifier)"]
+
+%% Modeling Components
+Modeling["Modeling\n(engine.modeling)"]
+CompModel["ComponentModelRepresentation\n(engine.modeling.component_model)"]
+CompProps["ComponentProperties\n(engine.modeling.component_properties)"]
+DrawingMode["DrawingMode\n(engine.modeling.drawing_mode)"]
+
+%% Pipeline Components
+Pipeline["ProcessingPipeline\n(engine.pipeline)"]
+ASCIIProc["ASCIIProcessor\n(engine.pipeline.ascii_processor)"]
+ContourDetection["ContourDetection\n(engine.pipeline.contour_detection)"]
+FeatureExtraction["FeatureExtraction\n(engine.pipeline.feature_extraction)"]
+FloodFill["FloodFillProcessor\n(engine.pipeline.flood_fill)"]
+Transform["TransformationPipeline\n(engine.pipeline.transformation)"]
+
+%% Engine Internal Dependencies
+%% Analysis Dependencies
+Analysis --> CompAnalysis
+Analysis --> CompAnalysis2
+Analysis --> SpatialAnalysis
+Analysis --> TemporalReasoning
+Analysis --> DecisionTree
+Analysis --> DTClassifier
+
+CompAnalysis2 --> CompAnalysis
+DecisionTree --> DTClassifier
+SpatialAnalysis --> TemporalReasoning
+CompAnalysis --> SpatialAnalysis
+
+%% Pipeline Dependencies
+Pipeline --> ASCIIProc
+Pipeline --> ContourDetection
+Pipeline --> FeatureExtraction
+Pipeline --> FloodFill
+Pipeline --> Transform
+
+ASCIIProc --> FloodFill
+ContourDetection --> FloodFill
+FeatureExtraction --> ContourDetection
+Transform --> FeatureExtraction
+
+%% Modeling Dependencies
+Modeling --> CompModel
+Modeling --> CompProps
+Modeling --> DrawingMode
+
+CompProps --> CompModel
+DrawingMode --> CompModel
+
+%% Cross-component Dependencies
+CompAnalysis --> Pipeline
+TemporalReasoning --> Transform
+DTClassifier --> FeatureExtraction
+CompModel --> CompAnalysis2
+
+%% Apply engine styles
+class Analysis,CompAnalysis,CompAnalysis2,SpatialAnalysis,TemporalReasoning,DecisionTree,DTClassifier,Modeling,CompModel,CompProps,DrawingMode,Pipeline,ASCIIProc,ContourDetection,FeatureExtraction,FloodFill,Transform engine; 

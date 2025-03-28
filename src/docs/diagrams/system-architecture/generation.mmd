@@ -1,0 +1,21 @@
+graph TD
+%% Code Generation Components
+Generator["CodeGenerator\n(hunt.generation.generator)"]
+Templates["TemplateRegistry\n(hunt.generation.templates)"]
+Adapters["FrameworkAdapters\n(hunt.generation.adapters)"]
+PropMapper["PropertyMapper\n(hunt.generation.renderers)"]
+TemplateEngine["TemplateProcessor\n(hunt.generation.template_engine)"]
+CodeGenCore["CoreGenerator\n(hunt.generation.code_gen)"]
+Renderers["RenderingEngine\n(hunt.generation.renderers)"]
+
+%% Generation Internal Dependencies
+Generator --> Templates
+Generator --> Adapters
+Generator --> TemplateEngine
+Generator --> CodeGenCore
+CodeGenCore --> Renderers
+Adapters --> PropMapper
+Templates --> TemplateEngine
+
+%% Apply Generation styles
+class Generator,Templates,Adapters,PropMapper,TemplateEngine,CodeGenCore,Renderers codegen; 

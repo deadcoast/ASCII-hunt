@@ -1,0 +1,36 @@
+graph TD
+%% Plugin System Components
+%% Core Plugin Components
+PluginMgr["PluginManager\n(plugins.manager)"]
+ExtRegistry["ExtensionRegistry\n(plugins.registry)"]
+PluginLoader["PluginLoader\n(plugins.loader)"]
+
+%% Extension Components
+ExtPoint["ExtensionPoint\n(plugins.extension.point)"]
+ExtProvider["ExtensionProvider\n(plugins.extension.provider)"]
+ExtHandler["ExtensionHandler\n(plugins.extension.handler)"]
+
+%% Integration Components
+IntegrationMgr["IntegrationManager\n(plugins.integration.manager)"]
+PluginHooks["PluginHooks\n(plugins.integration.hooks)"]
+EventBridge["EventBridge\n(plugins.integration.events)"]
+
+%% Plugin Internal Dependencies
+%% Core Dependencies
+PluginMgr --> ExtRegistry
+PluginMgr --> PluginLoader
+ExtRegistry --> ExtPoint
+PluginLoader --> ExtProvider
+
+%% Extension Dependencies
+ExtPoint --> ExtHandler
+ExtProvider --> ExtHandler
+ExtHandler --> IntegrationMgr
+
+%% Integration Dependencies
+IntegrationMgr --> PluginHooks
+IntegrationMgr --> EventBridge
+PluginHooks --> EventBridge
+
+%% Apply plugin styles
+class PluginMgr,ExtRegistry,PluginLoader,ExtPoint,ExtProvider,ExtHandler,IntegrationMgr,PluginHooks,EventBridge plugins; 

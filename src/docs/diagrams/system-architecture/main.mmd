@@ -1,0 +1,197 @@
+graph TD
+    %% Import subgraphs and define cross-module dependencies
+    %% Core System
+    subgraph Core ["Core System"]
+        direction TB
+        %% Core nodes defined in core.mmd
+    end
+
+    %% DSL System
+    subgraph DSL ["DSL Processing"]
+        direction TB
+        %% DSL nodes defined in dsl.mmd
+    end
+
+    %% Recognition System
+    subgraph RecognitionSystem ["Component Recognition"]
+        direction TB
+        %% Recognition nodes defined in recognition.mmd
+    end
+
+    %% Modeling System
+    subgraph Modeling ["Hierarchical Modeling"]
+        direction TB
+        %% Modeling nodes defined in modeling.mmd
+    end
+
+    %% Generation System
+    subgraph Generation ["Code Generation"]
+        direction TB
+        %% Generation nodes defined in generation.mmd
+    end
+
+    %% Plugin System
+    subgraph Plugins ["Plugin System"]
+        direction TB
+        %% Plugin nodes defined in plugins.mmd
+    end
+
+    %% Processing System
+    subgraph Processing ["Processing System"]
+        direction TB
+        %% Processing nodes defined in processing.mmd
+    end
+
+    %% Cross-module Dependencies
+    %% Core <-> Recognition
+    Pipeline --> RecognitionSystem
+    FloodFill --> ASCIIGrid
+    Contour --> ASCIIGrid
+    ErrorHandler --> Recognition
+    ASCIIGrid -.-> PatternMatch
+    CompModel -.-> RuleEngine
+    
+    %% Core <-> Modeling
+    Pipeline --> Modeling
+    ContainAnalyzer --> CompModel
+    LayoutAnalyzer --> CompModel
+    RelationAnalyzer --> CompModel
+    ErrorHandler --> Modeling
+    CompModel -.-> SpatialAnalysis
+    ASCIIGrid -.-> ModelBuilder
+    
+    %% Core <-> Generation
+    Pipeline --> Generation
+    Generator --> CompModel
+    ErrorHandler --> Generation
+    CompModel -.-> Templates
+    ASCIIGrid -.-> CodeGenCore
+    
+    %% DSL <-> Core
+    HuntInterp --> Pipeline
+    CmdDisp --> CompModel
+    ErrorHandler --> HuntInterp
+    Pipeline -.-> CmdDisp
+    ASCIIGrid -.-> HuntInterp
+    
+    %% DSL <-> Recognition
+    PatternDef --> PatternMatch
+    PatternDef --> RuleEngine
+    RuleEngine -.-> HuntInterp
+    PatternMatch -.-> Grammar
+    
+    %% DSL <-> Generation
+    TmplEngine --> Templates
+    PatternDef --> Generator
+    Generator -.-> Grammar
+    Templates -.-> PatternDef
+    
+    %% Plugin System Dependencies
+    PluginMgr --> Pipeline
+    ExtRegistry -.-> PatternDef
+    ExtRegistry -.-> Generator
+    ExtRegistry -.-> Features
+    Pipeline -.-> PluginMgr
+    Features -.-> ExtRegistry
+    
+    %% Recognition <-> Modeling
+    Features --> Spatial
+    RuleEngine --> ModelBuilder
+    ModelBuilder -.-> PatternMatch
+    Spatial -.-> RuleEngine
+
+    %% Engine <-> Processing
+    DecisionTree --> ClassProcessor
+    TemporalReasoning --> NeuroAnalysis
+    CompAnalysis --> CompMapping
+    CompAnalysis2 --> NeuroAnalysis
+    DTClassifier --> ClassProcessor
+    ClassProcessor -.-> CompAnalysis
+    NeuroAnalysis -.-> TemporalReasoning
+    CompMapping -.-> CompAnalysis2
+    
+    %% Processing <-> Recognition
+    ClassProcessor --> PatternMatch
+    NeuroAnalysis --> Features
+    CompMapping --> FloodFill
+    PatternMatch -.-> NeuroAnalysis
+    Features -.-> ClassProcessor
+    FloodFill -.-> CompMapping
+
+    %% Interface <-> Core
+    GridWidget --> ASCIIGrid
+    UITranslator --> Pipeline
+    AppController --> CompModel
+    ASCIIGrid -.-> UITranslator
+    Pipeline -.-> AppController
+    CompModel -.-> GridWidget
+    
+    %% Interface <-> Generation
+    CodeComposer --> Generator
+    TmplEngine --> CodeTemplate
+    Generator -.-> UITranslator
+    CodeTemplate -.-> TmplEngine
+    
+    %% Interface <-> Patterns
+    GridWidget --> PatternMatcher
+    PropEditor --> PropTemplate
+    TkAdapter --> TkTemplate
+    PatternMatcher -.-> PropEditor
+    PropTemplate -.-> GridWidget
+    TkTemplate -.-> TkAdapter
+    
+    %% Patterns <-> Processing
+    PatternOptimizer --> ClassProcessor
+    GridTransform --> CompMapping
+    HierarchicalCluster --> NeuroAnalysis
+    ClassProcessor -.-> HierarchicalCluster
+    CompMapping -.-> PatternOptimizer
+    NeuroAnalysis -.-> GridTransform
+
+    %% Utils <-> Core
+    ASCIIUtils --> ASCIIGrid
+    HuntUtils --> Pipeline
+    CacheManager --> CompModel
+    ASCIIGrid -.-> HuntUtils
+    Pipeline -.-> CacheManager
+    CompModel -.-> ASCIIUtils
+    
+    %% Utils <-> Interface
+    PerfMonitor --> GridWidget
+    StorageProviders --> TkAdapter
+    CacheManager --> UITranslator
+    GridWidget -.-> CacheManager
+    TkAdapter -.-> PerfMonitor
+    UITranslator -.-> StorageProviders
+    
+    %% Utils <-> Engine
+    CacheManager --> DecisionTree
+    QitiaAnalyzer --> CompAnalysis
+    SansiaImporter --> TemporalReasoning
+    FuncRelManager --> CompAnalysis2
+    DecisionTree -.-> QitiaAnalyzer
+    CompAnalysis -.-> CacheManager
+    TemporalReasoning -.-> SansiaImporter
+    CompAnalysis2 -.-> FuncRelManager
+    
+    %% Utils <-> Patterns
+    FuncRelManager --> PatternMatcher
+    CacheProvider --> PatternRegistry
+    PluginManager --> PatternOptimizer
+    ExtensionPoint --> PatternDef
+    PatternMatcher -.-> CacheProvider
+    PatternRegistry -.-> PluginManager
+    PatternOptimizer -.-> ExtensionPoint
+    PatternDef -.-> FuncRelManager
+
+    %% Style definitions
+    classDef default fill:#f9f,stroke:#333,stroke-width:2px,color:#000000;
+    classDef core fill:#e1f7d5,stroke:#333,stroke-width:2px,color:#000000;
+    classDef dsl fill:#ffedcc,stroke:#333,stroke-width:2px,color:#000000;
+    classDef recog fill:#f2e6ff,stroke:#333,stroke-width:2px,color:#000000;
+    classDef model fill:#e6f3ff,stroke:#333,stroke-width:2px,color:#000000;
+    classDef codegen fill:#ffe6e6,stroke:#333,stroke-width:2px,color:#000000;
+    classDef plugin fill:#e6ffe6,stroke:#333,stroke-width:2px,color:#000000;
+    classDef ui fill:#fff2e6,stroke:#333,stroke-width:2px,color:#000000;
+    classDef utils fill:#e6e6e6,stroke:#333,stroke-width:2px,color:#000000;
+    classDef processing fill:#fff0f9,stroke:#333,stroke-width:2px,color:#000000; 

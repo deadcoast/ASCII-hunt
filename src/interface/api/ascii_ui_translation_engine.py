@@ -7,17 +7,14 @@ from src.managers.performance_monitor import PerformanceMonitor
 from src.managers.plugin_manager import PluginManager
 from src.managers.processing_pipeline import ProcessingPipeline
 from src.processors.code_generation_processor import CodeGenerationProcessor
-from src.processors.component_classification_processor import \
-    ComponentClassificationProcessor
-from src.processors.contour_detection_processor import \
-    ContourDetectionProcessor
-from src.processors.feature_extraction_processor import \
-    FeatureExtractionProcessor
+from src.processors.component_classification_processor import (
+    ComponentClassificationProcessor,
+)
+from src.processors.contour_detection_processor import ContourDetectionProcessor
+from src.processors.feature_extraction_processor import FeatureExtractionProcessor
 from src.processors.flood_fill_processor import FloodFillProcessor
-from src.processors.pattern_recognition_processor import \
-    PatternRecognitionProcessor
-from src.processors.relationship_analysis_processor import \
-    RelationshipAnalysisProcessor
+from src.processors.pattern_recognition_processor import PatternRecognitionProcessor
+from src.processors.relationship_analysis_processor import RelationshipAnalysisProcessor
 
 from .ascii_grid import ASCIIGrid
 

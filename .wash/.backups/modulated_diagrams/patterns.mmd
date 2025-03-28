@@ -1,0 +1,37 @@
+graph TD
+%% Pattern System Components
+%% Core Pattern Components
+PatternMatcher["PatternMatcher\n(patterns.matcher)"]
+PatternRegistry["PatternRegistry\n(patterns.registry)"]
+PatternOptimizer["PatternOptimizer\n(patterns.optimizer)"]
+PatternDef["PatternDefinition\n(patterns.definition)"]
+
+%% Template Components
+PropTemplate["PropertyTemplate\n(patterns.templates.property)"]
+TkTemplate["TkinterTemplate\n(patterns.templates.tkinter)"]
+GridTemplate["GridTemplate\n(patterns.templates.grid)"]
+
+%% Transform Components
+GridTransform["GridTransform\n(patterns.transform.grid)"]
+HierarchicalCluster["HierarchicalCluster\n(patterns.transform.cluster)"]
+PatternTransform["PatternTransform\n(patterns.transform.pattern)"]
+
+%% Pattern Internal Dependencies
+%% Core Dependencies
+PatternRegistry --> PatternMatcher
+PatternOptimizer --> PatternRegistry
+PatternDef --> PatternMatcher
+PatternDef --> PatternOptimizer
+
+%% Template Dependencies
+PropTemplate --> PatternDef
+TkTemplate --> GridTemplate
+GridTemplate --> PatternTransform
+
+%% Transform Dependencies
+GridTransform --> HierarchicalCluster
+HierarchicalCluster --> PatternTransform
+PatternTransform --> PatternOptimizer
+
+%% Apply pattern styles
+class PatternMatcher,PatternRegistry,PatternOptimizer,PatternDef,PropTemplate,TkTemplate,GridTemplate,GridTransform,HierarchicalCluster,PatternTransform patterns; 

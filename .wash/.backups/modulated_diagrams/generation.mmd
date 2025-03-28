@@ -1,0 +1,43 @@
+graph TD
+%% Generation System Components
+%% Core Generation
+Generator["Generator\n(generation.core)"]
+CodeGenCore["CodeGenCore\n(generation.core.engine)"]
+Templates["TemplateSystem\n(generation.templates)"]
+
+%% Component Generation
+CompGen["ComponentGenerator\n(generation.component)"]
+PropGen["PropertyGenerator\n(generation.properties)"]
+StyleGen["StyleGenerator\n(generation.styles)"]
+LayoutGen["LayoutGenerator\n(generation.layout)"]
+
+%% Output Generation
+OutputMgr["OutputManager\n(generation.output)"]
+FileGen["FileGenerator\n(generation.output.file)"]
+DocGen["DocumentationGenerator\n(generation.output.docs)"]
+TestGen["TestGenerator\n(generation.output.tests)"]
+
+%% Generation Internal Dependencies
+%% Core Dependencies
+Generator --> CodeGenCore
+Generator --> Templates
+CodeGenCore --> CompGen
+
+%% Component Dependencies
+CompGen --> PropGen
+CompGen --> StyleGen
+CompGen --> LayoutGen
+PropGen --> Templates
+StyleGen --> Templates
+LayoutGen --> Templates
+
+%% Output Dependencies
+OutputMgr --> FileGen
+OutputMgr --> DocGen
+OutputMgr --> TestGen
+FileGen --> Generator
+DocGen --> Generator
+TestGen --> Generator
+
+%% Apply generation styles
+class Generator,CodeGenCore,Templates,CompGen,PropGen,StyleGen,LayoutGen,OutputMgr,FileGen,DocGen,TestGen generation; 

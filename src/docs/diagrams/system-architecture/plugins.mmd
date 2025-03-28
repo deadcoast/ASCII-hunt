@@ -1,0 +1,18 @@
+graph TD
+%% Plugin System Components
+PluginMgr["PluginManager\n(hunt.plugins.manager)"]
+ExtRegistry["ExtensionRegistry\n(hunt.plugins.extension)"]
+PluginReg["PluginRegistry\n(hunt.plugins.registry)"]
+Discovery["PluginDiscovery\n(hunt.plugins.discovery)"]
+Loader["PluginLoader\n(hunt.plugins.loader)"]
+Points["ExtensionPoints\n(hunt.plugins.points)"]
+
+%% Plugin Internal Dependencies
+PluginMgr --> ExtRegistry
+PluginMgr --> PluginReg
+PluginMgr --> Discovery
+Loader --> PluginMgr
+Points --> ExtRegistry
+
+%% Apply Plugin styles
+class PluginMgr,ExtRegistry,PluginReg,Discovery,Loader,Points plugin; 

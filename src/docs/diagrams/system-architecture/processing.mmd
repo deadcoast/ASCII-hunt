@@ -1,0 +1,27 @@
+graph TD
+%% Processing System Components
+Transform["Transformations\n(processing.transform)"]
+CompMapping["ComponentMapping\n(processing.transform.component_mapping)"]
+OverlayMgr["ComponentOverlayManager\n(processing.transform.component_overlay)"]
+FloodFillComp["FloodFillComponent\n(processing.transform.flood_fill)"]
+
+Validation["Validation\n(processing.validation)"]
+ClassProcessor["ComponentClassification\n(processing.validation.classification)"]
+
+Analysis["Analysis\n(processing.analysis)"]
+NeuroAnalysis["NeuromorphicAnalysis\n(processing.analysis.neuromorphic)"]
+
+%% Processing Internal Dependencies
+Transform --> CompMapping
+Transform --> OverlayMgr
+Transform --> FloodFillComp
+
+Validation --> ClassProcessor
+ClassProcessor --> NeuroAnalysis
+
+Analysis --> NeuroAnalysis
+CompMapping --> ClassProcessor
+OverlayMgr --> ClassProcessor
+
+%% Apply processing styles
+class Transform,CompMapping,OverlayMgr,FloodFillComp,Validation,ClassProcessor,Analysis,NeuroAnalysis processing; 

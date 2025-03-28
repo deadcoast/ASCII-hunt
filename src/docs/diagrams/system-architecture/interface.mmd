@@ -1,0 +1,46 @@
+graph TD
+%% Interface System Components
+%% UI Components
+GridWidget["ASCIIGridWidget\n(interface.ui.ascii_grid_widget)"]
+HuntGrid["HuntGrid\n(interface.ui.hunt_grid)"]
+CodeComposer["CodeCompositionEngine\n(interface.ui.code_composition)"]
+TmplEngine["ComponentTemplateEngine\n(interface.ui.component_template)"]
+PropEditor["PropertyEditor\n(interface.ui.property_editor)"]
+ContentSwitch["ContentSwitcher\n(interface.ui.content_switcher)"]
+TabbedContent["TabbedContent\n(interface.ui.tabbed_content)"]
+Tabs["TabsManager\n(interface.ui.tabs)"]
+
+%% API Components
+AppController["ApplicationController\n(interface.api.application_controller)"]
+UITranslator["ASCIIUITranslator\n(interface.api.ascii_ui_translation)"]
+CLI["CommandLineInterface\n(interface.api.cli)"]
+Visualizer["HuntVisualizer\n(interface.api.hunt_visualizer)"]
+
+%% Adapter Components
+FrameworkAdapter["FrameworkAdapter\n(interface.adapters.framework_adapter)"]
+TkAdapter["TkinterAdapter\n(interface.adapters.tkinter_adapter)"]
+TkPlugin["TkinterPlugin\n(interface.adapters.tkinter_plugin)"]
+
+%% Interface Internal Dependencies
+%% UI Dependencies
+GridWidget --> HuntGrid
+TabbedContent --> Tabs
+TabbedContent --> ContentSwitch
+PropEditor --> TmplEngine
+CodeComposer --> TmplEngine
+
+%% API Dependencies
+AppController --> UITranslator
+AppController --> Visualizer
+CLI --> AppController
+Visualizer --> GridWidget
+
+%% Adapter Dependencies
+FrameworkAdapter --> TkAdapter
+TkAdapter --> TkPlugin
+TkAdapter --> GridWidget
+TkAdapter --> PropEditor
+TkAdapter --> TabbedContent
+
+%% Apply interface styles
+class GridWidget,HuntGrid,CodeComposer,TmplEngine,PropEditor,ContentSwitch,TabbedContent,Tabs,AppController,UITranslator,CLI,Visualizer,FrameworkAdapter,TkAdapter,TkPlugin ui; 

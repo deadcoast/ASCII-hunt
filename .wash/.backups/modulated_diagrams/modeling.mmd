@@ -1,0 +1,41 @@
+graph TD
+%% Modeling System Components
+%% Core Modeling
+Modeling["ModelingSystem\n(modeling.core)"]
+ModelBuilder["ModelBuilder\n(modeling.builder)"]
+SpatialAnalysis["SpatialAnalysis\n(modeling.spatial)"]
+RelationAnalyzer["RelationAnalyzer\n(modeling.relations)"]
+
+%% Analysis Components
+ContainAnalyzer["ContainmentAnalyzer\n(modeling.analysis.containment)"]
+LayoutAnalyzer["LayoutAnalyzer\n(modeling.analysis.layout)"]
+BoundaryAnalyzer["BoundaryAnalyzer\n(modeling.analysis.boundary)"]
+ConnectionAnalyzer["ConnectionAnalyzer\n(modeling.analysis.connections)"]
+
+%% Validation Components
+ModelValidator["ModelValidator\n(modeling.validation)"]
+RuleValidator["RuleValidator\n(modeling.validation.rules)"]
+ConstraintChecker["ConstraintChecker\n(modeling.validation.constraints)"]
+IntegrityChecker["IntegrityChecker\n(modeling.validation.integrity)"]
+
+%% Modeling Internal Dependencies
+%% Core Dependencies
+Modeling --> ModelBuilder
+Modeling --> SpatialAnalysis
+ModelBuilder --> RelationAnalyzer
+SpatialAnalysis --> ContainAnalyzer
+
+%% Analysis Dependencies
+ContainAnalyzer --> LayoutAnalyzer
+LayoutAnalyzer --> BoundaryAnalyzer
+BoundaryAnalyzer --> ConnectionAnalyzer
+RelationAnalyzer --> ContainAnalyzer
+
+%% Validation Dependencies
+ModelValidator --> RuleValidator
+ModelValidator --> ConstraintChecker
+ConstraintChecker --> IntegrityChecker
+RuleValidator --> RelationAnalyzer
+
+%% Apply modeling styles
+class Modeling,ModelBuilder,SpatialAnalysis,RelationAnalyzer,ContainAnalyzer,LayoutAnalyzer,BoundaryAnalyzer,ConnectionAnalyzer,ModelValidator,RuleValidator,ConstraintChecker,IntegrityChecker modeling; 

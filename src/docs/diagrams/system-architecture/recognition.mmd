@@ -1,0 +1,27 @@
+graph TD
+%% Recognition System Components
+FloodFill["FloodFillProcessor\n(hunt.recognition.floodfill)"]
+Contour["ContourDetector\n(hunt.recognition.contour)"]
+Features["FeatureExtractor\n(hunt.recognition.features)"]
+PatternMatch["PatternMatcher\n(hunt.recognition.matcher)"]
+RuleEngine["RuleEngine\n(hunt.recognition.rules)"]
+RecognitionMgr["RecognitionManager\n(hunt.recognition.manager)"]
+Processing["ProcessingEngine\n(hunt.recognition.processing)"]
+Training["TrainingSystem\n(hunt.recognition.training)"]
+
+%% Recognition Internal Dependencies
+RecognitionMgr --> FloodFill
+RecognitionMgr --> Contour
+RecognitionMgr --> Features
+RecognitionMgr --> PatternMatch
+RecognitionMgr --> RuleEngine
+FloodFill --> ASCIIGrid
+Contour --> ASCIIGrid
+Features --> Contour
+PatternMatch --> Features
+PatternMatch --> RuleEngine
+Processing --> RecognitionMgr
+Training --> RecognitionMgr
+
+%% Apply Recognition styles
+class FloodFill,Contour,Features,PatternMatch,RuleEngine,RecognitionMgr,Processing,Training recog; 

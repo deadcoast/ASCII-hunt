@@ -20,8 +20,7 @@ from src.components.abstract_component import AbstractComponent
 from src.components.component_model_representation import ComponentModel
 from src.managers.cache_manager import CacheManager
 from src.managers.component_overlay_manager import ComponentOverlayManager
-from src.managers.functional_relationship_manager import \
-    FunctionalRelationshipManager
+from src.managers.functional_relationship_manager import FunctionalRelationshipManager
 from src.managers.layout_management import LayoutManager
 
 

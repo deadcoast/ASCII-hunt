@@ -1,0 +1,46 @@
+graph TD
+    %% Error Handling System
+    subgraph ErrorSystem ["Error Handling System"]
+        direction TB
+        ErrorHandler["Error Handler"]
+        ErrorRegistry["Error Registry"]
+        ErrorLogger["Error Logger"]
+        ErrorReporter["Error Reporter"]
+        RecoveryManager["Recovery Manager"]
+    end
+
+    %% Error Types
+    subgraph ErrorTypes ["Error Categories"]
+        DSLErrors["DSL Errors"]
+        ParseErrors["Parse Errors"]
+        ValidationErrors["Validation Errors"]
+        RuntimeErrors["Runtime Errors"]
+        SystemErrors["System Errors"]
+    end
+
+    %% Error Flows
+    DSLErrors --> ErrorHandler
+    ParseErrors --> ErrorHandler
+    ValidationErrors --> ErrorHandler
+    RuntimeErrors --> ErrorHandler
+    SystemErrors --> ErrorHandler
+
+    ErrorHandler --> ErrorRegistry
+    ErrorRegistry --> ErrorLogger
+    ErrorRegistry --> ErrorReporter
+    ErrorHandler --> RecoveryManager
+
+    %% Recovery Actions
+    RecoveryManager --> RetryAction["Retry Action"]
+    RecoveryManager --> FallbackAction["Fallback Action"]
+    RecoveryManager --> CleanupAction["Cleanup Action"]
+
+    %% Style definitions
+    classDef default fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef error fill:#ffe6e6,stroke:#333,stroke-width:2px;
+    classDef handler fill:#e6f3ff,stroke:#333,stroke-width:2px;
+    classDef action fill:#e6ffe6,stroke:#333,stroke-width:2px;
+
+    class ErrorHandler,ErrorRegistry,ErrorLogger,ErrorReporter handler;
+    class DSLErrors,ParseErrors,ValidationErrors,RuntimeErrors,SystemErrors error;
+    class RetryAction,FallbackAction,CleanupAction action; 

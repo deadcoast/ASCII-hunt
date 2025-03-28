@@ -1,0 +1,58 @@
+graph TD
+    %% Logging System
+    subgraph Logging ["Logging System"]
+        direction TB
+        LogManager["Log Manager"]
+        LogFormatter["Log Formatter"]
+        LogRouter["Log Router"]
+        LogFilter["Log Filter"]
+        LogAnalyzer["Log Analyzer"]
+    end
+
+    %% Log Destinations
+    subgraph LogDest ["Log Destinations"]
+        FileLogger["File Logger"]
+        ConsoleLogger["Console Logger"]
+        MetricsLogger["Metrics Logger"]
+        AlertLogger["Alert Logger"]
+        DebugLogger["Debug Logger"]
+    end
+
+    %% Log Categories
+    subgraph LogTypes ["Log Categories"]
+        ErrorLogs["Error Logs"]
+        InfoLogs["Info Logs"]
+        DebugLogs["Debug Logs"]
+        PerfLogs["Performance Logs"]
+        AuditLogs["Audit Logs"]
+    end
+
+    %% Logging Flow
+    ErrorLogs --> LogRouter
+    InfoLogs --> LogRouter
+    DebugLogs --> LogRouter
+    PerfLogs --> LogRouter
+    AuditLogs --> LogRouter
+
+    LogRouter --> LogFilter
+    LogFilter --> LogFormatter
+    LogFormatter --> LogManager
+
+    LogManager --> FileLogger
+    LogManager --> ConsoleLogger
+    LogManager --> MetricsLogger
+    LogManager --> AlertLogger
+    LogManager --> DebugLogger
+
+    LogAnalyzer --> FileLogger
+    LogAnalyzer --> MetricsLogger
+
+    %% Style definitions
+    classDef default fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef logger fill:#e6f3ff,stroke:#333,stroke-width:2px;
+    classDef manager fill:#ffe6cc,stroke:#333,stroke-width:2px;
+    classDef logtype fill:#e6ffe6,stroke:#333,stroke-width:2px;
+
+    class LogManager,LogFormatter,LogRouter,LogFilter,LogAnalyzer manager;
+    class FileLogger,ConsoleLogger,MetricsLogger,AlertLogger,DebugLogger logger;
+    class ErrorLogs,InfoLogs,DebugLogs,PerfLogs,AuditLogs logtype; 

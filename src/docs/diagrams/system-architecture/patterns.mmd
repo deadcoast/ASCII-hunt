@@ -1,0 +1,45 @@
+graph TD
+%% Pattern System Components
+%% Definition Components
+PatternLearner["PatternLearner\n(patterns.definitions.pattern_learner)"]
+PatternMatcher["PatternMatcher\n(patterns.definitions.pattern_matcher)"]
+PatternOptimizer["PatternOptimizer\n(patterns.definitions.pattern_optimizer)"]
+CodeTemplate["CodeTemplate\n(patterns.definitions.code_template)"]
+PropTemplate["ComponentPropsTemplate\n(patterns.definitions.component_props)"]
+TkTemplate["TkMappingTemplate\n(patterns.definitions.tk_mapping)"]
+ASCIIExamples["ASCIIExamples\n(patterns.definitions.ascii_examples)"]
+TabExample["TabbedContentExample\n(patterns.definitions.tabbed_content)"]
+
+%% Matching Components
+FloodFillProc["FloodFillProcessor\n(patterns.matching.flood_fill)"]
+GridTransform["GridTransformer\n(patterns.matching.grid_transformer)"]
+HierarchicalCluster["HierarchicalClustering\n(patterns.matching.hierarchical)"]
+ParsingAlgo["ParsingAlgorithms\n(patterns.matching.parsing)"]
+
+%% Rules Components
+HuntParser["HuntParser\n(patterns.rules.hunt_parser)"]
+PatternRegistry["PatternRegistry\n(patterns.rules.pattern_registry)"]
+RecognitionProc["RecognitionProcessor\n(patterns.rules.recognition)"]
+
+%% Pattern Internal Dependencies
+%% Definition Dependencies
+PatternLearner --> ASCIIExamples
+PatternMatcher --> PatternLearner
+PatternOptimizer --> PatternMatcher
+CodeTemplate --> PropTemplate
+CodeTemplate --> TkTemplate
+TabExample --> CodeTemplate
+
+%% Matching Dependencies
+FloodFillProc --> GridTransform
+HierarchicalCluster --> FloodFillProc
+ParsingAlgo --> HierarchicalCluster
+
+%% Rules Dependencies
+HuntParser --> PatternRegistry
+PatternRegistry --> RecognitionProc
+RecognitionProc --> PatternMatcher
+RecognitionProc --> FloodFillProc
+
+%% Apply patterns styles
+class PatternLearner,PatternMatcher,PatternOptimizer,CodeTemplate,PropTemplate,TkTemplate,ASCIIExamples,TabExample,FloodFillProc,GridTransform,HierarchicalCluster,ParsingAlgo,HuntParser,PatternRegistry,RecognitionProc patterns; 

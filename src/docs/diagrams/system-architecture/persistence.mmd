@@ -1,0 +1,45 @@
+graph TD
+    %% Persistence System
+    subgraph Persistence ["Persistence System"]
+        direction TB
+        StorageManager["Storage Manager"]
+        CacheSystem["Cache System"]
+        FileStorage["File Storage"]
+        StateManager["State Manager"]
+        PersistenceUtils["Persistence Utils"]
+    end
+
+    %% Storage Types
+    subgraph StorageTypes ["Storage Types"]
+        PatternStorage["Pattern Storage"]
+        ComponentStorage["Component Storage"]
+        TemplateStorage["Template Storage"]
+        ConfigStorage["Config Storage"]
+        CacheStorage["Cache Storage"]
+    end
+
+    %% Storage Operations
+    StorageManager --> FileStorage
+    StorageManager --> CacheSystem
+    StorageManager --> StateManager
+
+    PatternStorage --> StorageManager
+    ComponentStorage --> StorageManager
+    TemplateStorage --> StorageManager
+    ConfigStorage --> StorageManager
+    CacheStorage --> CacheSystem
+
+    %% Persistence Utils
+    PersistenceUtils --> FileStorage
+    PersistenceUtils --> CacheSystem
+    StateManager --> PersistenceUtils
+
+    %% Style definitions
+    classDef default fill:#f9f,stroke:#333,stroke-width:2px;
+    classDef storage fill:#e6f3ff,stroke:#333,stroke-width:2px;
+    classDef manager fill:#ffe6cc,stroke:#333,stroke-width:2px;
+    classDef utils fill:#e6ffe6,stroke:#333,stroke-width:2px;
+
+    class StorageManager,StateManager manager;
+    class FileStorage,CacheSystem,PatternStorage,ComponentStorage,TemplateStorage,ConfigStorage,CacheStorage storage;
+    class PersistenceUtils utils; 

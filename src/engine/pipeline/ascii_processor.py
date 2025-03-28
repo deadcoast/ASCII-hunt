@@ -6,8 +6,7 @@ import numpy as np
 
 from .algorithms.ascii_utils import ASCIIUtils
 from .algorithms.flood_fill_processor import FloodFillProcessor
-from .algorithms.grid_transformer import (FlipType, GridTransformer,
-                                          RotationType)
+from .algorithms.grid_transformer import FlipType, GridTransformer, RotationType
 from .algorithms.pattern_matcher import PatternMatch, PatternMatcher
 
 

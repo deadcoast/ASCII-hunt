@@ -1,0 +1,353 @@
+graph TD
+    %% System Architecture Diagram - Full Complexity Implementation
+    %% Arrow Types and Meanings:
+    %% --> Solid: Direct method calls/strong coupling/synchronous operations
+    %% -.-> Dotted: Event-based/data flow/asynchronous operations/state updates
+    %% Complexity Level: Maximum - All subsystem interactions preserved
+
+    %% Core System - Central Nervous System
+    subgraph Core ["Core System - Neural Center"]
+        direction TB
+        %% Core nodes handle critical system operations
+        %% Manages state, pipeline execution, and error propagation
+        %% Acts as the central coordinator for all subsystems
+    end
+
+    %% DSL System - Language Processing Center
+    subgraph DSL ["DSL Processing - Language Center"]
+        direction TB
+        %% DSL nodes handle language interpretation and command processing
+        %% Manages grammar, syntax, and semantic analysis
+        %% Controls pattern definition and code generation rules
+    end
+
+    %% Recognition System - Pattern Detection Center
+    subgraph RecognitionSystem ["Component Recognition - Pattern Center"]
+        direction TB
+        %% Recognition nodes handle pattern detection and analysis
+        %% Manages feature extraction and component identification
+        %% Controls learning and adaptation mechanisms
+    end
+
+    %% Modeling System - Structural Analysis Center
+    subgraph Modeling ["Hierarchical Modeling - Structure Center"]
+        direction TB
+        %% Modeling nodes handle component relationships and hierarchy
+        %% Manages spatial analysis and containment rules
+        %% Controls model validation and consistency
+    end
+
+    %% Generation System - Output Production Center
+    subgraph Generation ["Code Generation - Production Center"]
+        direction TB
+        %% Generation nodes handle code and documentation production
+        %% Manages templates and output formatting
+        %% Controls code optimization and validation
+    end
+
+    %% Plugin System - Extension Management Center
+    subgraph Plugins ["Plugin System - Extension Center"]
+        direction TB
+        %% Plugin nodes handle system extensibility
+        %% Manages plugin lifecycle and integration
+        %% Controls feature extension points
+    end
+
+    %% Processing System - Analysis Engine Center
+    subgraph Processing ["Processing System - Analysis Center"]
+        direction TB
+        %% Processing nodes handle complex analysis operations
+        %% Manages decision trees and neural processing
+        %% Controls data transformation and optimization
+    end
+
+    %% Cross-module Dependencies
+    %% Core <-> Recognition
+    %% Direct method calls for core recognition operations
+    Pipeline --> RecognitionSystem["Recognition System\n(Pattern Detection)"]
+    FloodFill --> ASCIIGrid["ASCII Grid\n(Data Structure)"]
+    Contour --> ASCIIGrid
+    ErrorHandler --> Recognition["Recognition\n(Error Handling)"]
+    %% Event-based feedback for pattern updates
+    ASCIIGrid -.-> PatternMatch["Pattern Matcher\n(Updates)"]
+    CompModel -.-> RuleEngine["Rule Engine\n(Validation)"]
+    RecognitionMgr -.-> ErrorHandler["Error Handler\n(Status)"]
+    
+    %% Core <-> Modeling
+    %% Structural analysis dependencies
+    Pipeline --> Modeling["Modeling System\n(Structure)"]
+    ContainAnalyzer --> CompModel["Component Model\n(Data)"]
+    LayoutAnalyzer --> CompModel
+    RelationAnalyzer --> CompModel
+    ErrorHandler --> Modeling["Modeling\n(Validation)"]
+    %% Model updates and builder events
+    CompModel -.-> SpatialAnalysis["Spatial Analysis\n(Updates)"]
+    ASCIIGrid -.-> ModelBuilder["Model Builder\n(Grid Updates)"]
+    ModelValidator -.-> ErrorHandler["Error Handler\n(Validation)"]
+    
+    %% Core <-> Generation
+    %% Code generation pipeline
+    Pipeline --> Generation["Generation System\n(Code Output)"]
+    Generator --> CompModel["Component Model\n(Structure)"]
+    ErrorHandler --> Generation["Generation\n(Error Handling)"]
+    %% Template and code generation events
+    CompModel -.-> Templates["Templates\n(Updates)"]
+    ASCIIGrid -.-> CodeGenCore["Code Gen Core\n(Grid Updates)"]
+    OutputMgr -.-> ErrorHandler["Error Handler\n(Output Status)"]
+    
+    %% DSL <-> Core
+    %% Command processing and interpretation
+    HuntInterp --> Pipeline["Pipeline\n(Execution)"]
+    CmdDisp --> CompModel["Component Model\n(Commands)"]
+    ErrorHandler --> HuntInterp["Interpreter\n(Error Handling)"]
+    %% Command and grammar feedback
+    Pipeline -.-> CmdDisp["Command Dispatcher\n(Status)"]
+    ASCIIGrid -.-> HuntInterp["Interpreter\n(Grid Updates)"]
+    Grammar -.-> ErrorHandler["Error Handler\n(Syntax)"]
+    
+    %% DSL <-> Recognition
+    %% Pattern definition and rule processing
+    PatternDef --> PatternMatch["Pattern Matcher\n(Definitions)"]
+    PatternDef --> RuleEngine["Rule Engine\n(Rules)"]
+    %% Recognition feedback
+    RuleEngine -.-> HuntInterp["Interpreter\n(Rule Status)"]
+    PatternMatch -.-> Grammar["Grammar\n(Pattern Updates)"]
+    Training -.-> PatternDef["Pattern Definition\n(Learning)"]
+    
+    %% DSL <-> Generation
+    %% Template and generation management
+    TmplEngine --> Templates["Templates\n(Processing)"]
+    PatternDef --> Generator["Generator\n(Patterns)"]
+    %% Generation feedback
+    Generator -.-> Grammar["Grammar\n(Code Structure)"]
+    Templates -.-> PatternDef["Pattern Definition\n(Template Updates)"]
+    CodeGen -.-> TmplEngine["Template Engine\n(Generation Status)"]
+    
+    %% Plugin System Dependencies
+    %% Plugin management and extension points
+    PluginMgr --> Pipeline["Pipeline\n(Integration)"]
+    ExtRegistry -.-> PatternDef["Pattern Definition\n(Extensions)"]
+    ExtRegistry -.-> Generator["Generator\n(Extensions)"]
+    ExtRegistry -.-> Features["Features\n(Extensions)"]
+    %% Plugin system feedback
+    Pipeline -.-> PluginMgr["Plugin Manager\n(Status)"]
+    Features -.-> ExtRegistry["Extension Registry\n(Updates)"]
+    ExtHandler -.-> ErrorHandler["Error Handler\n(Plugin Errors)"]
+    
+    %% Recognition <-> Modeling
+    %% Feature extraction and model building
+    Features --> Spatial["Spatial Analysis\n(Feature Input)"]
+    RuleEngine --> ModelBuilder["Model Builder\n(Rules)"]
+    %% Analysis feedback
+    ModelBuilder -.-> PatternMatch["Pattern Matcher\n(Model Updates)"]
+    Spatial -.-> RuleEngine["Rule Engine\n(Spatial Updates)"]
+    GridAnalyzer -.-> SpatialAnalysis["Spatial Analysis\n(Grid Updates)"]
+    RelationDetector -.-> RelationAnalyzer["Relation Analyzer\n(Detection)"]
+
+    %% Engine <-> Processing
+    %% Analysis and processing pipeline
+    DecisionTree --> ClassProcessor["Class Processor\n(Decisions)"]
+    TemporalReasoning --> NeuroAnalysis["Neuro Analysis\n(Temporal)"]
+    CompAnalysis --> CompMapping["Component Mapping\n(Analysis)"]
+    CompAnalysis2 --> NeuroAnalysis["Neuro Analysis\n(Advanced)"]
+    DTClassifier --> ClassProcessor["Class Processor\n(Classification)"]
+    %% Processing feedback
+    ClassProcessor -.-> CompAnalysis["Component Analysis\n(Results)"]
+    NeuroAnalysis -.-> TemporalReasoning["Temporal Reasoning\n(Neural)"]
+    CompMapping -.-> CompAnalysis2["Component Analysis 2\n(Mapping)"]
+    
+    %% Processing <-> Recognition
+    %% Pattern processing and feature extraction
+    ClassProcessor --> PatternMatch["Pattern Matcher\n(Classes)"]
+    NeuroAnalysis --> Features["Features\n(Neural)"]
+    CompMapping --> FloodFill["Flood Fill\n(Mapping)"]
+    %% Recognition feedback
+    PatternMatch -.-> NeuroAnalysis["Neuro Analysis\n(Patterns)"]
+    Features -.-> ClassProcessor["Class Processor\n(Features)"]
+    FloodFill -.-> CompMapping["Component Mapping\n(Fill)"]
+    ShapeAnalyzer -.-> CompAnalysis["Component Analysis\n(Shapes)"]
+
+    %% Interface <-> Core
+    %% UI components and core integration
+    GridWidget --> ASCIIGrid["ASCII Grid\n(Display)"]
+    UITranslator --> Pipeline["Pipeline\n(UI Commands)"]
+    AppController --> CompModel["Component Model\n(UI State)"]
+    %% UI updates and feedback
+    ASCIIGrid -.-> UITranslator["UI Translator\n(Grid Updates)"]
+    Pipeline -.-> AppController["App Controller\n(Status)"]
+    CompModel -.-> GridWidget["Grid Widget\n(Model Updates)"]
+    ErrorHandler -.-> UITranslator["UI Translator\n(Errors)"]
+    
+    %% Interface <-> Generation
+    %% Code generation and UI integration
+    CodeComposer --> Generator["Generator\n(UI Code)"]
+    TmplEngine --> CodeTemplate["Code Template\n(UI)"]
+    %% Generation feedback
+    Generator -.-> UITranslator["UI Translator\n(Code Updates)"]
+    CodeTemplate -.-> TmplEngine["Template Engine\n(UI Updates)"]
+    FileGen -.-> CodeComposer["Code Composer\n(Files)"]
+    
+    %% Interface <-> Patterns
+    %% Pattern UI components
+    GridWidget --> PatternMatcher["Pattern Matcher\n(UI)"]
+    PropEditor --> PropTemplate["Property Template\n(UI)"]
+    TkAdapter --> TkTemplate["Tk Template\n(UI)"]
+    %% Pattern UI feedback
+    PatternMatcher -.-> PropEditor["Property Editor\n(Patterns)"]
+    PropTemplate -.-> GridWidget["Grid Widget\n(Properties)"]
+    TkTemplate -.-> TkAdapter["Tk Adapter\n(Templates)"]
+    GridTemplate -.-> GridWidget["Grid Widget\n(Templates)"]
+    
+    %% Patterns <-> Processing
+    %% Pattern processing and optimization
+    PatternOptimizer --> ClassProcessor["Class Processor\n(Optimization)"]
+    GridTransform --> CompMapping["Component Mapping\n(Grid)"]
+    HierarchicalCluster --> NeuroAnalysis["Neuro Analysis\n(Clustering)"]
+    %% Processing feedback
+    ClassProcessor -.-> HierarchicalCluster["Hierarchical Cluster\n(Classes)"]
+    CompMapping -.-> PatternOptimizer["Pattern Optimizer\n(Mapping)"]
+    NeuroAnalysis -.-> GridTransform["Grid Transform\n(Neural)"]
+    PatternTransform -.-> CompMapping["Component Mapping\n(Transforms)"]
+
+    %% Utils <-> Core
+    %% Utility services for core components
+    ASCIIUtils --> ASCIIGrid["ASCII Grid\n(Utils)"]
+    HuntUtils --> Pipeline["Pipeline\n(Utils)"]
+    CacheManager --> CompModel["Component Model\n(Cache)"]
+    %% Utility feedback
+    ASCIIGrid -.-> HuntUtils["Hunt Utils\n(Grid Updates)"]
+    Pipeline -.-> CacheManager["Cache Manager\n(Pipeline)"]
+    CompModel -.-> ASCIIUtils["ASCII Utils\n(Model)"]
+    ErrorHandler -.-> CacheManager["Cache Manager\n(Errors)"]
+    
+    %% Utils <-> Interface
+    %% UI utility services
+    PerfMonitor --> GridWidget["Grid Widget\n(Performance)"]
+    StorageProviders --> TkAdapter["Tk Adapter\n(Storage)"]
+    CacheManager --> UITranslator["UI Translator\n(Cache)"]
+    %% UI utility feedback
+    GridWidget -.-> CacheManager["Cache Manager\n(Grid)"]
+    TkAdapter -.-> PerfMonitor["Performance Monitor\n(UI)"]
+    UITranslator -.-> StorageProviders["Storage Providers\n(UI)"]
+    PerfMonitor -.-> ErrorHandler["Error Handler\n(Performance)"]
+    
+    %% Utils <-> Engine
+    %% Engine utility services
+    CacheManager --> DecisionTree["Decision Tree\n(Cache)"]
+    QitiaAnalyzer --> CompAnalysis["Component Analysis\n(Qitia)"]
+    SansiaImporter --> TemporalReasoning["Temporal Reasoning\n(Sansia)"]
+    FuncRelManager --> CompAnalysis2["Component Analysis 2\n(Relations)"]
+    %% Engine utility feedback
+    DecisionTree -.-> QitiaAnalyzer["Qitia Analyzer\n(Decisions)"]
+    CompAnalysis -.-> CacheManager["Cache Manager\n(Analysis)"]
+    TemporalReasoning -.-> SansiaImporter["Sansia Importer\n(Temporal)"]
+    CompAnalysis2 -.-> FuncRelManager["Functional Relation Manager\n(Analysis)"]
+    
+    %% Utils <-> Patterns
+    %% Pattern utility services
+    FuncRelManager --> PatternMatcher["Pattern Matcher\n(Relations)"]
+    CacheProvider --> PatternRegistry["Pattern Registry\n(Cache)"]
+    PluginManager --> PatternOptimizer["Pattern Optimizer\n(Plugins)"]
+    ExtensionPoint --> PatternDef["Pattern Definition\n(Extensions)"]
+    %% Pattern utility feedback
+    PatternMatcher -.-> CacheProvider["Cache Provider\n(Patterns)"]
+    PatternRegistry -.-> PluginManager["Plugin Manager\n(Registry)"]
+    PatternOptimizer -.-> ExtensionPoint["Extension Point\n(Optimization)"]
+    PatternDef -.-> FuncRelManager["Functional Relation Manager\n(Definitions)"]
+    
+    %% Modeling <-> Generation
+    %% Model-based code generation
+    ModelBuilder --> CodeGenCore["Code Gen Core\n(Models)"]
+    SpatialAnalysis --> LayoutGen["Layout Generator\n(Spatial)"]
+    ModelValidator -.-> Generator["Generator\n(Validation)"]
+    
+    %% Recognition <-> Generation
+    %% Recognition-based generation
+    Features --> PropGen["Property Generator\n(Features)"]
+    RuleEngine --> StyleGen["Style Generator\n(Rules)"]
+    ShapeAnalyzer -.-> LayoutGen["Layout Generator\n(Shapes)"]
+    
+    %% Processing <-> Generation
+    %% Processing-based generation
+    CompAnalysis --> CodeGenCore["Code Gen Core\n(Analysis)"]
+    DTClassifier --> TestGen["Test Generator\n(Classification)"]
+    NeuroAnalysis -.-> DocGen["Doc Generator\n(Neural)"]
+
+    %% Additional Complex Interactions
+
+    %% Neural Network Integration Layer
+    NeuroAnalysis --> CompModel["Component Model\n(Neural Pattern Recognition)"]
+    DTClassifier --> RuleEngine["Rule Engine\n(Decision Tree Rules)"]
+    CompAnalysis2 --> ModelBuilder["Model Builder\n(Advanced Analysis)"]
+    
+    %% Advanced Pattern Recognition Layer
+    ShapeAnalyzer --> GridAnalyzer["Grid Analyzer\n(Shape Recognition)"]
+    ContainAnalyzer --> BoundaryAnalyzer["Boundary Analyzer\n(Containment)"]
+    RelationDetector --> ConnectionAnalyzer["Connection Analyzer\n(Relations)"]
+
+    %% Deep Learning Integration
+    Training --> NeuroAnalysis["Neuro Analysis\n(Learning)"]
+    Features --> DTClassifier["DT Classifier\n(Feature Classification)"]
+    PatternMatch --> HierarchicalCluster["Hierarchical Cluster\n(Pattern Grouping)"]
+
+    %% Advanced Code Generation Paths
+    CodeGenCore --> TestGen["Test Generator\n(Code Analysis)"]
+    LayoutGen --> DocGen["Doc Generator\n(Layout Documentation)"]
+    StyleGen --> PropGen["Property Generator\n(Style Integration)"]
+
+    %% Complex Error Handling Paths
+    ErrorHandler --> Recovery["Error Recovery\n(System Restoration)"]
+    Recovery --> Pipeline["Pipeline\n(Recovery Execution)"]
+    ErrorRegistry --> ErrorReporter["Error Reporter\n(Detailed Logging)"]
+
+    %% Advanced Cache Management
+    CacheManager --> CacheProvider["Cache Provider\n(Distributed Caching)"]
+    CacheProvider --> StorageProviders["Storage Providers\n(Persistence)"]
+    CacheManager --> PerfMonitor["Performance Monitor\n(Cache Analytics)"]
+
+    %% Complex Plugin Integration
+    PluginMgr --> IntegrationMgr["Integration Manager\n(Plugin Orchestration)"]
+    IntegrationMgr --> EventBridge["Event Bridge\n(Plugin Events)"]
+    PluginHooks --> ExtHandler["Extension Handler\n(Plugin Hooks)"]
+
+    %% Advanced UI Integration
+    GridWidget --> ContentSwitch["Content Switcher\n(Dynamic UI)"]
+    TabbedContent --> PropEditor["Property Editor\n(Component Properties)"]
+    UITranslator --> Visualizer["Hunt Visualizer\n(Visual Feedback)"]
+
+    %% Complex Model Validation
+    ModelValidator --> ConstraintChecker["Constraint Checker\n(Model Rules)"]
+    RuleValidator --> IntegrityChecker["Integrity Checker\n(Data Consistency)"]
+    ModelBuilder --> ValidationManager["Validation Manager\n(Model Verification)"]
+
+    %% Advanced Analysis Paths
+    CompAnalysis --> TemporalProcessor["Temporal Processor\n(Time-based Analysis)"]
+    NeuroAnalysis --> PatternTransform["Pattern Transform\n(Neural Transformation)"]
+    DecisionTree --> CompMapping["Component Mapping\n(Decision-based Mapping)"]
+
+    %% Complex Data Flow Paths
+    ASCIIGrid -.-> GridTransform["Grid Transform\n(ASCII Transformation)"]
+    CompModel -.-> RelationDetector["Relation Detector\n(Model Relations)"]
+    Features -.-> ShapeAnalyzer["Shape Analyzer\n(Feature Shapes)"]
+
+    %% Advanced Event Processing
+    EventBridge -.-> Pipeline["Pipeline\n(Event Processing)"]
+    IntegrationMgr -.-> ErrorHandler["Error Handler\n(Integration Errors)"]
+    PluginHooks -.-> CacheManager["Cache Manager\n(Plugin State)"]
+
+    %% Complex State Management
+    CompModel -.-> StateManager["State Manager\n(Model State)"]
+    ASCIIGrid -.-> GridState["Grid State\n(ASCII State)"]
+    Pipeline -.-> SystemState["System State\n(Pipeline State)"]
+
+    %% Style definitions
+    classDef default fill:#f9f,stroke:#333,stroke-width:2px,color:#000000;
+    classDef core fill:#e1f7d5,stroke:#333,stroke-width:2px,color:#000000;
+    classDef dsl fill:#ffedcc,stroke:#333,stroke-width:2px,color:#000000;
+    classDef recog fill:#f2e6ff,stroke:#333,stroke-width:2px,color:#000000;
+    classDef model fill:#e6f3ff,stroke:#333,stroke-width:2px,color:#000000;
+    classDef codegen fill:#ffe6e6,stroke:#333,stroke-width:2px,color:#000000;
+    classDef plugin fill:#e6ffe6,stroke:#333,stroke-width:2px,color:#000000;
+    classDef ui fill:#fff2e6,stroke:#333,stroke-width:2px,color:#000000;
+    classDef utils fill:#e6e6e6,stroke:#333,stroke-width:2px,color:#000000;
+    classDef processing fill:#fff0f9,stroke:#333,stroke-width:2px,color:#000000; 

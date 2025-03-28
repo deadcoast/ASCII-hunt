@@ -1,0 +1,23 @@
+graph TD
+%% Modeling System Components
+ContainAnalyzer["ContainmentAnalyzer\n(hunt.modeling.hierarchy)"]
+LayoutAnalyzer["LayoutAnalyzer\n(hunt.modeling.layout)"]
+RelationAnalyzer["RelationshipAnalyzer\n(hunt.modeling.relationships)"]
+ModelBuilder["ModelBuilder\n(hunt.modeling.builder)"]
+Spatial["SpatialAnalyzer\n(hunt.modeling.spatial)"]
+Arrangement["ArrangementManager\n(hunt.modeling.arrangement)"]
+Graph["GraphProcessor\n(hunt.modeling.graph)"]
+
+%% Modeling Internal Dependencies
+ModelBuilder --> ContainAnalyzer
+ModelBuilder --> LayoutAnalyzer
+ModelBuilder --> RelationAnalyzer
+ModelBuilder --> Spatial
+ContainAnalyzer --> CompModel
+LayoutAnalyzer --> CompModel
+RelationAnalyzer --> CompModel
+Spatial --> Graph
+Arrangement --> Graph
+
+%% Apply Modeling styles
+class ContainAnalyzer,LayoutAnalyzer,RelationAnalyzer,ModelBuilder,Spatial,Arrangement,Graph model; 

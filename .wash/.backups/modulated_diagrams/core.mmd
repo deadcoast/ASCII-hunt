@@ -1,0 +1,41 @@
+graph TD
+%% Core System Components
+%% Pipeline Components
+Pipeline["Pipeline\n(core.pipeline)"]
+PipelineStage["PipelineStage\n(core.pipeline.stage)"]
+StageRegistry["StageRegistry\n(core.pipeline.registry)"]
+StageManager["StageManager\n(core.pipeline.manager)"]
+
+%% Model Components
+CompModel["ComponentModel\n(core.model.component)"]
+ASCIIGrid["ASCIIGrid\n(core.model.grid)"]
+ModelRegistry["ModelRegistry\n(core.model.registry)"]
+ModelValidator["ModelValidator\n(core.model.validator)"]
+
+%% Error Handling
+ErrorHandler["ErrorHandler\n(core.error)"]
+ErrorRegistry["ErrorRegistry\n(core.error.registry)"]
+ErrorReporter["ErrorReporter\n(core.error.reporter)"]
+Recovery["ErrorRecovery\n(core.error.recovery)"]
+
+%% Core Internal Dependencies
+%% Pipeline Dependencies
+Pipeline --> PipelineStage
+Pipeline --> StageRegistry
+StageRegistry --> StageManager
+PipelineStage --> ErrorHandler
+
+%% Model Dependencies
+CompModel --> ASCIIGrid
+CompModel --> ModelRegistry
+ModelRegistry --> ModelValidator
+ModelValidator --> ErrorHandler
+
+%% Error Dependencies
+ErrorHandler --> ErrorRegistry
+ErrorHandler --> ErrorReporter
+ErrorReporter --> Recovery
+Recovery --> Pipeline
+
+%% Apply core styles
+class Pipeline,PipelineStage,StageRegistry,StageManager,CompModel,ASCIIGrid,ModelRegistry,ModelValidator,ErrorHandler,ErrorRegistry,ErrorReporter,Recovery core; 

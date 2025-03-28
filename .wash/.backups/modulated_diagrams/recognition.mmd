@@ -1,0 +1,46 @@
+graph TD
+%% Recognition System Components
+%% Core Recognition
+RecognitionSystem["RecognitionSystem\n(recognition.core)"]
+RecognitionMgr["RecognitionManager\n(recognition.manager)"]
+Processing["ProcessingEngine\n(recognition.processing)"]
+Training["TrainingSystem\n(recognition.training)"]
+
+%% Pattern Components
+PatternMatch["PatternMatcher\n(recognition.pattern)"]
+RuleEngine["RuleEngine\n(recognition.rules)"]
+Features["FeatureExtractor\n(recognition.features)"]
+FloodFill["FloodFillProcessor\n(recognition.flood)"]
+
+%% Analysis Components
+Contour["ContourDetector\n(recognition.contour)"]
+ShapeAnalyzer["ShapeAnalyzer\n(recognition.shape)"]
+GridAnalyzer["GridAnalyzer\n(recognition.grid)"]
+RelationDetector["RelationDetector\n(recognition.relations)"]
+
+%% Recognition Internal Dependencies
+%% Core Dependencies
+RecognitionSystem --> RecognitionMgr
+RecognitionSystem --> Processing
+RecognitionMgr --> Training
+Processing --> PatternMatch
+
+%% Pattern Dependencies
+PatternMatch --> Features
+PatternMatch --> RuleEngine
+Features --> FloodFill
+FloodFill --> Contour
+
+%% Analysis Dependencies
+Contour --> ShapeAnalyzer
+ShapeAnalyzer --> GridAnalyzer
+GridAnalyzer --> RelationDetector
+RelationDetector --> RuleEngine
+
+%% Training Dependencies
+Training --> Features
+Training --> PatternMatch
+Training --> RuleEngine
+
+%% Apply recognition styles
+class RecognitionSystem,RecognitionMgr,Processing,Training,PatternMatch,RuleEngine,Features,FloodFill,Contour,ShapeAnalyzer,GridAnalyzer,RelationDetector recognition; 

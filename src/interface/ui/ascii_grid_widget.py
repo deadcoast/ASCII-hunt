@@ -6,7 +6,7 @@ from PyQt5.QtCore import QPoint, QSize, Qt
 from PyQt5.QtGui import QPainter
 from PyQt5.QtWidgets import QWidget
 
-from src.enums.drawing_mode import DrawingMode
+from src.engine.drawing_mode import DrawingMode
 
 
 class ASCIIGridWidget(QWidget):

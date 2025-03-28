@@ -1,0 +1,36 @@
+graph TD
+%% Processing System Components
+%% Core Processing
+DecisionTree["DecisionTree\n(processing.decision)"]
+DTClassifier["DTClassifier\n(processing.classifier)"]
+ClassProcessor["ClassProcessor\n(processing.class_processor)"]
+
+%% Analysis Components
+CompAnalysis["ComponentAnalysis\n(processing.analysis.component)"]
+CompAnalysis2["ComponentAnalysis2\n(processing.analysis.component2)"]
+NeuroAnalysis["NeuroAnalysis\n(processing.analysis.neuro)"]
+CompMapping["ComponentMapping\n(processing.mapping)"]
+
+%% Temporal Components
+TemporalReasoning["TemporalReasoning\n(processing.temporal)"]
+TemporalProcessor["TemporalProcessor\n(processing.temporal_processor)"]
+
+%% Processing Internal Dependencies
+%% Core Dependencies
+DTClassifier --> DecisionTree
+ClassProcessor --> DTClassifier
+ClassProcessor --> CompMapping
+
+%% Analysis Dependencies
+CompAnalysis --> ClassProcessor
+CompAnalysis2 --> NeuroAnalysis
+CompMapping --> CompAnalysis
+NeuroAnalysis --> CompMapping
+NeuroAnalysis --> TemporalReasoning
+
+%% Temporal Dependencies
+TemporalReasoning --> TemporalProcessor
+TemporalProcessor --> CompAnalysis2
+
+%% Apply processing styles
+class DecisionTree,DTClassifier,ClassProcessor,CompAnalysis,CompAnalysis2,NeuroAnalysis,CompMapping,TemporalReasoning,TemporalProcessor processing; 

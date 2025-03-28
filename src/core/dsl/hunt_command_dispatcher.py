@@ -177,9 +177,17 @@ from typing import Any, Protocol, TypeVar, cast, runtime_checkable
 
 from .hunt_error import DSLFatalError
 from .hunt_grid import HuntGrid
-from .hunt_utils import (assert_constraints, bulk_merge, extract_target,
-                         generate_code, organize_tags, setup_logging,
-                         simplify_output, visualize_output, warn_soft)
+from .hunt_utils import (
+    assert_constraints,
+    bulk_merge,
+    extract_target,
+    generate_code,
+    organize_tags,
+    setup_logging,
+    simplify_output,
+    visualize_output,
+    warn_soft,
+)
 
 
 @runtime_checkable
