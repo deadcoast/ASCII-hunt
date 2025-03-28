@@ -2,7 +2,6 @@
 ├── src/
 │   ├── - [ ] adapters/
 │   │   ├── - [ ] adapter_directory.md
-│   │   ├── - [ ] py.typed
 │   │   └── - [ ] tkinter_adapter.md
 │   │
 │   ├── - [ ] algorithms/
@@ -15,8 +14,7 @@
 │   │   ├── - [ ] grid_transformer.md
 │   │   ├── - [ ] hierarchical_clustering.md
 │   │   ├── - [ ] parsing_algorithms.md
-│   │   ├── - [ ] pattern_matcher.md
-│   │   └── - [ ] py.typed
+│   │   └── - [ ] pattern_matcher.md
 │   │
 │   ├── - [ ] analysis/
 │   │   ├── - [ ] analyzer_directory.md
@@ -26,7 +24,6 @@
 │   ├── - [ ] analyzers/
 │   │   ├── - [ ] analyzer_directory.md
 │   │   ├── - [ ] containment_analyzer.md
-│   │   ├── - [ ] py.typed
 │   │   ├── - [ ] relationship_analysis_processor.md
 │   │   └── - [ ] spatial_analysis.md
 │   │
@@ -42,8 +39,7 @@
 │   │   ├── - [ ] component_template_engine.md
 │   │   ├── - [ ] component_transformer.md
 │   │   ├── - [ ] component_validator.md
-│   │   ├── - [ ] framework_adapter.md
-│   │   └── - [ ] py.typed
+│   │   └── - [ ] framework_adapter.md
 │   │
 │   ├── - [ ] core/
 │   │   ├── - [ ] core_directory.md
@@ -57,8 +53,7 @@
 │   │   ├── - [ ] data_stack_directory.md
 │   │   ├── - [ ] ascii_grid.md
 │   │   ├── - [ ] ascii_ui_translation_engine.md
-│   │   ├── - [ ] extension_point.md
-│   │   └── - [ ] py.typed
+│   │   └── - [ ] extension_point.md
 │   │
 │   ├── - [ ] data_structures/
 │   │   ├── - [ ] data_structure_directory.md
@@ -77,17 +72,11 @@
 │   │   ├── - [ ] hunt_recognition_processor.md
 │   │   ├── - [ ] hunt_standard_library.md
 │   │   ├── - [ ] hunt_utils.md
-│   │   ├── - [ ] hunt_visualizer.md
-│   │   └── - [ ] py.typed
+│   │   └── - [ ] hunt_visualizer.md
 │   │
 │   ├── - [ ] enums/
 │   │   ├── - [ ] enum_directory.md
-│   │   ├── - [ ] drawing_mode.md
-│   │   └── - [ ] py.typed
-│   │
-│   ├── - [ ] examples/
-│   │   ├── - [ ] ascii_examples.md
-│   │   └── - [ ] tabbed_content_example.md
+│   │   └── - [ ] drawing_mode.md
 │   │
 │   ├── - [ ] generators/
 │   │   ├── - [ ] generator_directory.md
@@ -97,39 +86,6 @@
 │   │   ├── - [ ] dsl_code_generator.md
 │   │   ├── - [ ] hunt_code_generator.md
 │   │   └── - [ ] python_tkinter_generator.md
-│   │
-│   ├── - [ ] import_miner/
-│   │   ├── - [ ] docs_import_miner/
-│   │   │   ├── - [ ] future_implementations.md
-│   │   │   └── - [ ] import_management.md
-│   │   │
-│   │   ├── - [ ] import_driller/
-│   │   │   ├── - [ ] import_driller_directory.md
-│   │   │   ├── - [ ] adaptive_import_manager.md
-│   │   │   ├── - [ ] advanced_import_finder.md
-│   │   │   ├── - [ ] bayesian_confidence.md
-│   │   │   ├── - [ ] bayesian_importer.md
-│   │   │   ├── - [ ] compiler_analyzer.md
-│   │   │   ├── - [ ] correction_model.md
-│   │   │   ├── - [ ] cross_language_resolver.md
-│   │   │   ├── - [ ] cst_analyzer.md
-│   │   │   ├── - [ ] dependency_injection.md
-│   │   │   ├── - [ ] domain_aware_import.md
-│   │   │   ├── - [ ] dynamic_import_tracer.md
-│   │   │   ├── - [ ] import_extractor.md
-│   │   │   ├── - [ ] importer.md
-│   │   │   ├── - [ ] ml_suggester.md
-│   │   │   ├── - [ ] neural_importer.md
-│   │   │   ├── - [ ] symbol_dependency_graph.md
-│   │   │   └── - [ ] usage_tracker.md
-│   │   │
-│   │   ├── - [ ] miner/
-│   │   │   ├── - [ ] miner_directoryectory.md
-│   │   │   ├── - [ ] _global_index.md
-│   │   │   ├── - [ ] fix_project_imports.md
-│   │   │   ├── - [ ] import_miner.md
-│   │   │   └── - [ ] import_miner.md
-│   │   └── - [ ] importers_directory.md
 │   │
 │   ├── - [ ] importers/
 │   │   └── - [ ] sansia_importer.md
@@ -146,22 +102,19 @@
 │   │   ├── - [ ] persistence_manager.md
 │   │   ├── - [ ] plugin_manager.md
 │   │   ├── - [ ] processing_pipeline.md
-│   │   ├── - [ ] py.typed
 │   │   └── - [ ] storage_providers.md
 │   │
 │   ├── - [ ] mapping/
 │   │   ├── - [ ] mapping_directory.md
 │   │   ├── - [ ] component_mapping.md
-│   │   ├── - [ ] mapping_registry.md
-│   │   └── - [ ] py.typed
+│   │   └── - [ ] mapping_registry.md
 │   │
 │   ├── - [ ] patterns/
 │   │   ├── - [ ] pattern_directory.md
 │   │   ├── - [ ] pattern_learner.md
 │   │   ├── - [ ] pattern_matcher.md
 │   │   ├── - [ ] pattern_optimizer.md
-│   │   ├── - [ ] pattern_registry.md
-│   │   └── - [ ] py.typed
+│   │   └── - [ ] pattern_registry.md
 │   │
 │   ├── - [ ] performance/
 │   │   ├── - [ ] performance_directory.md
@@ -174,7 +127,6 @@
 │   │   ├── - [ ] plugin.md
 │   │   ├── - [ ] plugin_configuration.md
 │   │   ├── - [ ] plugin_manager.md
-│   │   ├── - [ ] py.typed
 │   │   └── - [ ] tkinter_plugin.md
 │   │
 │   ├── - [ ] processors/
@@ -187,22 +139,16 @@
 │   │   ├── - [ ] flood_fill_processor.md
 │   │   ├── - [ ] pattern_recognition_processor.md
 │   │   ├── - [ ] processing_pipeline.md
-│   │   ├── - [ ] py.typed
 │   │   └── - [ ] relationship_analysis_processor.md
 │   │
 │   ├── - [ ] quantum/
 │   │   ├── - [ ] quantum_directory.md
 │   │   ├── - [ ] neuromorphic_analysis.md
-│   │   ├── - [ ] py.typed
 │   │   ├── - [ ] qitia_analyzer.md
 │   │   ├── - [ ] quantum_import_optimizer.md
 │   │   ├── - [ ] sansia_importer.md
 │   │   ├── - [ ] swarm_resolver.md
 │   │   └── - [ ] temporal_reasoning.md
-│   │
-│   ├── - [ ] recognition/
-│   │   ├── - [ ] recognition_directory.md
-│   │   └── - [ ] py.typed
 │   │
 │   ├── - [ ] templates/
 │   │   ├── - [ ] templates_directory.md
@@ -210,20 +156,11 @@
 │   │   ├── - [ ] component_properties_template.md
 │   │   └── - [ ] tk_mapping_template.md
 │   │
-│   ├── - [ ] utils/
-│   │   ├── - [ ] utils_directory.md
-│   │   └── - [ ] py.typed
-│   │
-│   ├── - [ ] visualization/
-│   │   ├── - [ ] visualization_directory.md
-│   │   └── - [ ] py.typed
-│   │
 │   ├── - [ ] widgets/
 │   │   ├── - [ ] widgets_directory.md
 │   │   ├── - [ ] ascii_grid_widget.md
 │   │   ├── - [ ] content_switcher.md
 │   │   ├── - [ ] property_editor_widget.md
-│   │   ├── - [ ] py.typed
 │   │   ├── - [ ] tabbed_content.md
 │   │   ├── - [ ] tabbed_content.tcss
 │   │   └── - [ ] tabs.md
@@ -232,7 +169,6 @@
 │   ├── - [ ] ascii_processor.md
 │   ├── - [ ] cli.md
 │   ├── - [ ] main.md
-│   ├── - [ ] py.typed
 │   └── - [ ] transformation_pipeline.md
 │
 │

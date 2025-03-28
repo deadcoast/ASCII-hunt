@@ -16,9 +16,4 @@
     Arguments:{"STEP-3":"instructions":"When complete, prompt the user for approval to mark the "{DIAGNOSIS-TREE}" Task complete", "code_edit":""} 
     <results></results>
   </tool>
-  <tool>
-    Tool: read_file
-    Arguments: {"STEP-4":"{target_file}", "Instructions":"Repeat "{STEP-1, STEP-2, STEP-3}"", "should_read_entire_file":true}
-    <result></result>
-  </tool>
 </assistant>

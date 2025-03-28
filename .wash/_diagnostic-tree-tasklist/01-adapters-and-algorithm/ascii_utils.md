@@ -1,0 +1,25 @@
+# ASCII Utils
+
+- Implements a utility class `ASCIIUtils` with static methods for ASCII art processing
+- Core functionality categories:
+  - File operations: loading and saving ASCII grids from/to files
+  - Conversion: transforming between string and numpy array representations
+  - Information retrieval: dimensions, character counts, unique characters, positions
+  - Grid manipulation: character replacement, region extraction, grid insertion, border operations
+- Implementation details:
+  - Uses numpy arrays for efficient grid representation and operations
+  - Follows functional programming style with immutable operations (returns new grids)
+  - Comprehensive docstrings with parameter and return value descriptions
+  - Strong type hinting throughout the codebase
+- Key methods:
+  - `load_grid`/`save_grid`: File I/O operations with line normalization
+  - `grid_to_string`/`string_to_grid`: Bidirectional conversions
+  - `extract_region`/`insert_grid`: Grid composition operations
+  - `create_border`/`remove_border`: Visual formatting operations
+  - `center_text`: Layout utility for text centering
+- Dependencies:
+  - numpy for array operations
+  - pathlib for file path handling
+- Architectural role:
+  - Foundation utility class for higher-level ASCII processing algorithms
+  - Abstraction layer for grid operations used by pattern matching and layout components
