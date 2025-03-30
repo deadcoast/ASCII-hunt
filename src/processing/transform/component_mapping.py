@@ -33,11 +33,10 @@ class ComponentMapping:
         # Create context for expression evaluation
         context = {"component": component, "parent": parent_context}
 
-        # Evaluate property mappings
-        properties = {}
-        for prop_name, prop_expr in self.property_mappings.items():
-            properties[prop_name] = prop_expr(context)
-
+        properties = {
+            prop_name: prop_expr(context)
+            for prop_name, prop_expr in self.property_mappings.items()
+        }
         # Process template
         if self.template:
             template_engine = TemplateEngine()
@@ -58,24 +57,21 @@ class ComponentMapping:
 
             if child_type in self.children_mappings:
                 child_mapping_expr = self.children_mappings[child_type]
-                child_mapping = child_mapping_expr(child_context)
-
-                if child_mapping:
+                if child_mapping := child_mapping_expr(child_context):
                     child_code = child_mapping.apply(child, context)
                     children_code.append(child_code)
 
         # Combine code from this component and its children
         if code and children_code:
             # Insert children at placeholder or append
-            if "{children}" in code:
-                final_code = code.replace("{children}", "\n".join(children_code))
-            else:
-                final_code = code + "\n" + "\n".join(children_code)
+            return (
+                code.replace("{children}", "\n".join(children_code))
+                if "{children}" in code
+                else code + "\n" + "\n".join(children_code)
+            )
         elif code:
-            final_code = code
+            return code
         elif children_code:
-            final_code = "\n".join(children_code)
+            return "\n".join(children_code)
         else:
-            final_code = ""
-
-        return final_code
+            return ""

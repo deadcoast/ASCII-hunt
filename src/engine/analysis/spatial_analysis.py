@@ -21,9 +21,9 @@ class SpatialIndex:
         The spatial index is represented as a 2D array of sets, where each set
         contains the IDs of the components that overlap a particular cell.
         """
-        self.grid_width = int(grid_width)
-        self.grid_height = int(grid_height)
-        self.cell_size = int(cell_size)
+        self.grid_width = grid_width
+        self.grid_height = grid_height
+        self.cell_size = cell_size
 
         # Calculate grid dimensions for spatial index
         self.index_width = (self.grid_width + self.cell_size - 1) // self.cell_size

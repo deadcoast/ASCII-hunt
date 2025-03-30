@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ title }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <script src="https://cdn.jsdelivr.net/npm/d3@7"></script>
+</head>
+<body>
+    <header>
+        <h1>Python Namespace Extractor</h1>
+        <div class="search-container">
+            <input type="text" id="search-input" placeholder="Search namespaces...">
+            <button id="search-button" type="button">Search</button>
+        </div>
+    </header>
+
+    <div class="container">
+        <div class="sidebar">
+            <div class="stats-panel">
+                <h2>Statistics</h2>
+                <div id="stats-content"></div>
+            </div>
+            <div class="filter-panel">
+                <h2>Filters</h2>
+                <div class="filter-group">
+                    <h3>Namespace Types</h3>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" data-filter="type" value="class" checked> Classes</label>
+                        <label><input type="checkbox" data-filter="type" value="function" checked> Functions</label>
+                        <label><input type="checkbox" data-filter="type" value="method" checked> Methods</label>
+                        <label><input type="checkbox" data-filter="type" value="nested_class" checked> Nested Classes</label>
+                        <label><input type="checkbox" data-filter="type" value="variable" checked> Variables</label>
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <h3>Display Options</h3>
+                    <div class="checkbox-group">
+                        <label><input type="checkbox" data-option="show_inheritance" checked> Show Inheritance</label>
+                        <label><input type="checkbox" data-option="show_decorators" checked> Show Decorators</label>
+                        <label><input type="checkbox" data-option="show_docstrings" checked> Show Docstrings</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <div class="tabs">
+                <button class="tab-button active" data-tab="tree-view" type="button">Tree View</button>
+                <button class="tab-button" data-tab="list-view" type="button">List View</button>
+                <button class="tab-button" data-tab="graph-view" type="button">Graph View</button>
+            </div>
+
+            <div class="tab-content">
+                <div id="tree-view" class="tab-pane active">
+                    <div id="tree-container"></div>
+                </div>
+                <div id="list-view" class="tab-pane">
+                    <div id="list-container"></div>
+                </div>
+                <div id="graph-view" class="tab-pane">
+                    <div id="graph-container"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+</body>
+</html>

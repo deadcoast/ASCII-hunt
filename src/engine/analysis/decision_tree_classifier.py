@@ -133,6 +133,6 @@ def extract_ui_specific_features(component, grid):
 
     # Count special characters
     special_chars = set("●○▼▶♢◆⊕⊖")
-    features["special_char_count"] = sum(1 for c in content_chars if c in special_chars)
+    features["special_char_count"] = sum(c in special_chars for c in content_chars)
 
     return features

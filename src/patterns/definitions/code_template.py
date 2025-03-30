@@ -46,10 +46,7 @@ class CodeTemplate:
             value = self._evaluate_placeholder(placeholder, context)
             rendered_text = rendered_text.replace(f"{{{placeholder}}}", str(value))
 
-        # Apply indentation
-        indented_text = self._apply_indentation(rendered_text, indent)
-
-        return indented_text
+        return self._apply_indentation(rendered_text, indent)
 
     def _extract_placeholders(self, template_text):
         """Extracts placeholders from a given template text.

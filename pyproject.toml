@@ -6,33 +6,43 @@ build-backend = "setuptools.build_meta"
 name = "ascii-hunt"
 version = "0.1.0"
 description = "ASCII UI Translation Engine"
-authors = [
-    {name = "ASCII Hunt Team"}
-]
+authors = [{ name = "ASCII Dsl Team" }]
 readme = "README.md"
 requires-python = ">=3.10"
 
 [tool.ruff]
 # Enable the new Ruff formatter
-include = ["src/**/*.py", "import_miner/**/*.py", "tools/**/*.py", "tests/**/*.py"]
+include = [
+  "src/**/*.py",
+  "import_miner/**/*.py",
+  "tools/**/*.py",
+  "tests/**/*.py",
+]
 exclude = [
-    ".git",
-    ".venv",
-    "__pycache__",
-    ".mypy_cache",
-    ".ruff_cache",
-    "*.pyc",
+  ".git",
+  ".venv",
+  "__pycache__",
+  ".mypy_cache",
+  ".ruff_cache",
+  "*.pyc",
 ]
 lint.select = [
-    "E", "F", "B", "I", "N", "UP", "ANN",
-    "D", # docstring rules
-    "COM", # comma rules (except COM812)
-    "RUF" # Ruff-specific rules
+  "E",
+  "F",
+  "B",
+  "I",
+  "N",
+  "UP",
+  "ANN",
+  "D",   # docstring rules
+  "COM", # comma rules (except COM812)
+  "RUF", # Ruff-specific rules
 ]
 lint.ignore = [
-    "D203", # Ignore 'incorrect-blank-line-before-class' in favor of D211
-    "D213", # Ignore 'multi-line-summary-second-line' in favor of D212
-    "COM812" # Ignore potentially conflicting comma rule
+  "D203",   # Ignore 'incorrect-blank-line-before-class' in favor of D211
+  "D213",   # Ignore 'multi-line-summary-second-line' in favor of D212
+  "COM812", # Ignore potentially conflicting comma rule
+  "SLF001", # Ignore private member access (intentional for decorators)
 ]
 line-length = 88
 target-version = "py310"
@@ -64,4 +74,4 @@ extend-exclude = '''
 # in the root of the project.
 ^/(
   (\.eggs|\.git|\.hg|\.mypy_cache|\.nox|\.tox|\.venv|_build|buck-out|build|dist|\.ruff_cache)/
-)''' 
+)'''

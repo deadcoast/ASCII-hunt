@@ -3,145 +3,161 @@ It is used to display the ASCII grid of the current file.
 """
 
 from PyQt5.QtCore import QPoint, QSize, Qt
-from PyQt5.QtGui import QPainter
+from PyQt5.QtGui import (
+    QFocusEvent,
+    QKeyEvent,  # Grouped imports
+    QMouseEvent,
+    QPainter,
+    QPaintEvent,
+    QResizeEvent,
+    QWheelEvent,
+)
 from PyQt5.QtWidgets import QWidget
 
-from src.engine.drawing_mode import DrawingMode
+# Corrected import path
+from src.core.drawing_mode import DrawingMode
 
 
 class ASCIIGridWidget(QWidget):
-    def __init__(self, parent=None):
+    def __init__(self, parent: QWidget | None = None) -> None:  # Added annotations
         """Initialize the widget.
 
-        :param parent: The parent of the widget.
-        :type parent: QWidget
+        Args:
+            parent: The optional parent widget.
         """
         super().__init__(parent)
-        self.grid_data = []
+        self.grid_data: list[list[str]] = []  # Added type hint
         self.cell_size = QSize(10, 20)  # Default cell size
         self.cursor_pos = QPoint(0, 0)
-        self.selection = None
+        self.selection: tuple[QPoint, QPoint] | None = None  # Added type hint
         self.drawing_mode = DrawingMode.CHARACTER
         self.setup_ui()
 
-    def setup_ui(self):
+    def setup_ui(self) -> None:  # Added annotation
         """Set up the UI for the widget.
 
-        This method sets the focus policy to Qt.StrongFocus, which means that the widget will
-        receive focus when it is clicked. It also sets mouse tracking, which means that the widget
-        will receive mouse move events even if no mouse buttons are pressed.
+        Sets focus policy and enables mouse tracking.
         """
         self.setFocusPolicy(Qt.FocusPolicy.StrongFocus)
         self.setMouseTracking(True)
 
-    def set_grid_data(self, data):
+    def set_grid_data(self, data: list[list[str]]) -> None:  # Added annotations
+        """Set the grid data and trigger a repaint.
+
+        Args:
+            data: A 2D list of strings representing the grid.
+        """
         self.grid_data = data
         self.update()
 
-    def cell_at_position(self, pos):
-        """Given a position in the widget, return the corresponding cell coordinates.
+    def cell_at_position(self, pos: QPoint) -> QPoint:  # Added annotations
+        """Given a pixel position, return the corresponding cell coordinates.
 
-        :param pos: The position in the widget.
-        :type pos: QPoint
-        :return: The coordinates of the cell that the position is in.
-        :rtype: QPoint
+        Args:
+            pos: The position in widget coordinates.
+
+        Returns:
+            The grid coordinates (column, row) of the cell.
         """
         x = pos.x() // self.cell_size.width()
         y = pos.y() // self.cell_size.height()
         return QPoint(x, y)
 
-    def paintEvent(self, event):
+    # Renamed event handlers to snake_case
+    def paint_event(self, event: QPaintEvent) -> None:  # Added annotations
         """Handle the paint event for the widget.
 
-        :param event: The paint event.
-        :type event: QPaintEvent
+        Renders the grid, characters, cursor, selection, and overlays.
 
-        This method is responsible for rendering the visual representation of the widget. It
-        initializes a QPainter object and delegates the drawing tasks to specific methods for
-        rendering the grid, characters, cursor, selection, and any component overlays.
+        Args:
+            event: The paint event.
         """
         painter = QPainter(self)
-        self.draw_grid(painter)
-        self.draw_characters(painter)
-        self.draw_cursor(painter)
-        self.draw_selection(painter)
-        self.draw_component_overlays(painter)
+        # Placeholder calls - Implement drawing logic later
+        # self.draw_grid(painter)
+        # self.draw_characters(painter)
+        # self.draw_cursor(painter)
+        # self.draw_selection(painter)
+        # self.draw_component_overlays(painter)
+        painter.drawText(
+            self.rect(), Qt.AlignmentFlag.AlignCenter, "Grid Placeholder"
+        )  # Simple placeholder
 
-    def keyPressEvent(self, event):
-        # Handle keyboard input for editing
-        """Handle key press events for the widget.
+    def key_press_event(self, event: QKeyEvent) -> None:  # Added annotations
+        """Handle key press events for editing or navigation.
 
-        This method is responsible for handling all key press events for the widget. It
-        should be overridden by subclasses to handle specific key presses.
-
-        :param event: The key press event.
-        :type event: QKeyEvent
+        Args:
+            event: The key press event.
         """
+        # Placeholder - Implement editing logic later
+        pass
 
-    def mousePressEvent(self, event):
-        # Handle mouse input based on current drawing mode
-        """Handle mouse press events for the widget.
+    def mouse_press_event(self, event: QMouseEvent) -> None:  # Added annotations
+        """Handle mouse press events based on the current drawing mode.
 
-        This method is responsible for handling all mouse press events for the widget. It
-        should be overridden by subclasses to handle specific mouse presses.
-
-        :param event: The mouse press event.
-        :type event: QMouseEvent
+        Args:
+            event: The mouse press event.
         """
+        # Placeholder - Implement mode-specific logic later
+        pass
 
-    def mouseReleaseEvent(self, event):
-        # Handle mouse release events
-        """Handle mouse release events for the widget.
+    def mouse_release_event(self, event: QMouseEvent) -> None:  # Added annotations
+        """Handle mouse release events.
 
-        This method is responsible for handling all mouse release events for the widget. It
-        should be overridden by subclasses to handle specific mouse releases.
-
-        :param event: The mouse release event.
-        :type event: QMouseEvent
+        Args:
+            event: The mouse release event.
         """
+        # Placeholder
+        pass
 
-    def mouseMoveEvent(self, event):
-        # Handle mouse move events
-        """Handle mouse move events for the widget.
+    def mouse_move_event(self, event: QMouseEvent) -> None:  # Added annotations
+        """Handle mouse move events, e.g., for selection or dragging.
 
-        This method is responsible for handling all mouse move events for the widget. It
-        should be overridden by subclasses to handle specific mouse moves.
-
-        :param event: The mouse move event.
-        :type event: QMouseEvent
+        Args:
+            event: The mouse move event.
         """
+        # Placeholder
+        pass
 
-    def wheelEvent(self, event):
-        # Handle wheel events
-        """Handle wheel events for the widget.
+    def wheel_event(self, event: QWheelEvent) -> None:  # Added annotations
+        """Handle wheel events, e.g., for zooming.
 
-        This method is responsible for handling all wheel events for the widget. It
-        should be overridden by subclasses to handle specific wheel events.
-
-        :param event: The wheel event.
-        :type event: QWheelEvent
+        Args:
+            event: The wheel event.
         """
+        # Placeholder
+        pass
 
-    def resizeEvent(self, event):
-        # Handle resize events
-        """Handle resize events for the widget.
+    def resize_event(self, event: QResizeEvent) -> None:  # Added annotations
+        """Handle resize events.
 
-        This method is responsible for handling all resize events for the widget. It
-        should be overridden by subclasses to handle specific resize events.
-
-        :param event: The resize event.
-        :type event: QResizeEvent
+        Args:
+            event: The resize event.
         """
+        # Placeholder - May need to recalculate layout or cell size
+        super().resizeEvent(event)  # Call base implementation if needed
 
-    def focusInEvent(self, event):
-        # Handle focus in events
-        """Handle focus in events for the widget.
+    def focus_in_event(self, event: QFocusEvent) -> None:  # Added annotations
+        """Handle focus in events.
 
-        This method is responsible for handling all focus in events for the widget. It
-        should be overridden by subclasses to handle specific focus in events.
-
-        :param event: The focus in event.
-        :type event: QFocusEvent
-
-        Returns None
+        Args:
+            event: The focus in event.
         """
+        # Placeholder - Maybe change cursor appearance
+        super().focusInEvent(event)  # Call base implementation if needed
+
+    # Placeholder methods for actual drawing logic (to be implemented)
+    def draw_grid(self, painter: QPainter) -> None:
+        pass
+
+    def draw_characters(self, painter: QPainter) -> None:
+        pass
+
+    def draw_cursor(self, painter: QPainter) -> None:
+        pass
+
+    def draw_selection(self, painter: QPainter) -> None:
+        pass
+
+    def draw_component_overlays(self, painter: QPainter) -> None:
+        pass

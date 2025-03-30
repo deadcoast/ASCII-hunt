@@ -3,10 +3,12 @@
 import tempfile
 import unittest
 from pathlib import Path
+from typing import Any
 
 import yaml
-from mermaid_connect.config_manager import ConfigManager
-from mermaid_connect.utils import (
+
+from tools.mermaid_connect.config_manager import ConfigManager
+from tools.mermaid_connect.utils import (
     DependencyAnalyzer,
     MermaidSyntaxValidator,
     PerformanceOptimizer,
@@ -18,7 +20,104 @@ from mermaid_connect.utils import (
 class TestMermaidSyntaxValidator(unittest.TestCase):
     """Test cases for MermaidSyntaxValidator class."""
 
-    def setUp(self):
+    def setUp(self) -> None:
+        """Set up test environment."""
+        self.test_dir = Path(tempfile.mkdtemp())
+        self.config_file = self.test_dir / "config.yaml"
+
+        config: dict[str, Any] = {
+            "directories": {
+                "base_dir": str(self.test_dir),
+                "output_dir": str(self.test_dir / "output"),
+                "temp_dir": str(self.test_dir / "temp"),
+            },
+            "styles": {
+                "default": {
+                    "required": ["style1", "style2"],
+                    "forbidden": [],
+                }
+            },
+            "validation": {
+                "syntax_check": True,
+                "component_depth": 5,
+                "circular_dependencies": True,
+                "style_validation": True,
+            },
+            "error_handling": {
+                "strict_mode": True,
+                "max_errors": 10,
+                "stop_on_critical": True,
+                "log_all_errors": True,
+                "severity_levels": {
+                    "critical": ["syntax", "dependencies"],
+                    "warning": ["style", "performance"],
+                },
+            },
+            "logging": {
+                "enabled": True,
+                "level": "INFO",
+                "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+                "file": str(self.test_dir / "validation.log"),
+                "rotate": True,
+                "max_size": "1MB",
+                "backup_count": 3,
+                "console": {"enabled": True, "format": "simple"},
+                "file_logging": {"enabled": True, "format": "detailed"},
+            },
+            "reporting": {
+                "format": "detailed",
+                "sections": ["summary", "errors", "warnings"],
+                "output_formats": ["text", "json"],
+                "summary_stats": {"show_timing": True, "show_counts": True},
+            },
+            "performance": {
+                "parallel_processing": True,
+                "max_workers": 4,
+                "chunk_size": 1000,
+                "cache_enabled": True,
+                "cache_ttl": 3600,
+            },
+        }
+
+        with open(self.config_file, "w") as f:
+            yaml.dump(config, f)
+
+        self.config = ConfigManager(str(self.config_file))
+        self.validator = MermaidSyntaxValidator()
+
+    def test_validate_syntax_valid(self) -> None:
+        """Test validation of valid Mermaid syntax."""
+        content = """graph TD
+            A["Component A"] --> B["Component B"]
+            B --> C["Component C"]
+        """
+        is_valid = self.validator.validate_syntax(content)
+        self.assertTrue(is_valid)
+
+    def test_validate_syntax_invalid(self) -> None:
+        """Test validation of invalid Mermaid syntax."""
+        self._extracted_from_test_validate_empty_content_3(
+            """graph TD
+            A["Component A"] --> B["Component B
+            B --> C["Component C"]
+        """
+        )
+
+    def test_validate_empty_content(self) -> None:
+        """Test validation of empty content."""
+        self._extracted_from_test_validate_empty_content_3("")
+
+    # TODO Rename this here and in `test_validate_syntax_invalid` and `test_validate_empty_content`
+    def _extracted_from_test_validate_empty_content_3(self, arg0):
+        content = arg0
+        is_valid = self.validator.validate_syntax(content)
+        self.assertFalse(is_valid)
+
+
+class TestStyleManager(unittest.TestCase):
+    """Test cases for StyleManager class."""
+
+    def setUp(self) -> None:
         """Set up test environment."""
         self.test_dir = Path(tempfile.mkdtemp())
         self.config_file = self.test_dir / "config.yaml"
@@ -31,80 +130,13 @@ class TestMermaidSyntaxValidator(unittest.TestCase):
             },
             "styles": {
                 "required": ["style1", "style2"],
-                "forbidden": ["style3", "style4"],
+                "forbidden": [],  # Empty list instead of specific styles
             },
             "validation": {
                 "syntax_check": True,
                 "component_depth": 5,
                 "circular_dependencies": True,
                 "style_validation": True,
-                "components": {},
-                "dependencies": {},
-                "styles": {},
-            },
-            "error_handling": {"max_retries": 3, "timeout": 30},
-            "logging": {"level": "INFO", "file": str(self.test_dir / "test.log")},
-            "reporting": {"format": "text", "detail_level": "high"},
-            "performance": {"parallel": True, "max_workers": 4},
-        }
-
-        with open(self.config_file, "w") as f:
-            yaml.dump(config, f)
-
-        self.config = ConfigManager(str(self.config_file))
-        self.validator = MermaidSyntaxValidator()
-
-    def test_validate_syntax_valid(self):
-        """Test validation of valid Mermaid syntax."""
-        content = """graph TD
-            A["Component A"] --> B["Component B"]
-            B --> C["Component C"]
-        """
-        is_valid = self.validator.validate_syntax(content)
-        self.assertTrue(is_valid)
-
-    def test_validate_syntax_invalid(self):
-        """Test validation of invalid Mermaid syntax."""
-        content = """graph TD
-            A["Component A"] --> B["Component B
-            B --> C["Component C"]
-        """
-        is_valid = self.validator.validate_syntax(content)
-        self.assertFalse(is_valid)
-
-    def test_validate_empty_content(self):
-        """Test validation of empty content."""
-        content = ""
-        is_valid = self.validator.validate_syntax(content)
-        self.assertFalse(is_valid)
-
-
-class TestStyleManager(unittest.TestCase):
-    """Test cases for StyleManager class."""
-
-    def setUp(self):
-        """Set up test environment."""
-        self.test_dir = Path(tempfile.mkdtemp())
-        self.config_file = self.test_dir / "config.yaml"
-
-        config = {
-            "directories": {
-                "base_dir": str(self.test_dir),
-                "output_dir": str(self.test_dir / "output"),
-                "cache_dir": str(self.test_dir / "cache"),
-            },
-            "styles": {
-                "required": ["style1", "style2"],
-                "forbidden": ["style3", "style4"],
-            },
-            "validation": {
-                "syntax_check": True,
-                "component_depth": 5,
-                "circular_dependencies": True,
-                "style_validation": True,
-                "components": {},
-                "dependencies": {},
-                "styles": {},
             },
             "error_handling": {"max_retries": 3, "timeout": 30},
             "logging": {"level": "INFO", "file": str(self.test_dir / "test.log")},
@@ -163,16 +195,13 @@ class TestDependencyAnalyzer(unittest.TestCase):
             },
             "styles": {
                 "required": ["style1", "style2"],
-                "forbidden": ["style3", "style4"],
+                "forbidden": [],  # Empty list instead of specific styles
             },
             "validation": {
                 "syntax_check": True,
                 "component_depth": 5,
                 "circular_dependencies": True,
                 "style_validation": True,
-                "components": {},
-                "dependencies": {},
-                "styles": {},
             },
             "error_handling": {"max_retries": 3, "timeout": 30},
             "logging": {"level": "INFO", "file": str(self.test_dir / "test.log")},

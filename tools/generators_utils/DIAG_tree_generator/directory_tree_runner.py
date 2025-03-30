@@ -1,21 +1,20 @@
 #!/usr/bin/env python3
-"""
-Directory Tree Runner
+"""Directory Tree Runner
 
 This script extracts the directory tree from the provided input file
 and runs the directory tree generator script to create the directory structure.
 """
 
 import os
+import re
 import sys
 import tempfile
-import re
+
 from directory_tree_generator import create_directory_structure
 
 
 def extract_tree_from_file(file_path):
-    """
-    Extract the directory tree from the input file.
+    """Extract the directory tree from the input file.
 
     Args:
         file_path: Path to the input file.
@@ -23,12 +22,10 @@ def extract_tree_from_file(file_path):
     Returns:
         The directory tree as a string.
     """
-    with open(file_path, "r") as f:
+    with open(file_path) as f:
         content = f.read()
 
-    # Extract content between triple backticks (markdown code blocks)
-    matches = re.findall(r"```(.*?)```", content, re.DOTALL)
-    if matches:
+    if matches := re.findall(r"```(.*?)```", content, re.DOTALL):
         return matches[0].strip()
 
     # If no code blocks found, return the entire content
@@ -46,10 +43,7 @@ def main():
         print(f"Error: Input file '{input_file}' not found.")
         return
 
-    output_dir = "generated_structure"
-    if len(sys.argv) > 2:
-        output_dir = sys.argv[2]
-
+    output_dir = sys.argv[2] if len(sys.argv) > 2 else "generated_structure"
     # Extract the directory tree from the input file
     tree_content = extract_tree_from_file(input_file)
 

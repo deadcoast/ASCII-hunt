@@ -10,22 +10,20 @@ from textual.widget import Widget
 # Import the Textual widgets directly
 from textual.widgets import ContentSwitcher, Tabs
 
-# No need to import the same widgets again
-# from .content_switcher import ContentSwitcher
-# from .tabs import Tabs
+# Removed commented-out imports
 
 
 class TabPane(Widget):
     """A container for tab content."""
 
-    def __init__(self, title: str, *, id: str | None = None) -> None:
+    def __init__(self, title: str, *, pane_id: str | None = None) -> None:
         """Initialize a TabPane.
 
         Args:
             title: The title to display in the tab
-            id: Optional ID for the tab pane
+            pane_id: Optional ID for the tab pane
         """
-        super().__init__(id=id)
+        super().__init__(id=pane_id)
         self.title = title
 
 
@@ -58,7 +56,7 @@ class TabbedContent(Widget):
         *titles: str,
         initial: str | None = None,
         name: str | None = None,
-        id: str | None = None,
+        widget_id: str | None = None,
     ) -> None:
         """Initialize TabbedContent.
 
@@ -66,9 +64,9 @@ class TabbedContent(Widget):
             *titles: Optional tab titles (if not using TabPane)
             initial: ID of initially active tab
             name: Optional name for the widget
-            id: Optional ID for the widget
+            widget_id: Optional ID for the widget
         """
-        super().__init__(name=name, id=id)
+        super().__init__(name=name, id=widget_id)
         self._titles = titles
         self._initial = initial
         self._tabs: Tabs | None = None
@@ -81,11 +79,10 @@ class TabbedContent(Widget):
             List of child widgets
         """
         # Create tabs from either titles or TabPane children
-        tabs = []
+        tabs: list[tuple[str, str]] = []
         if self._titles:
             # Using titles provided in constructor
-            for i, title in enumerate(self._titles, 1):
-                tabs.append((f"tab-{i}", title))
+            tabs.extend((f"tab-{i}", title) for i, title in enumerate(self._titles, 1))
         else:
             # Using TabPane children
             for child in self.children:
@@ -131,12 +128,10 @@ class TabbedContent(Widget):
         if self._tabs:
             self._tabs.clear()
         if self._content:
-            # Check if the content switcher has a clear method
-            if hasattr(self._content, "clear"):
-                self._content.clear()
-            # Alternative fallback for Textual's ContentSwitcher
-            else:
-                # Remove all widgets from the content switcher
-                while self._content.children:
-                    self._content.remove(self._content.children[0])
+            # Remove all widgets from the content switcher
+            # textual.widgets.ContentSwitcher has no public clear method
+            # We remove children one by one.
+            while self._content.children:
+                # Call remove() on the child widget to remove it from the parent
+                self._content.children[0].remove()
         self.post_message(self.Cleared())

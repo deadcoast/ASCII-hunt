@@ -3,6 +3,7 @@
 This module provides a class for representing and manipulating ASCII art grids.
 """
 
+import itertools
 from typing import Any
 
 
@@ -13,7 +14,7 @@ class ASCIIGrid:
     methods for accessing and manipulating the grid.
     """
 
-    def __init__(self, grid_data: list[list[str]] | None = None):
+    def __init__(self, grid_data: list[list[str]] | None = None) -> None:
         """Initialize the ASCIIGrid class.
 
         Args:
@@ -50,9 +51,7 @@ class ASCIIGrid:
             The character at the specified position, or an empty string if the
             position is out of bounds.
         """
-        if 0 <= y < self.height and 0 <= x < self.width:
-            return self.grid[y][x]
-        return ""
+        return self.grid[y][x] if 0 <= y < self.height and 0 <= x < self.width else ""
 
     def set_cell(self, x: int, y: int, value: str) -> None:
         """Set the character at the specified position.
@@ -91,9 +90,7 @@ class ASCIIGrid:
 
         region = []
         for y in range(y1, y2 + 1):
-            row = []
-            for x in range(x1, x2 + 1):
-                row.append(self.grid[y][x])
+            row = [self.grid[y][x] for x in range(x1, x2 + 1)]
             region.append(row)
         return region
 
@@ -108,12 +105,13 @@ class ASCIIGrid:
         region_height = len(region)
         region_width = len(region[0]) if region_height > 0 else 0
 
-        for y_offset in range(region_height):
-            for x_offset in range(region_width):
-                x = x1 + x_offset
-                y = y1 + y_offset
-                if 0 <= y < self.height and 0 <= x < self.width:
-                    self.grid[y][x] = region[y_offset][x_offset]
+        for y_offset, x_offset in itertools.product(
+            range(region_height), range(region_width)
+        ):
+            x = x1 + x_offset
+            y = y1 + y_offset
+            if 0 <= y < self.height and 0 <= x < self.width:
+                self.grid[y][x] = region[y_offset][x_offset]
 
     def to_string(self) -> str:
         """Convert the grid to a string.
@@ -143,9 +141,10 @@ class ASCIIGrid:
         new_grid = [[fill_char for _ in range(width)] for _ in range(height)]
 
         # Copy existing data to new grid
-        for y in range(min(self.height, height)):
-            for x in range(min(self.width, width)):
-                new_grid[y][x] = self.grid[y][x]
+        for y, x in itertools.product(
+            range(min(self.height, height)), range(min(self.width, width))
+        ):
+            new_grid[y][x] = self.grid[y][x]
 
         # Update grid data
         self.grid = new_grid
@@ -158,6 +157,5 @@ class ASCIIGrid:
         Args:
             fill_char: The character to use for filling cells.
         """
-        for y in range(self.height):
-            for x in range(self.width):
-                self.grid[y][x] = fill_char
+        for y, x in itertools.product(range(self.height), range(self.width)):
+            self.grid[y][x] = fill_char

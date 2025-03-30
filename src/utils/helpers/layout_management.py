@@ -1,25 +1,36 @@
 """Layout Management Module."""
 
+from collections.abc import Callable
+from typing import Any, Protocol, runtime_checkable
+
+
+@runtime_checkable
+class ComponentProtocol(Protocol):
+    """Defines the expected structure for component objects."""
+
+    properties: dict[str, Any]  # Allow Any for property values for now
+    type: str
+    id: Any  # ID could be int, str, etc.
+
 
 class LayoutManager:
-    def __init__(self):
-        """Initialize the LayoutManager with all necessary layout handlers.
+    """Manages layout generation strategies for UI components."""
 
-        The LayoutManager has a dictionary of layout handlers, each associated
-        with a specific layout type. The handlers are responsible for generating
-        the layout code for components with the corresponding layout type.
+    # Define type alias at class level for handler functions
+    LayoutHandler = Callable[
+        [
+            ComponentProtocol,  # component
+            list[ComponentProtocol],  # children
+            str,  # indent
+            dict[str, Any] | None,  # options
+        ],
+        str,
+    ]  # return type
 
-        The layout handlers are:
-        - 'default': self._generate_default_layout
-        - 'grid': self._generate_grid_layout
-        - 'flex': self._generate_flex_layout
-        - 'absolute': self._generate_absolute_layout
-        - 'relative': self._generate_relative_layout
-        - 'sticky': self._generate_sticky_layout
-        - 'pack': self._generate_pack_layout
-        - 'place': self._generate_place_layout
-        """
-        self.layout_handlers = {
+    def __init__(self) -> None:
+        """Initialize the LayoutManager with default handlers."""
+        # Type hint for the dictionary using the class-level alias
+        self.layout_handlers: dict[str, LayoutManager.LayoutHandler] = {
             "default": self._generate_default_layout,
             "grid": self._generate_grid_layout,
             "flex": self._generate_flex_layout,
@@ -30,148 +41,208 @@ class LayoutManager:
             "place": self._generate_place_layout,
         }
 
-    def register_layout_handler(self, layout_type, handler):
+    def register_layout_handler(
+        self,
+        layout_type: str,
+        handler: Callable,  # Keep Callable for flexibility
+    ) -> None:
         """Register a layout handler for a specific layout type."""
+        # Runtime check might be needed if strict type adherence required
+        # Ensure handler matches LayoutHandler signature if possible
         self.layout_handlers[layout_type] = handler
 
-    def generate_layout_code(self, component, children, indent="", options=None):
+    def generate_layout_code(
+        self,
+        component: ComponentProtocol,
+        children: list[ComponentProtocol],
+        indent: str = "",
+        options: dict[str, Any] | None = None,
+    ) -> str:
         """Generate layout code for a component and its children."""
         if options is None:
             options = {}
 
-        # Get layout type
-        layout_type = component.properties.get("layout", "default")
+        # Get layout type from component properties
+        layout_type = getattr(component, "properties", {}).get("layout", "default")
 
-        # Get appropriate handler
-        handler = self.layout_handlers.get(layout_type)
+        if handler := self.layout_handlers.get(layout_type):
+            # Generate layout code by calling the retrieved handler directly
+            return handler(component, children, indent, options)
+        # Use default positioning if no specific handler found
+        return self._generate_default_layout(component, children, indent, options)
 
-        if not handler:
-            # Use default positioning
-            return self._generate_default_layout(component, children, indent, options)
+    # --- Layout Generation Helper Methods ---
+    # Note: Added type hints and prefixed unused args with _
 
-        # Generate layout code
-        return handler.generate_layout_code(component, children, indent, options)
-
-    def _generate_default_layout(self, component, children, indent, options):
+    def _generate_default_layout(
+        self,
+        _component: ComponentProtocol,
+        children: list[ComponentProtocol],
+        indent: str,
+        _options: dict[str, Any] | None,
+    ) -> str:
         """Generate default layout code with absolute positioning."""
         code_parts = []
-
         for child in children:
-            # Get child position
-            x = child.properties.get("x", 0)
-            y = child.properties.get("y", 0)
-
-            # Generate positioning code
-            var_name = f"{child.type.lower()}_{child.id}"
+            props = getattr(child, "properties", {})
+            x = props.get("x", 0)
+            y = props.get("y", 0)
+            var_name = f"{getattr(child, 'type', 'widget').lower()}_{getattr(child, 'id', 'unknown')}"
             code_parts.append(f"{indent}{var_name}.place(x={x}, y={y})")
-
         return "\n".join(code_parts)
 
-    def _generate_grid_layout(self, component, children, indent, options):
+    def _generate_grid_layout(
+        self,
+        _component: ComponentProtocol,
+        children: list[ComponentProtocol],
+        indent: str,
+        _options: dict[str, Any] | None,
+    ) -> str:
         """Generate grid layout code."""
         code_parts = []
         for child in children:
-            row = child.properties.get("row", 0)
-            col = child.properties.get("column", 0)
-            rowspan = child.properties.get("rowspan", 1)
-            colspan = child.properties.get("colspan", 1)
-            sticky = child.properties.get("sticky", "")
-
-            var_name = f"{child.type.lower()}_{child.id}"
-            code_parts.append(
-                f"{indent}{var_name}.grid(row={row}, column={col}, "
-                f"rowspan={rowspan}, columnspan={colspan}, sticky='{sticky}')"
+            props = getattr(child, "properties", {})
+            row = props.get("row", 0)
+            col = props.get("column", 0)
+            rowspan = props.get("rowspan", 1)
+            colspan = props.get("colspan", 1)
+            sticky = props.get("sticky", "")
+            var_name = f"{getattr(child, 'type', 'widget').lower()}_{getattr(child, 'id', 'unknown')}"
+            grid_args = (
+                f"row={row}, column={col}, rowspan={rowspan}, "
+                f"columnspan={colspan}, sticky='{sticky}'"
             )
+            code_parts.append(f"{indent}{var_name}.grid({grid_args})")
         return "\n".join(code_parts)
 
-    def _generate_flex_layout(self, component, children, indent, options):
-        """Generate flex layout code."""
+    def _generate_flex_layout(
+        self,
+        _component: ComponentProtocol,
+        children: list[ComponentProtocol],
+        indent: str,
+        _options: dict[str, Any] | None,
+    ) -> str:
+        """Generate flex layout code (using pack for simplicity)."""
         code_parts = []
         for child in children:
-            expand = child.properties.get("expand", 1)
-            fill = child.properties.get("fill", "both")
+            props = getattr(child, "properties", {})
+            expand = props.get("expand", 1)
+            fill = props.get("fill", "both")
+            var_name = f"{getattr(child, 'type', 'widget').lower()}_{getattr(child, 'id', 'unknown')}"
+            pack_args = f"expand={expand}, fill='{fill}'"
+            code_parts.append(f"{indent}{var_name}.pack({pack_args})")
+        return "\n".join(code_parts)
 
-            var_name = f"{child.type.lower()}_{child.id}"
-            code_parts.append(
-                f"{indent}{var_name}.pack(expand={expand}, fill='{fill}')"
+    def _generate_absolute_layout(
+        self,
+        _component: ComponentProtocol,
+        children: list[ComponentProtocol],
+        indent: str,
+        _options: dict[str, Any] | None,
+    ) -> str:
+        """Generate absolute layout code (using place)."""
+        code_parts = []
+        for child in children:
+            props = getattr(child, "properties", {})
+            x = props.get("x", 0)
+            y = props.get("y", 0)
+            width = props.get("width", None)
+            height = props.get("height", None)
+            var_name = f"{getattr(child, 'type', 'widget').lower()}_{getattr(child, 'id', 'unknown')}"
+            place_args = f"x={x}, y={y}"
+            if width is not None:
+                place_args += f", width={width}"
+            if height is not None:
+                place_args += f", height={height}"
+            code_parts.append(f"{indent}{var_name}.place({place_args})")
+        return "\n".join(code_parts)
+
+    def _generate_relative_layout(
+        self,
+        _component: ComponentProtocol,
+        children: list[ComponentProtocol],
+        indent: str,
+        _options: dict[str, Any] | None,
+    ) -> str:
+        """Generate relative layout code (using place with rel coords)."""
+        code_parts = []
+        for child in children:
+            props = getattr(child, "properties", {})
+            relx = props.get("relx", 0.0)
+            rely = props.get("rely", 0.0)
+            relwidth = props.get("relwidth", None)
+            relheight = props.get("relheight", None)
+            var_name = f"{getattr(child, 'type', 'widget').lower()}_{getattr(child, 'id', 'unknown')}"
+            place_args = f"relx={relx}, rely={rely}"
+            if relwidth is not None:
+                place_args += f", relwidth={relwidth}"
+            if relheight is not None:
+                place_args += f", relheight={relheight}"
+            code_parts.append(f"{indent}{var_name}.place({place_args})")
+        return "\n".join(code_parts)
+
+    def _generate_sticky_layout(
+        self,
+        _component: ComponentProtocol,
+        children: list[ComponentProtocol],
+        indent: str,
+        _options: dict[str, Any] | None,
+    ) -> str:
+        """Generate sticky layout code (using grid)."""
+        code_parts = []
+        for child in children:
+            props = getattr(child, "properties", {})
+            sticky = props.get("sticky", "nsew")
+            padx = props.get("padx", 0)
+            pady = props.get("pady", 0)
+            var_name = f"{getattr(child, 'type', 'widget').lower()}_{getattr(child, 'id', 'unknown')}"
+            row = props.get("row", 0)
+            col = props.get("column", 0)
+            grid_args = (
+                f"row={row}, column={col}, sticky='{sticky}', padx={padx}, pady={pady}"
             )
+            code_parts.append(f"{indent}{var_name}.grid({grid_args})")
         return "\n".join(code_parts)
 
-    def _generate_absolute_layout(self, component, children, indent, options):
-        """Generate absolute layout code."""
-        code_parts = []
-        for child in children:
-            x = child.properties.get("x", 0)
-            y = child.properties.get("y", 0)
-            width = child.properties.get("width", None)
-            height = child.properties.get("height", None)
-
-            var_name = f"{child.type.lower()}_{child.id}"
-            if width is not None and height is not None:
-                code_parts.append(
-                    f"{indent}{var_name}.place(x={x}, y={y}, width={width}, height={height})"
-                )
-            else:
-                code_parts.append(f"{indent}{var_name}.place(x={x}, y={y})")
-        return "\n".join(code_parts)
-
-    def _generate_relative_layout(self, component, children, indent, options):
-        """Generate relative layout code."""
-        code_parts = []
-        for child in children:
-            relx = child.properties.get("relx", 0.0)
-            rely = child.properties.get("rely", 0.0)
-            relwidth = child.properties.get("relwidth", None)
-            relheight = child.properties.get("relheight", None)
-
-            var_name = f"{child.type.lower()}_{child.id}"
-            if relwidth is not None and relheight is not None:
-                code_parts.append(
-                    f"{indent}{var_name}.place(relx={relx}, rely={rely}, "
-                    f"relwidth={relwidth}, relheight={relheight})"
-                )
-            else:
-                code_parts.append(f"{indent}{var_name}.place(relx={relx}, rely={rely})")
-        return "\n".join(code_parts)
-
-    def _generate_sticky_layout(self, component, children, indent, options):
-        """Generate sticky layout code."""
-        code_parts = []
-        for child in children:
-            sticky = child.properties.get("sticky", "nsew")
-            padx = child.properties.get("padx", 0)
-            pady = child.properties.get("pady", 0)
-
-            var_name = f"{child.type.lower()}_{child.id}"
-            code_parts.append(
-                f"{indent}{var_name}.grid(sticky='{sticky}', padx={padx}, pady={pady})"
-            )
-        return "\n".join(code_parts)
-
-    def _generate_pack_layout(self, component, children, indent, options):
+    def _generate_pack_layout(
+        self,
+        _component: ComponentProtocol,
+        children: list[ComponentProtocol],
+        indent: str,
+        _options: dict[str, Any] | None,
+    ) -> str:
         """Generate pack layout code."""
         code_parts = []
         for child in children:
-            side = child.properties.get("side", "top")
-            fill = child.properties.get("fill", "none")
-            expand = child.properties.get("expand", 0)
-
-            var_name = f"{child.type.lower()}_{child.id}"
-            code_parts.append(
-                f"{indent}{var_name}.pack(side='{side}', fill='{fill}', expand={expand})"
+            props = getattr(child, "properties", {})
+            side = props.get("side", "top")
+            fill = props.get("fill", "none")
+            expand = props.get("expand", 0)
+            padx = props.get("padx", 0)
+            pady = props.get("pady", 0)
+            var_name = f"{getattr(child, 'type', 'widget').lower()}_{getattr(child, 'id', 'unknown')}"
+            pack_args = (
+                f"side='{side}', fill='{fill}', expand={expand}, "
+                f"padx={padx}, pady={pady}"
             )
+            code_parts.append(f"{indent}{var_name}.pack({pack_args})")
         return "\n".join(code_parts)
 
-    def _generate_place_layout(self, component, children, indent, options):
+    def _generate_place_layout(
+        self,
+        _component: ComponentProtocol,
+        children: list[ComponentProtocol],
+        indent: str,
+        _options: dict[str, Any] | None,
+    ) -> str:
         """Generate place layout code."""
         code_parts = []
         for child in children:
-            x = child.properties.get("x", 0)
-            y = child.properties.get("y", 0)
-            anchor = child.properties.get("anchor", "nw")
-
-            var_name = f"{child.type.lower()}_{child.id}"
-            code_parts.append(
-                f"{indent}{var_name}.place(x={x}, y={y}, anchor='{anchor}')"
-            )
+            props = getattr(child, "properties", {})
+            x = props.get("x", 0)
+            y = props.get("y", 0)
+            anchor = props.get("anchor", "nw")
+            var_name = f"{getattr(child, 'type', 'widget').lower()}_{getattr(child, 'id', 'unknown')}"
+            place_args = f"x={x}, y={y}, anchor='{anchor}'"
+            code_parts.append(f"{indent}{var_name}.place({place_args})")
         return "\n".join(code_parts)

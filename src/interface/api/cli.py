@@ -57,28 +57,26 @@ def create_cli():
 def extend_cli_for_hunt(parser):
     """Extend command-line interface for HUNT DSL."""
     # Add HUNT-specific commands
-    hunt_parser = parser.add_parser("hunt", help="Work with HUNT patterns")
-    hunt_subparsers = hunt_parser.add_subparsers(
-        dest="hunt_command", help="HUNT command"
-    )
+    dsl_parser = parser.add_parser("hunt", help="Work with HUNT patterns")
+    dsl_subparsers = dsl_parser.add_subparsers(dest="dsl_command", help="HUNT command")
 
     # Parse HUNT file command
-    parse_parser = hunt_subparsers.add_parser("parse", help="Parse HUNT file")
-    parse_parser.add_argument("hunt_file", help="HUNT pattern file")
+    parse_parser = dsl_subparsers.add_parser("parse", help="Parse HUNT file")
+    parse_parser.add_argument("dsl_file", help="HUNT pattern file")
     parse_parser.add_argument("--output", "-o", help="Output file for parsed AST")
 
     # Apply HUNT patterns command
-    apply_parser = hunt_subparsers.add_parser(
+    apply_parser = dsl_subparsers.add_parser(
         "apply", help="Apply HUNT patterns to ASCII UI"
     )
     apply_parser.add_argument("input_file", help="Input ASCII UI file")
-    apply_parser.add_argument("hunt_file", help="HUNT pattern file")
+    apply_parser.add_argument("dsl_file", help="HUNT pattern file")
     apply_parser.add_argument(
         "--output", "-o", help="Output file for recognized components"
     )
 
     # Generate HUNT patterns command
-    generate_parser = hunt_subparsers.add_parser(
+    generate_parser = dsl_subparsers.add_parser(
         "generate", help="Generate HUNT patterns from components"
     )
     generate_parser.add_argument("components_file", help="Components JSON file")

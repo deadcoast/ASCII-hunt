@@ -153,12 +153,13 @@ def should_ignore(path, ignore_patterns):
             return True
 
         # Handle glob patterns with fnmatch
-        if "*" in pattern or "?" in pattern:
-            if fnmatch(name, pattern):
-                return True
-
-        # Direct substring match in full path
-        elif pattern in path_str:
+        if (
+            ("*" in pattern or "?" in pattern)
+            and fnmatch(name, pattern)
+            or "*" not in pattern
+            and "?" not in pattern
+            and pattern in path_str
+        ):
             return True
 
     return False

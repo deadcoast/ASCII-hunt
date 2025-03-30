@@ -95,7 +95,7 @@ The HUNT DSL Subsystem is responsible for parsing, interpreting, and executing H
 
 ```mermaid
 classDiagram
-    class HuntParser {
+    class DslParser {
         +parse(code: String): ASTNode
         -tokenize(code: String): Token[]
         -parseAlphaBracket(): ASTNode
@@ -104,7 +104,7 @@ classDiagram
         -parseDeltaBracket(): ASTNode
     }
 
-    class HuntInterpreter {
+    class DslInterpreter {
         +interpret(ast: ASTNode, context: Dict): Any
         -evaluateNode(node: ASTNode, context: Dict): Any
         -evaluateCommand(command: String, params: Dict, context: Dict): Any
@@ -121,8 +121,8 @@ classDiagram
         +getAllPatterns(): Dict[String, Pattern]
     }
 
-    HuntParser -- HuntInterpreter
-    HuntInterpreter -- CommandDispatcher
+    DslParser -- DslInterpreter
+    DslInterpreter -- CommandDispatcher
     CommandDispatcher -- PatternRegistry
 ```
 
@@ -283,13 +283,13 @@ The HUNT DSL integrates with the backend processing pipeline through a well-defi
 ```mermaid
 sequenceDiagram
     participant User
-    participant HuntInterpreter
+    participant DslInterpreter
     participant PatternRegistry
     participant ProcessingPipeline
     participant ComponentModel
 
-    User->>HuntInterpreter: Define patterns using HUNT DSL
-    HuntInterpreter->>PatternRegistry: Register patterns
+    User->>DslInterpreter: Define patterns using HUNT DSL
+    DslInterpreter->>PatternRegistry: Register patterns
 
     User->>ProcessingPipeline: Process ASCII UI
     ProcessingPipeline->>PatternRegistry: Retrieve patterns
@@ -1742,7 +1742,7 @@ The system provides an API for working with the HUNT DSL:
 
 ```python
 # API for parsing HUNT DSL code
-def parse_hunt_dsl(dsl_code):
+def parse_dsl_dsl(dsl_code):
     """Parse HUNT DSL code into an AST.
 
     Args:
@@ -1753,7 +1753,7 @@ def parse_hunt_dsl(dsl_code):
     """
 
 # API for interpreting HUNT DSL code
-def interpret_hunt_dsl(dsl_code, context=None):
+def interpret_dsl_dsl(dsl_code, context=None):
     """Interpret HUNT DSL code and execute commands.
 
     Args:
@@ -1765,7 +1765,7 @@ def interpret_hunt_dsl(dsl_code, context=None):
     """
 
 # API for generating HUNT DSL code
-def generate_hunt_dsl(pattern_data):
+def generate_dsl_dsl(pattern_data):
     """Generate HUNT DSL code from pattern data.
 
     Args:

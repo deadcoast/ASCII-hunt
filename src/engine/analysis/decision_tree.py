@@ -27,53 +27,61 @@ class DecisionTree:
         self.root: Node | None = None
         self.n_classes: int = 0
 
-    def fit(self, X: NDArray[np.float_], y: NDArray[np.int_]) -> None:
+    def fit(self, x: NDArray[np.float64], y: NDArray[np.int_]) -> None:
         """Train the decision tree."""
         self.n_classes = len(np.unique(y))
-        self.root = self._grow_tree(X, y, depth=0)
+        self.root = self._grow_tree(x, y, depth=0)
 
     def _grow_tree(
-        self, X: NDArray[np.float_], y: NDArray[np.int_], depth: int
+        self, x: NDArray[np.float64], y: NDArray[np.int_], depth: int
     ) -> Node:
         """Recursively grow the decision tree."""
-        n_samples, n_features = X.shape
+        n_samples, n_features = x.shape
 
         # Check stopping criteria
         if depth >= self.max_depth or len(np.unique(y)) == 1:
             return Node(value=self._most_common_label(y), is_leaf=True)
 
         # Find best split
-        best_feature, best_threshold = self._find_best_split(X, y)
+        best_feature, best_threshold = self._find_best_split(x, y)
 
         if best_feature is None:
             return Node(value=self._most_common_label(y), is_leaf=True)
 
+        # Add assertions to help type checker
+        assert best_feature is not None
+        assert best_threshold is not None
+
         # Create child nodes
-        left_mask = X[:, best_feature] <= best_threshold
+        left_mask = x[:, best_feature] <= best_threshold
         right_mask = ~left_mask
 
-        left_child = self._grow_tree(X[left_mask], y[left_mask], depth + 1)
-        right_child = self._grow_tree(X[right_mask], y[right_mask], depth + 1)
+        # Check if either split is empty, which shouldn't happen if gain > 0
+        if np.sum(left_mask) == 0 or np.sum(right_mask) == 0:
+            return Node(value=self._most_common_label(y), is_leaf=True)
+
+        left_child = self._grow_tree(x[left_mask], y[left_mask], depth + 1)
+        right_child = self._grow_tree(x[right_mask], y[right_mask], depth + 1)
 
         return Node(
             feature_index=best_feature,
-            threshold=cast(float, best_threshold),
+            threshold=cast("float", best_threshold),
             left=left_child,
             right=right_child,
         )
 
     def _find_best_split(
-        self, X: NDArray[np.float_], y: NDArray[np.int_]
+        self, x: NDArray[np.float64], y: NDArray[np.int_]
     ) -> tuple[int | None, float | None]:
         """Find the best split for a node."""
-        best_gain = -1
+        best_gain = -1.0  # Initialize as float
         best_feature = None
         best_threshold = None
 
-        for feature in range(X.shape[1]):
-            thresholds = np.unique(X[:, feature])
+        for feature in range(x.shape[1]):
+            thresholds = np.unique(x[:, feature])
             for threshold in thresholds:
-                gain = self._information_gain(y, X[:, feature], threshold)
+                gain = self._information_gain(y, x[:, feature], threshold)
                 if gain > best_gain:
                     best_gain = gain
                     best_feature = feature
@@ -82,7 +90,7 @@ class DecisionTree:
         return best_feature, best_threshold
 
     def _information_gain(
-        self, y: NDArray[np.int_], feature: NDArray[np.float_], threshold: float
+        self, y: NDArray[np.int_], feature: NDArray[np.float64], threshold: float
     ) -> float:
         """Calculate information gain for a split."""
         parent_entropy = self._entropy(y)
@@ -111,22 +119,22 @@ class DecisionTree:
         """Return the most common label in a node."""
         return int(np.bincount(y).argmax())
 
-    def predict(self, X: NDArray[np.float_]) -> NDArray[np.int_]:
+    def predict(self, x: NDArray[np.float64]) -> NDArray[np.int_]:
         """Predict class labels for samples in X."""
         if self.root is None:
             raise ValueError("Tree not fitted. Call fit() first.")
-        return np.array([self._traverse_tree(x, self.root) for x in X])
+        return np.array([self._traverse_tree(sample, self.root) for sample in x])
 
-    def _traverse_tree(self, x: NDArray[np.float_], node: Node) -> int:
+    def _traverse_tree(self, x: NDArray[np.float64], node: Node) -> int:
         """Traverse the tree to make a prediction."""
         if node.is_leaf:
-            return cast(int, node.value)
+            return cast("int", node.value)
 
-        if x[cast(int, node.feature_index)] <= cast(float, node.threshold):
-            return self._traverse_tree(x, cast(Node, node.left))
-        return self._traverse_tree(x, cast(Node, node.right))
+        if x[cast("int", node.feature_index)] <= cast("float", node.threshold):
+            return self._traverse_tree(x, cast("Node", node.left))
+        return self._traverse_tree(x, cast("Node", node.right))
 
-    def classify(self, components: list, grid: np.ndarray = None) -> list:
+    def classify(self, components: list, grid: np.ndarray | None = None) -> list:
         """Classify components based on their features.
 
         Args:
@@ -173,8 +181,8 @@ class DecisionTree:
         return classified_components
 
     def _extract_features(
-        self, components: list, grid: np.ndarray = None
-    ) -> NDArray[np.float_]:
+        self, components: list, grid: np.ndarray | None = None
+    ) -> NDArray[np.float64]:
         """Extract features from components for classification.
 
         Args:
@@ -218,7 +226,7 @@ class DecisionTree:
             normalized_features = [
                 f + [0.0] * (max_features - len(f)) for f in features
             ]
-            return np.array(normalized_features, dtype=np.float_)
+            return np.array(normalized_features, dtype=np.float64)
 
         # Return empty feature matrix if no features extracted
-        return np.array([], dtype=np.float_)
+        return np.array([], dtype=np.float64)

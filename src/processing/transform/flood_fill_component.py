@@ -28,7 +28,7 @@ def flood_fill_component(grid, start_x, start_y, boundary_chars):
     visited = np.zeros((height, width), dtype=bool)
 
     # Initialize for vectorized operations
-    interior = set([(start_x, start_y)])
+    interior = {(start_x, start_y)}
     boundary = set()
     queue = [(start_x, start_y)]
     visited[start_y, start_x] = True

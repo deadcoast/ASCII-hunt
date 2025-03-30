@@ -51,7 +51,7 @@ class FeatureExtractionProcessor:
             perimeter = len(boundary)
             features["perimeter"] = perimeter
             features["compactness"] = (
-                (4 * np.pi * features.get("area", 0)) / (perimeter * perimeter)
+                4 * np.pi * features.get("area", 0) / perimeter**2
                 if perimeter > 0
                 else 0
             )

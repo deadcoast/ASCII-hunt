@@ -1,3 +1,1 @@
-"""
-Test package for mermaid_connect.
-"""
+"""Test package for mermaid_connect."""

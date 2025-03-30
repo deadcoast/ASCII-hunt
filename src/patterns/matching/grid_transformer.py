@@ -36,12 +36,11 @@ class GridTransformer:
         """
         if rotation_type == RotationType.CLOCKWISE_90:
             return np.rot90(grid, k=-1)
-        elif rotation_type == RotationType.COUNTERCLOCKWISE_90:
+        if rotation_type == RotationType.COUNTERCLOCKWISE_90:
             return np.rot90(grid, k=1)
-        elif rotation_type == RotationType.CLOCKWISE_180:
+        if rotation_type == RotationType.CLOCKWISE_180:
             return np.rot90(grid, k=2)
-        else:
-            raise ValueError(f"Unsupported rotation type: {rotation_type}")
+        raise ValueError(f"Unsupported rotation type: {rotation_type}")
 
     @staticmethod
     def flip(grid: np.ndarray, flip_type: FlipType) -> np.ndarray:
@@ -56,10 +55,9 @@ class GridTransformer:
         """
         if flip_type == FlipType.HORIZONTAL:
             return np.fliplr(grid)
-        elif flip_type == FlipType.VERTICAL:
+        if flip_type == FlipType.VERTICAL:
             return np.flipud(grid)
-        else:
-            raise ValueError(f"Unsupported flip type: {flip_type}")
+        raise ValueError(f"Unsupported flip type: {flip_type}")
 
     @staticmethod
     def crop(
@@ -208,11 +206,10 @@ class GridTransformer:
         """
         if axis == "horizontal":
             return np.hstack((grid, np.fliplr(grid)))
-        elif axis == "vertical":
+        if axis == "vertical":
             return np.vstack((grid, np.flipud(grid)))
-        elif axis is None:
+        if axis is None:
             # Mirror both horizontally and vertically
             top_half = np.hstack((grid, np.fliplr(grid)))
             return np.vstack((top_half, np.flipud(top_half)))
-        else:
-            raise ValueError("Invalid mirror axis")
+        raise ValueError("Invalid mirror axis")

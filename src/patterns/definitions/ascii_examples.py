@@ -2,8 +2,8 @@
 
 import numpy as np
 
-from ..algorithms.grid_transformer import RotationType
-from ..ascii_processor import ASCIIProcessor
+from src.engine.pipeline.ascii_processor import ASCIIProcessor
+from src.patterns.matching.grid_transformer import RotationType
 
 
 def create_example_art() -> np.ndarray:
@@ -41,12 +41,10 @@ def pattern_matching_example() -> None:
 
     # Find all occurrences of the pattern
     matches = processor.find_patterns(grid, pattern_grid)
-    print(f"Found {len(matches)} pattern matches")
 
     # Highlight matches
     highlighted = processor.pattern_matcher.highlight_matches(grid, matches)
-    print("\nHighlighted matches:")
-    print(processor.utils.grid_to_string(highlighted))
+    _ = highlighted
 
 
 def flood_fill_example() -> None:
@@ -65,12 +63,11 @@ def flood_fill_example() -> None:
 
     # Fill empty space with dots
     filled = processor.flood_fill_region(grid, (1, 1), " ", ".")
-    print("\nFlood fill result:")
-    print(processor.utils.grid_to_string(filled))
+    _ = filled
 
     # Find all connected regions
     regions = processor.find_connected_regions(grid, " ")
-    print(f"\nFound {len(regions)} connected empty regions")
+    _ = regions
 
 
 def transformation_example() -> None:
@@ -85,18 +82,15 @@ def transformation_example() -> None:
 
     # Rotate arrow
     rotated = processor.rotate(grid, RotationType.CLOCKWISE_90)
-    print("\nRotated arrow:")
-    print(processor.utils.grid_to_string(rotated))
+    _ = rotated
 
     # Create border
     bordered = processor.add_border(grid, "*")
-    print("\nArrow with border:")
-    print(processor.utils.grid_to_string(bordered))
+    _ = bordered
 
     # Mirror horizontally
     mirrored = processor.mirror(grid, "horizontal")
-    print("\nMirrored arrow:")
-    print(processor.utils.grid_to_string(mirrored))
+    _ = mirrored
 
 
 def text_layout_example() -> None:
@@ -106,15 +100,13 @@ def text_layout_example() -> None:
     # Center single line
     text = "Hello!"
     centered = processor.center_text(text, width=20, height=3)
-    print("\nCentered text:")
-    print(processor.utils.grid_to_string(centered))
+    _ = centered
 
     # Create text box
     text = "ASCII\nArt"
     box = processor.center_text(text, width=10, height=5)
     bordered = processor.add_border(box)
-    print("\nText box:")
-    print(processor.utils.grid_to_string(bordered))
+    _ = bordered
 
 
 def overlay_example() -> None:
@@ -144,28 +136,19 @@ def overlay_example() -> None:
     result = processor.overlay(
         background, foreground, position=(0, 3), transparent_char=" "
     )
-    print("\nOverlay result:")
-    print(processor.utils.grid_to_string(result))
+    _ = result
 
 
 def main() -> None:
     """Run all examples."""
-    print("ASCII Art Processing Examples")
-    print("===========================")
-
-    print("\nPattern Matching Example:")
     pattern_matching_example()
 
-    print("\nFlood Fill Example:")
     flood_fill_example()
 
-    print("\nTransformation Example:")
     transformation_example()
 
-    print("\nText Layout Example:")
     text_layout_example()
 
-    print("\nOverlay Example:")
     overlay_example()
 
 

@@ -1,0 +1,1 @@
+"""DIAG Tree Generator module."""

@@ -87,7 +87,4 @@ class CodeCompositionEngine:
         Returns:
             str | None: the adjusted code
         """
-        if child_code is None:
-            return None
-        # This would be framework-specific logic
-        return child_code  # Return the child_code for now
+        return None if child_code is None else child_code

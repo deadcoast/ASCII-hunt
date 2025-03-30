@@ -54,10 +54,7 @@ class FloodFillProcessor:
         for y in range(height):
             for x in range(width):
                 if not visited[y, x]:
-                    # Perform flood fill from this seed point
-                    component = self._flood_fill(grid_array, visited, x, y)
-
-                    if component:
+                    if component := self._flood_fill(grid_array, visited, x, y):
                         # Add component to results
                         components.append(component)
 
@@ -105,30 +102,28 @@ class FloodFillProcessor:
                         interior_points.add((nx, ny))
 
         # Only create a component if we have boundary points
-        if boundary_points:
-            # Calculate bounding box
-            if interior_points:
-                x_coords = [int(x) for x, y in interior_points]
-                y_coords = [int(y) for x, y in interior_points]
+        if boundary_points and interior_points:
+            x_coords = [int(x) for x, y in interior_points]
+            y_coords = [int(y) for x, y in interior_points]
 
-                min_x = min(x_coords)
-                max_x = max(x_coords)
-                min_y = min(y_coords)
-                max_y = max(y_coords)
+            min_x = min(x_coords)
+            max_x = max(x_coords)
+            min_y = min(y_coords)
+            max_y = max(y_coords)
 
-                # Create component with explicit integer arithmetic
-                width = int(max_x) - int(min_x) + 1
-                height = int(max_y) - int(min_y) + 1
+            # Create component with explicit integer arithmetic
+            width = int(max_x) - int(min_x) + 1
+            height = int(max_y) - int(min_y) + 1
 
-                component: dict[str, Any] = {
-                    "interior_points": interior_points,
-                    "boundary_points": boundary_points,
-                    "bounding_box": (min_x, min_y, max_x, max_y),
-                    "width": width,
-                    "height": height,
-                }
+            component: dict[str, Any] = {
+                "interior_points": interior_points,
+                "boundary_points": boundary_points,
+                "bounding_box": (min_x, min_y, max_x, max_y),
+                "width": width,
+                "height": height,
+            }
 
-                return component
+            return component
 
         return None
 
@@ -168,11 +163,11 @@ class FloodFillProcessor:
         # Extract content rows
         content_rows: list[str] = []
         for y in range(min_y, max_y + 1):
-            row: list[str] = []
-            for x in range(min_x, max_x + 1):
-                if (x, y) in component["interior_points"]:
-                    row.append(grid_array[y, x])
-            if row:
+            if row := [
+                grid_array[y, x]
+                for x in range(min_x, max_x + 1)
+                if (x, y) in component["interior_points"]
+            ]:
                 content_rows.append("".join(row))
 
         return content_rows
@@ -194,9 +189,7 @@ class FloodFillProcessor:
             return "double_line_box"
         if all(c in "┏┓┗┛┃━" for c in char_set):
             return "heavy_line_box"
-        if all(c in "╭╮╰╯│─" for c in char_set):
-            return "rounded_box"
-        return "custom_box"
+        return "rounded_box" if all(c in "╭╮╰╯│─" for c in char_set) else "custom_box"
 
     def _extract_special_features(
         self, component: dict[str, Any], grid_array: NDArray

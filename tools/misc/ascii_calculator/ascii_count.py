@@ -8,6 +8,7 @@ with perfectly aligned borders.
 import os
 import shutil
 import unicodedata
+from typing import Any
 
 try:
     import pyperclip
@@ -30,33 +31,31 @@ class Colors:
     CYAN = "\033[36m"
 
 
-def clear_screen():
+def clear_screen() -> None:
     """Clear the terminal screen."""
     os.system("cls" if os.name == "nt" else "clear")
 
 
-def get_terminal_width():
+def get_terminal_width() -> int:
     """Get current terminal width."""
     return shutil.get_terminal_size().columns
 
 
-def get_display_width(text):
+def get_display_width(text: str) -> int:
     """Calculate the display width of a string in a monospace terminal."""
-    width = 0
-    for char in text:
-        # Handle zero-width characters
-        if unicodedata.category(char) in ["Mn", "Me", "Cf"]:
-            continue
-        # Handle wide characters (CJK, emoji, etc.)
-        if unicodedata.east_asian_width(char) in ["F", "W"]:
-            width += 2
-        # Normal characters
-        else:
-            width += 1
-    return width
+    return sum(
+        2 if unicodedata.east_asian_width(char) in ["F", "W"] else 1
+        for char in text
+        if unicodedata.category(char) not in ["Mn", "Me", "Cf"]
+    )
 
 
-def draw_box(lines, title=None, width=None, padding=1):
+def draw_box(
+    lines: list[str],
+    title: str | None = None,
+    width: int | None = None,
+    padding: int = 1,
+) -> list[str]:
     """Draw a perfectly aligned box around the given lines.
 
     Args:
@@ -72,7 +71,7 @@ def draw_box(lines, title=None, width=None, padding=1):
     terminal_width = get_terminal_width()
 
     # Calculate content width
-    content_width = max([get_display_width(line) for line in lines]) if lines else 0
+    content_width = max((get_display_width(line) for line in lines), default=0)
 
     # Calculate box width
     if width is None:
@@ -87,12 +86,12 @@ def draw_box(lines, title=None, width=None, padding=1):
     usable_width = box_width - 2 - (padding * 2)
 
     # Border characters
-    TOP_LEFT = "╭"
-    TOP_RIGHT = "╮"
-    BOTTOM_LEFT = "╰"
-    BOTTOM_RIGHT = "╯"
-    HORIZONTAL = "─"
-    VERTICAL = "│"
+    tl_corner = "╭"
+    tr_corner = "╮"
+    bl_corner = "╰"
+    br_corner = "╯"
+    h_line = "─"
+    v_line = "│"
 
     # Result box
     result = []
@@ -106,12 +105,11 @@ def draw_box(lines, title=None, width=None, padding=1):
             current_width = 0
             for char in title:
                 char_width = get_display_width(char)
-                if current_width + char_width <= box_width - 7:
-                    truncated += char
-                    current_width += char_width
-                else:
+                if current_width + char_width > box_width - 7:
                     break
-            title = truncated + "..."
+                truncated += char
+                current_width += char_width
+            title = f"{truncated}..."
             title_display_width = get_display_width(title)
 
         remaining = (
@@ -121,10 +119,11 @@ def draw_box(lines, title=None, width=None, padding=1):
         right_padding = remaining - left_padding
 
         result.append(
-            f"{TOP_LEFT}{HORIZONTAL * left_padding} {title} {HORIZONTAL * right_padding}{TOP_RIGHT}"
+            f"{tl_corner}{h_line * left_padding} {title} "
+            f"{h_line * right_padding}{tr_corner}"
         )
     else:
-        result.append(f"{TOP_LEFT}{HORIZONTAL * (box_width - 2)}{TOP_RIGHT}")
+        result.append(f"{tl_corner}{h_line * (box_width - 2)}{tr_corner}")
 
     # Content lines
     for line in lines:
@@ -134,7 +133,7 @@ def draw_box(lines, title=None, width=None, padding=1):
             left_space = padding
             right_space = box_width - 2 - line_width - left_space
             result.append(
-                f"{VERTICAL}{' ' * left_space}{line}{' ' * right_space}{VERTICAL}"
+                f"{v_line}{' ' * left_space}{line}{' ' * right_space}{v_line}"
             )
         else:
             # Line too long, truncate
@@ -142,27 +141,26 @@ def draw_box(lines, title=None, width=None, padding=1):
             current_width = 0
             for char in line:
                 char_width = get_display_width(char)
-                if current_width + char_width <= usable_width - 3:  # -3 for "..."
-                    truncated += char
-                    current_width += char_width
-                else:
+                if current_width + char_width > usable_width - 3:
                     break
 
-            truncated_line = truncated + "..."
+                truncated += char
+                current_width += char_width
+            truncated_line = f"{truncated}..."
             truncated_width = get_display_width(truncated_line)
             right_space = box_width - 2 - truncated_width - padding
 
             result.append(
-                f"{VERTICAL}{' ' * padding}{truncated_line}{' ' * right_space}{VERTICAL}"
+                f"{v_line}{' ' * padding}{truncated_line}{' ' * right_space}{v_line}"
             )
 
     # Bottom border
-    result.append(f"{BOTTOM_LEFT}{HORIZONTAL * (box_width - 2)}{BOTTOM_RIGHT}")
+    result.append(f"{bl_corner}{h_line * (box_width - 2)}{br_corner}")
 
     return result
 
 
-def analyze_string(text):
+def analyze_string(text: str) -> dict[str, Any]:
     """Analyze a string for character count and display width."""
     char_count = len(text)
     display_width = get_display_width(text)
@@ -171,9 +169,13 @@ def analyze_string(text):
     # Detect special character types
     has_wide = any(unicodedata.east_asian_width(c) in ["F", "W"] for c in text)
     has_zero_width = any(unicodedata.category(c) in ["Mn", "Me", "Cf"] for c in text)
-    has_box_drawing = any(
-        c in "─│┌┐└┘├┤┬┴┼╌╍╎╏═║╒╓╔╕╖╗╘╙╚╛╜╝╞╟╠╡╢╣╤╥╦╧╨╩╪╫╬╱╲╳╴╵╶╷╸╹╺╻╼╽╾╿" for c in text
+    box_chars = (
+        "─│┌┐└┘├┤┬┴┼╌╍╎╏═║╒╓╔╕╖╗╘╙╚╛╜╝╞╟╠╡╢╣╤╥╦╧╨╩╪╫╬"
+        "/"  # Using standard forward slash
+        "X"  # Using standard X
+        "╴╵╶╷╸╹╺╻╼╽╾╿"
     )
+    has_box_drawing = any(c in box_chars for c in text)
 
     return {
         "char_count": char_count,
@@ -185,7 +187,7 @@ def analyze_string(text):
     }
 
 
-def format_results(text, analysis):
+def format_results(text: str, analysis: dict[str, Any]) -> tuple[list[str], list[str]]:
     """Format analysis results for display."""
     # Input section
     input_lines = ["Input:", text]
@@ -214,14 +216,14 @@ def format_results(text, analysis):
 
     # Note special characters
     if analysis["has_box_drawing"]:
-        if len(analysis_lines) > 0 and analysis_lines[-1] != "":
+        if analysis_lines and analysis_lines[-1] != "":
             analysis_lines.append("")
         analysis_lines.append("Contains box-drawing characters")
 
     return input_lines, analysis_lines
 
 
-def show_welcome():
+def show_welcome() -> None:
     """Display welcome message."""
     welcome_lines = [
         "ASCII CHARACTER AND WIDTH ANALYZER",
@@ -244,49 +246,63 @@ def show_welcome():
     print()
 
 
-def get_clipboard_content():
+def get_clipboard_content() -> str | None:
     """Get content from clipboard if available."""
     if not CLIPBOARD_AVAILABLE or pyperclip is None:
         print(
-            f"{Colors.RED}Clipboard feature not available. Install pyperclip module:{Colors.RESET}"
+            f"{Colors.RED}Clipboard feature not available. "
+            f"Install pyperclip module:{Colors.RESET}"
         )
         print(f"{Colors.YELLOW}pip install pyperclip{Colors.RESET}")
         return None
 
     try:
-        clipboard_text = pyperclip.paste()
-        if clipboard_text:
+        if clipboard_text := pyperclip.paste():
             print(
-                f"{Colors.YELLOW}Analyzing clipboard content ({len(clipboard_text)} chars){Colors.RESET}"
+                f"{Colors.GREEN}Analyzing clipboard content "
+                f"({len(clipboard_text)} chars){Colors.RESET}"
             )
             return clipboard_text
-        print(f"{Colors.RED}Clipboard appears to be empty{Colors.RESET}")
+        print(f"{Colors.YELLOW}Clipboard appears to be empty{Colors.RESET}")
         return None
     except Exception as e:
         print(f"{Colors.RED}Error accessing clipboard: {e!s}{Colors.RESET}")
         return None
 
 
-def main():
-    """Main program loop."""
+def main() -> None:
+    """Main function for the interactive CLI."""
+    clear_screen()
     show_welcome()
 
     while True:
         try:
-            print(
-                f"\n{Colors.CYAN}Enter text to analyze (or 'q' to quit, 'clip' for clipboard):{Colors.RESET}"
-            )
-            user_input = input("> ").strip()
+            # Get user input
+            print(f"\n{Colors.BOLD}Enter text to analyze (or command):{Colors.RESET}")
+            user_input = input(f"{Colors.GREEN}> {Colors.RESET}")
 
-            if user_input.lower() in ["q", "quit", "exit"]:
-                print(f"\n{Colors.CYAN}Goodbye!{Colors.RESET}")
+            # Process commands
+            if user_input.lower() in ["exit", "quit"]:
+                print(
+                    f"\n{Colors.CYAN}Thank you for using the ASCII Character "
+                    f"Analyzer. Goodbye!{Colors.RESET}"
+                )
                 break
 
-            if user_input.lower() in ["clip", "clipboard"]:
-                clipboard_text = get_clipboard_content()
-                if clipboard_text is None:
+            elif user_input.lower() == "clear":
+                clear_screen()
+                show_welcome()
+                continue
+
+            elif user_input.lower() in ["clip", "clipboard"]:
+                if clipboard_text := get_clipboard_content():
+                    user_input = clipboard_text
+                else:
                     continue
-                user_input = clipboard_text
+
+            elif user_input.lower() in ["help", "?"]:
+                show_welcome()
+                continue
 
             # Skip empty input
             if not user_input:
@@ -296,16 +312,14 @@ def main():
             analysis = analyze_string(user_input)
             input_lines, analysis_lines = format_results(user_input, analysis)
 
-            # Show results in boxes
+            # Display results
             print()
-            input_box = draw_box(input_lines, title="INPUT", padding=2)
-            for line in input_box:
+            for line in draw_box(input_lines, title="Input", padding=2):
                 print(line)
-
             print()
-            results_box = draw_box(analysis_lines, title="ANALYSIS", padding=2)
-            for line in results_box:
+            for line in draw_box(analysis_lines, title="Analysis", padding=2):
                 print(line)
+            print()
 
         except KeyboardInterrupt:
             print(f"\n{Colors.CYAN}Program interrupted. Goodbye!{Colors.RESET}")
@@ -313,6 +327,7 @@ def main():
 
         except Exception as e:
             print(f"\n{Colors.RED}Error: {e!s}{Colors.RESET}")
+            print(f"{Colors.YELLOW}Please try again.{Colors.RESET}")
 
 
 if __name__ == "__main__":

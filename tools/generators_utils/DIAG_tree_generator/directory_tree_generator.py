@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Directory Tree Generator
+"""Directory Tree Generator
 
 This script parses a markdown directory tree and creates the corresponding
 directory structure with appropriate directory.md files containing their
@@ -10,35 +9,57 @@ respective subtrees.
 import os
 import re
 import sys
-from typing import Dict, List, Optional, Tuple, Set
+from typing import Optional
 
 
 class DirectoryTreeNode:
     """Represents a node (file or directory) in the directory tree."""
 
-    def __init__(self, name: str, is_directory: bool, parent=None):
+    def __init__(
+        self,
+        name: str,
+        is_directory: bool,
+        parent: Optional["DirectoryTreeNode"] = None,
+    ) -> None:
+        """Initialize a DirectoryTreeNode.
+
+        Args:
+            name: Name of the node (file or directory).
+            is_directory: Whether this node represents a directory.
+            parent: Parent node in the tree structure.
+        """
         self.name = name
         self.is_directory = is_directory
         self.parent = parent
-        self.children = []
-        self.directory_md_file = (
-            None  # Name of the corresponding directory.md file if exists
-        )
-        self.path = self._calculate_path()
+        self.children: list[DirectoryTreeNode] = []
+        self.directory_md_file: str | None = None
+        self.path: str = self._calculate_path()
 
     def _calculate_path(self) -> str:
-        """Calculate the full path of this node."""
+        """Calculate the full path of this node.
+
+        Returns:
+            The full path from root to this node.
+        """
         if self.parent is None:
             return self.name
         return os.path.join(self.parent.path, self.name)
 
-    def add_child(self, child):
-        """Add a child node to this node."""
+    def add_child(self, child: "DirectoryTreeNode") -> None:
+        """Add a child node to this node.
+
+        Args:
+            child: The child node to add.
+        """
         self.children.append(child)
         child.parent = self
 
-    def find_directory_md_file(self) -> Optional[str]:
-        """Find the corresponding directory.md file for this directory."""
+    def find_directory_md_file(self) -> str | None:
+        """Find the corresponding directory.md file for this directory.
+
+        Returns:
+            The name of the directory.md file, or None if not applicable.
+        """
         if not self.is_directory:
             return None
 
@@ -52,12 +73,16 @@ class DirectoryTreeNode:
         return f"{dir_name}_directory.md"
 
     def __repr__(self) -> str:
+        """Return string representation of the node.
+
+        Returns:
+            String representation showing type and path.
+        """
         return f"{'Dir' if self.is_directory else 'File'}: {self.path}"
 
 
-def parse_tree_line(line: str) -> Tuple[int, str, bool]:
-    """
-    Parse a single line from the markdown tree.
+def parse_tree_line(line: str) -> tuple[int, str, bool]:
+    """Parse a single line from the markdown tree.
 
     Args:
         line: A line from the markdown tree.
@@ -65,28 +90,21 @@ def parse_tree_line(line: str) -> Tuple[int, str, bool]:
     Returns:
         Tuple of (indentation_level, name, is_directory).
     """
-    # Calculate indentation level (counting spaces before any content)
-    match = re.match(r"^(\s*)", line)
-    if match:
-        indentation = len(match.group(1))
-    else:
-        indentation = 0
-
+    indentation = len(match.group(1)) if (match := re.match(r"^(\s*)", line)) else 0
     # Extract name using regex
     # Looking for patterns like "├── - [ ] directory_name/" or "├── - [ ] file_name.md"
     name_match = re.search(r"[├└]── - \[ \] ([^\n]+)", line)
     if not name_match:
         return indentation, "", False
 
-    name = name_match.group(1).strip()
+    name = name_match[1].strip()
     is_directory = name.endswith("/")
 
     return indentation, name, is_directory
 
 
-def build_tree(markdown_lines: List[str]) -> DirectoryTreeNode:
-    """
-    Build a tree structure from the markdown tree lines.
+def build_tree(markdown_lines: list[str]) -> DirectoryTreeNode:
+    """Build a tree structure from the markdown tree lines.
 
     Args:
         markdown_lines: Lines from the markdown tree.
@@ -98,7 +116,7 @@ def build_tree(markdown_lines: List[str]) -> DirectoryTreeNode:
 
     # Stack to track the current path in the tree
     # Each entry is (node, indentation_level)
-    stack = [(root, -1)]
+    stack: list[tuple[DirectoryTreeNode, int]] = [(root, -1)]
 
     for line in markdown_lines:
         if not line.strip() or "```" in line:
@@ -129,9 +147,8 @@ def build_tree(markdown_lines: List[str]) -> DirectoryTreeNode:
     return root
 
 
-def extract_subtree(markdown_lines: List[str], target_dir_line: int) -> List[str]:
-    """
-    Extract the subtree for a specific directory from the markdown tree.
+def extract_subtree(markdown_lines: list[str], target_dir_line: int) -> list[str]:
+    """Extract the subtree for a specific directory from the markdown tree.
 
     Args:
         markdown_lines: Lines from the markdown tree.
@@ -147,8 +164,8 @@ def extract_subtree(markdown_lines: List[str], target_dir_line: int) -> List[str
     target_indentation, _, _ = parse_tree_line(markdown_lines[target_dir_line])
 
     # The subtree includes the target directory line and all subsequent lines
-    # with greater indentation until we reach another line with indentation less than
-    # or equal to the target directory's indentation
+    # with greater indentation until we reach another line with indentation
+    # less than or equal to the target directory's indentation
     subtree_lines = [markdown_lines[target_dir_line]]
 
     for line in markdown_lines[target_dir_line + 1 :]:
@@ -164,9 +181,8 @@ def extract_subtree(markdown_lines: List[str], target_dir_line: int) -> List[str
     return subtree_lines
 
 
-def find_directory_lines(markdown_lines: List[str]) -> Dict[str, int]:
-    """
-    Find all directory lines in the markdown tree and their corresponding line numbers.
+def find_directory_lines(markdown_lines: list[str]) -> dict[str, int]:
+    """Find all directory lines in the markdown tree and their line numbers.
 
     Args:
         markdown_lines: Lines from the markdown tree.
@@ -174,9 +190,9 @@ def find_directory_lines(markdown_lines: List[str]) -> Dict[str, int]:
     Returns:
         Dictionary mapping directory paths to their line numbers.
     """
-    directory_lines = {}
-    current_path = []
-    indentation_stack = [(-1, "")]  # (indentation, path)
+    directory_lines: dict[str, int] = {}
+    current_path: list[str] = []
+    indentation_stack: list[tuple[int, str]] = [(-1, "")]  # (indentation, path)
 
     for i, line in enumerate(markdown_lines):
         if not line.strip() or "```" in line:
@@ -207,99 +223,82 @@ def find_directory_lines(markdown_lines: List[str]) -> Dict[str, int]:
     return directory_lines
 
 
-def create_directory_structure(markdown_tree: str, output_dir: str = "output"):
-    """
-    Create the directory structure with directory.md files from the markdown tree.
+def _collect_directories(node: DirectoryTreeNode, path: str = "") -> list[str]:
+    """Collect all directory paths in the tree.
 
     Args:
-        markdown_tree: The markdown tree as a string.
-        output_dir: The base output directory where the structure will be created.
+        node: The current node in the tree.
+        path: The current path.
+
+    Returns:
+        List of directory paths.
     """
-    # Split the tree into lines
-    markdown_lines = markdown_tree.splitlines()
-
-    # Find all directory lines
-    directory_lines = find_directory_lines(markdown_lines)
-
-    # Build the tree structure
-    root = build_tree(markdown_lines)
-
-    # Collect all directory nodes in the tree
     directories = []
-    directory_paths = set()
+    current_path = os.path.join(path, node.name) if path else node.name
 
-    def collect_directories(node, path=""):
-        if node.is_directory:
-            full_path = os.path.join(path, node.name)
-            directories.append((node, full_path))
-            directory_paths.add(full_path)
+    if node.is_directory:
+        directories.append(current_path)
 
-        for child in node.children:
-            child_path = os.path.join(path, node.name) if node.name else path
-            collect_directories(child, child_path)
+    for child in node.children:
+        if child.is_directory:
+            directories.extend(_collect_directories(child, current_path))
 
-    collect_directories(root)
+    return directories
+
+
+def create_directory_structure(markdown_tree: str, output_dir: str = "output") -> None:
+    """Create the directory structure from the markdown tree.
+
+    Args:
+        markdown_tree: The markdown tree content.
+        output_dir: The output directory where the structure will be created.
+    """
+    lines = markdown_tree.split("\n")
+    root = build_tree(lines)
+    directory_lines = find_directory_lines(lines)
 
     # Create the output directory if it doesn't exist
-    if not os.path.exists(output_dir):
-        os.makedirs(output_dir)
+    os.makedirs(output_dir, exist_ok=True)
 
-    # Process each directory
-    for node, path in directories:
-        if not node.name:
-            continue  # Skip root
+    # Create all directories first
+    for directory in _collect_directories(root):
+        if directory:  # Skip empty directory names
+            os.makedirs(os.path.join(output_dir, directory), exist_ok=True)
 
-        # Determine the directory name (remove trailing slash)
-        dir_name = node.name.rstrip("/")
+    # Create directory.md files
+    for directory, line_num in directory_lines.items():
+        if not directory:  # Skip empty directory names
+            continue
 
-        # Determine the directory.md file name
-        directory_md_name = node.find_directory_md_file()
+        subtree = extract_subtree(lines, line_num)
+        if not subtree:  # Skip if no subtree found
+            continue
 
-        # Calculate the full path to the directory
-        dir_path = os.path.join(output_dir, path.strip("/"))
-
-        # Create the directory if it doesn't exist
-        if not os.path.exists(dir_path):
-            os.makedirs(dir_path)
-
-        # Extract the subtree for this directory
-        full_path_in_tree = path.strip("/") + ("/" if path else "")
-        if full_path_in_tree in directory_lines:
-            line_num = directory_lines[full_path_in_tree]
-            subtree_lines = extract_subtree(markdown_lines, line_num)
-
-            # Write the subtree to the directory.md file
-            md_file_path = os.path.join(dir_path, directory_md_name)
-            with open(md_file_path, "w") as f:
-                f.write("```\n")
-                f.write("\n".join(subtree_lines))
-                f.write("\n```\n")
-
-            print(f"Created {md_file_path}")
+        # Create directory.md file
+        md_path = os.path.join(output_dir, directory, "directory.md")
+        with open(md_path, "w", encoding="utf-8") as f:
+            f.write("```\n")
+            f.write("\n".join(subtree))
+            f.write("\n```\n")
 
 
-def main():
-    """Main entry point for the script."""
+def main() -> None:
+    """Main entry point of the script."""
     if len(sys.argv) > 1:
         input_file = sys.argv[1]
-        if not os.path.exists(input_file):
-            print(f"Error: Input file '{input_file}' not found.")
-            return
+        output_dir = sys.argv[2] if len(sys.argv) > 2 else "output"
 
-        with open(input_file, "r") as f:
-            markdown_tree = f.read()
+        try:
+            with open(input_file, encoding="utf-8") as f:
+                markdown_tree = f.read()
+            create_directory_structure(markdown_tree, output_dir)
+            print(f"Directory structure created in {output_dir}")
+        except Exception as e:
+            print(f"Error: {e}", file=sys.stderr)
+            sys.exit(1)
     else:
-        print(
-            "Please provide the path to a markdown file containing the directory tree."
-        )
-        return
-
-    output_dir = "generated_structure"
-    if len(sys.argv) > 2:
-        output_dir = sys.argv[2]
-
-    create_directory_structure(markdown_tree, output_dir)
-    print(f"Directory structure created in '{output_dir}'")
+        print("Usage: directory_tree_generator.py <input_file> [output_dir]")
+        sys.exit(1)
 
 
 if __name__ == "__main__":

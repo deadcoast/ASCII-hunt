@@ -57,10 +57,10 @@ class ContentSwitcher(QStackedWidget):
             Name of current content, or None if no content
         """
         current = self.currentWidget()
-        for name, widget in self.content_map.items():
-            if widget == current:
-                return name
-        return None
+        return next(
+            (name for name, widget in self.content_map.items() if widget == current),
+            None,
+        )
 
     def clear(self) -> None:
         """Remove all content widgets."""

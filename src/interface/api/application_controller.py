@@ -1,10 +1,23 @@
 """Application Controller Module."""
 
-from src.managers.backend_manager import BackendManager
+from typing import Any
+
+# Import the newly created MainWindow
+from src.interface.ui.main_window import MainWindow
+from src.managers.backend_manager import BackendManager  # Corrected path
 
 
 class ApplicationController:
-    def __init__(self, main_window):
+    """Application Controller."""
+
+    main_window: MainWindow
+    backend: BackendManager
+    current_file: str | None
+    grid_data: list[str]
+    components: list[dict[str, Any]]
+
+    # Update the type hint for main_window
+    def __init__(self, main_window: MainWindow) -> None:
         """Initialize the ApplicationController.
 
         This method sets up the main application window, a backend manager for
@@ -16,12 +29,12 @@ class ApplicationController:
         """
         self.main_window = main_window
         self.backend = BackendManager()
-        self.current_file = None
-        self.grid_data = []
-        self.components = []
+        self.current_file: str | None = None
+        self.grid_data: list[str] = []
+        self.components: list[dict[str, Any]] = []
         self.setup_connections()
 
-    def setup_connections(self):
+    def setup_connections(self) -> None:
         # Connect UI signals to controller methods
         """Connect the UI signals to the corresponding controller methods.
 
@@ -35,7 +48,7 @@ class ApplicationController:
         self.main_window.action_recognize.triggered.connect(self.run_recognition)
         self.main_window.action_generate_code.triggered.connect(self.generate_code)
 
-    def new_file(self):
+    def new_file(self) -> None:
         # Create new empty grid
         """Create a new empty grid for the application.
 
@@ -44,7 +57,7 @@ class ApplicationController:
 
         """
 
-    def open_file(self):
+    def open_file(self) -> None:
         # Open and load ASCII file
         """Open a file dialog for the user to select an ASCII file.
 
@@ -53,7 +66,7 @@ class ApplicationController:
 
         """
 
-    def save_file(self):
+    def save_file(self) -> None:
         # Save current ASCII grid to file
         """Save the current ASCII grid to a file.
 
@@ -62,12 +75,12 @@ class ApplicationController:
 
         """
 
-    def run_recognition(self):
+    def run_recognition(self) -> None:
         """Run component recognition on current grid."""
         self.components = self.backend.process_ascii_grid(self.grid_data)
         self.main_window.update_component_display(self.components)
 
-    def generate_code(self):
+    def generate_code(self) -> None:
         """Generate code for recognized components."""
         framework = self.main_window.get_selected_framework()
         options = self.main_window.get_generation_options()

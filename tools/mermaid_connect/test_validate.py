@@ -6,7 +6,7 @@ import tempfile
 import unittest
 from unittest.mock import patch
 
-from mermaid_connect import DiagramValidator
+from mermaid_connect.mc import DiagramValidator
 
 
 def strip_ansi(text: str) -> str:
@@ -16,56 +16,53 @@ def strip_ansi(text: str) -> str:
 
 
 class TestDiagramProcessor(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         """Create temporary test files and initialize processor."""
         self.test_dir = tempfile.mkdtemp()
 
         # Create test files
         self.valid_file = os.path.join(self.test_dir, "valid.mmd")
         with open(self.valid_file, "w") as f:
-            f.write("""graph TD
+            f.write(
+                """graph TD
             TestComp["Test Component\\n(test.module)"]
             TestComp2["Test Component 2\\n(test.module2)"]
             TestComp --> TestComp2
-            class TestComp testStyle""")
+            class TestComp testStyle"""
+            )
 
         self.invalid_file = os.path.join(self.test_dir, "invalid.mmd")
         with open(self.invalid_file, "w") as f:
-            f.write("""graph TD
+            f.write(
+                """graph TD
             InvalidComp["Invalid Component\\n(test.invalid)"]
-            class InvalidComp invalidStyle""")
+            class InvalidComp invalidStyle"""
+            )
 
         self.processor = DiagramValidator(self.test_dir)
 
         # Capture console output
-        self.console_output = []
+        self.console_output: list[str] = []
 
-        def mock_print(text=""):
-            self.console_output.append(str(text))
+        def mock_print(text: str = "") -> None:
+            self.console_output.append(text)
 
         self.print_patcher = patch("rich.console.Console.print", mock_print)
         self.print_patcher.start()
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         """Clean up temporary files."""
         self.print_patcher.stop()
         for f in os.listdir(self.test_dir):
             os.remove(os.path.join(self.test_dir, f))
         os.rmdir(self.test_dir)
 
-    def strip_ansi(self, text):
-        """Remove ANSI color codes for comparison."""
-        import re
-
-        ansi_escape = re.compile(r"\x1B(?:[@-Z\\-_]|\[[0-?]*[ -/]*[@-~])")
-        return ansi_escape.sub("", text)
-
-    def test_step_one_input_collection(self):
+    def test_step_one_input_collection(self) -> None:
         """Test STEP 1: Input component collection and display."""
         self.processor.collect_inputs()
 
         output = "\n".join(self.console_output)
-        stripped_output = self.strip_ansi(output)
+        stripped_output = strip_ansi(output)
 
         # Verify header format
         self.assertIn("# -----------------", stripped_output)
@@ -76,7 +73,7 @@ class TestDiagramProcessor(unittest.TestCase):
         self.assertIn("sys.[IN]: valid.mmd:TestComp2[", stripped_output)
         self.assertIn("sys.[IN]: invalid.mmd:InvalidComp[", stripped_output)
 
-    def test_step_two_combination(self):
+    def test_step_two_combination(self) -> None:
         """Test STEP 2: Diagram combination and output collection."""
         self.processor.combine_and_collect_outputs()
 
@@ -86,7 +83,7 @@ class TestDiagramProcessor(unittest.TestCase):
         )
 
         output = "\n".join(self.console_output)
-        stripped_output = self.strip_ansi(output)
+        stripped_output = strip_ansi(output)
 
         # Verify header format
         self.assertIn("# -------------------", stripped_output)
@@ -96,7 +93,7 @@ class TestDiagramProcessor(unittest.TestCase):
         self.assertIn("sys.[OUT]: valid.mmd:TestComp[", stripped_output)
         self.assertIn("sys.[OUT]: valid.mmd:TestComp2[", stripped_output)
 
-    def test_step_three_validation(self):
+    def test_step_three_validation(self) -> None:
         """Test STEP 3: Component validation."""
         # Setup components
         self.processor.collect_inputs()
@@ -105,7 +102,7 @@ class TestDiagramProcessor(unittest.TestCase):
 
         self.processor.validate_components()
         output = "\n".join(self.console_output)
-        stripped_output = self.strip_ansi(output)
+        stripped_output = strip_ansi(output)
 
         # Verify header format
         self.assertIn("# ------------------", stripped_output)
@@ -120,7 +117,7 @@ class TestDiagramProcessor(unittest.TestCase):
             stripped_output,
         )
 
-    def test_step_four_reporting(self):
+    def test_step_four_reporting(self) -> None:
         """Test STEP 4: Final report generation."""
         # Setup validation state
         self.processor.num_validated = 2
@@ -129,7 +126,7 @@ class TestDiagramProcessor(unittest.TestCase):
 
         self.processor.generate_report()
         output = "\n".join(self.console_output)
-        stripped_output = self.strip_ansi(output)
+        stripped_output = strip_ansi(output)
 
         # Verify header format
         self.assertIn("# ---------------", stripped_output)
@@ -141,13 +138,15 @@ class TestDiagramProcessor(unittest.TestCase):
         self.assertIn("sys.report: init == [---NULL OUTPUTS---]", stripped_output)
         self.assertIn("failed.mmd", stripped_output)
 
-    def test_null_output_validation(self):
+    def test_null_output_validation(self) -> None:
         """Test validation of a component with null output."""
         # Create a file that will fail validation
         null_file = os.path.join(self.test_dir, "null_test.mmd")
         with open(null_file, "w") as f:
-            f.write("""graph TD
-            NullComp["Null Component\\n(test.null)"]""")
+            f.write(
+                """graph TD
+            NullComp["Null Component\\n(test.null)"]"""
+            )
 
         # Corrupt the component in combined output
         self.processor.input_components["null_test.mmd"] = {"NullComp"}
@@ -155,7 +154,7 @@ class TestDiagramProcessor(unittest.TestCase):
 
         self.processor.validate_components()
         output = "\n".join(self.console_output)
-        stripped_output = self.strip_ansi(output)
+        stripped_output = strip_ansi(output)
 
         # Verify null output format
         self.assertIn(
@@ -164,13 +163,15 @@ class TestDiagramProcessor(unittest.TestCase):
         )
         self.assertIn("null_test.mmd", self.processor.null_modules)
 
-    def test_pass_output_validation(self):
+    def test_pass_output_validation(self) -> None:
         """Test validation of a component with successful output."""
         # Create a file that will pass validation
         pass_file = os.path.join(self.test_dir, "pass_test.mmd")
         with open(pass_file, "w") as f:
-            f.write("""graph TD
-            PassComp["Pass Component\\n(test.pass)"]""")
+            f.write(
+                """graph TD
+            PassComp["Pass Component\\n(test.pass)"]"""
+            )
 
         # Set matching input and output
         comp = 'PassComp["Pass Component\\n(test.pass)"]'
@@ -179,7 +180,7 @@ class TestDiagramProcessor(unittest.TestCase):
 
         self.processor.validate_components()
         output = "\n".join(self.console_output)
-        stripped_output = self.strip_ansi(output)
+        stripped_output = strip_ansi(output)
 
         # Verify pass output format
         self.assertIn(

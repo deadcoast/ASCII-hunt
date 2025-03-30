@@ -63,11 +63,14 @@ class FloodFillProcessor:
             if not component_points:
                 continue
 
-            # Extract component boundaries
-            min_x = int(min(x for x, y in component_points))
-            max_x = int(max(x for x, y in component_points))
-            min_y = int(min(y for x, y in component_points))
-            max_y = int(max(y for x, y in component_points))
+            # Convert points to NumPy array for efficient boundary calculation
+            points_array = np.array(list(component_points))
+
+            # Extract component boundaries using NumPy and convert to Python int
+            min_x = int(np.min(points_array[:, 0]).item())
+            max_x = int(np.max(points_array[:, 0]).item())
+            min_y = int(np.min(points_array[:, 1]).item())
+            max_y = int(np.max(points_array[:, 1]).item())
 
             # Create a component representation
             component = {
@@ -101,7 +104,7 @@ class FloodFillProcessor:
             Dictionary with component content details
         """
         # Count character occurrences
-        char_counts = {}
+        char_counts: dict[str, int] = {}
 
         for x, y in points:
             char = grid[x, y]
@@ -183,17 +186,17 @@ class FloodFillProcessor:
             List of sets containing points in each component
         """
         components: list[set[tuple[int, int]]] = []
-        visited = set()
+        visited: set[tuple[int, int]] = set()
 
         for i in range(grid.shape[0]):
             for j in range(grid.shape[1]):
                 if (i, j) not in visited and grid[i, j] == target_value:
-                    component = set()
+                    component_points: set[tuple[int, int]] = set()
                     self._flood_fill_component(
-                        grid, Point(i, j), target_value, component, visited
+                        grid, Point(i, j), target_value, component_points, visited
                     )
-                    if component:
-                        components.append(component)
+                    if component_points:
+                        components.append(component_points)
 
         return components
 

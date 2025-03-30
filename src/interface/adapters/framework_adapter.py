@@ -3,11 +3,11 @@
 from collections.abc import Callable
 from typing import Any
 
-from src.generators.code_generator import CodeGenerator
+from src.core.generation.code_generator import CodeGenerator
 
 
 class FrameworkAdapter:
-    def __init__(self, name: str):
+    def __init__(self, name: str) -> None:
         """Initialize the FrameworkAdapter.
 
         :param name: The name of the framework.
@@ -143,7 +143,9 @@ class FrameworkAdapter:
             },
         }
 
-    def register_property_mapper(self, component_type, property_name, mapper_func):
+    def register_property_mapper(
+        self, component_type: str, property_name: str, mapper_func: Callable
+    ) -> None:
         """Register a property mapper for the given component type and property name.
 
         :param component_type: The type of component to register the mapper for.
@@ -156,7 +158,7 @@ class FrameworkAdapter:
             self.property_mappers[component_type] = {}
         self.property_mappers[component_type][property_name] = mapper_func
 
-    def map_property(self, component, property_name):
+    def map_property(self, component: Any, property_name: str) -> str:
         """Map a property of a component to framework-specific code.
 
         This method takes a component and a property name as input and
@@ -177,16 +179,21 @@ class FrameworkAdapter:
         :return: A string representing the framework-specific code required
                 to set the property to the given value.
         """
-        if (
-            component.type in self.property_mappers
-            and property_name in self.property_mappers[component.type]
-        ):
-            return self.property_mappers[component.type][property_name](
-                component.properties.get(property_name)
-            )
-        return repr(component.properties.get(property_name))
+        component_type = getattr(component, "type", None) or component.get("type")
+        properties = getattr(component, "properties", None) or component.get(
+            "properties", {}
+        )
 
-    def generate_code(self, root_component):
+        if (
+            component_type in self.property_mappers
+            and property_name in self.property_mappers[component_type]
+        ):
+            mapper = self.property_mappers[component_type][property_name]
+            return mapper(properties.get(property_name))
+
+        return repr(properties.get(property_name))
+
+    def generate_code(self, root_component: dict[str, Any]) -> str:
         """Generate framework-specific code for the given component tree.
 
         This method takes a component tree as input and returns a string
@@ -199,23 +206,12 @@ class FrameworkAdapter:
         """
         return self.generator.generate_full_source(root_component)
 
-    def create_tkinter_adapter(self):
+    def create_tkinter_adapter(self) -> "FrameworkAdapter":
         """Create a FrameworkAdapter instance configured for Tkinter.
 
         :return: A FrameworkAdapter instance configured for Tkinter.
         """
-        adapter = FrameworkAdapter("Tkinter")
-
-        # Register Tkinter-specific templates
-        adapter.register_python_templates(adapter.generator)
-        adapter.register_property_mappers()
-        adapter.register_transformations()
-        adapter.register_code_generator()
-        adapter.register_property_mappers()
-        adapter.register_property_validators()
-        adapter.register_component_transformers()
-        adapter.register_code_generator()
-
+        adapter = self._configure_framework("Tkinter")
         # Register property mappers
         adapter.register_property_mapper(
             "Window", "modal", lambda v: "window.transient(parent)" if v else ""
@@ -223,53 +219,43 @@ class FrameworkAdapter:
 
         return adapter
 
-    def create_textual_adapter(self):
+    def create_textual_adapter(self) -> "FrameworkAdapter":
         """Create a FrameworkAdapter instance configured for Textual.
 
         :return: A FrameworkAdapter instance configured for Textual.
         """
-        adapter = FrameworkAdapter("Textual")
+        return FrameworkAdapter("Textual")
 
-        # Register Textual-specific templates
-        return adapter
-
-    def create_pyqt_adapter(self):
+    def create_pyqt_adapter(self) -> "FrameworkAdapter":
         """Create a FrameworkAdapter instance configured for PyQt.
 
         :return: A FrameworkAdapter instance configured for PyQt.
         """
-        adapter = FrameworkAdapter("PyQt")
+        return self._configure_framework("PyQt")
 
-        adapter.register_python_templates(adapter.generator)
-        adapter.register_property_mappers()
-        adapter.register_transformations()
-        adapter.register_code_generator()
-        adapter.register_property_mappers()
-        adapter.register_property_validators()
-        adapter.register_component_transformers()
-        adapter.register_code_generator()
-
-        # Register PyQt-specific templates
-        return adapter
-
-    def create_wxpython_adapter(self):
+    def create_wxpython_adapter(self) -> "FrameworkAdapter":
         """Create a FrameworkAdapter instance configured for wxPython.
 
         :return: A FrameworkAdapter instance configured for wxPython.
         """
-        adapter = FrameworkAdapter("wxPython")
+        return self._configure_framework("wxPython")
 
-        adapter.register_python_templates(adapter.generator)
-        adapter.register_property_mappers()
-        adapter.register_transformations()
-        adapter.register_code_generator()
-        adapter.register_property_mappers()
-        adapter.register_property_validators()
-        adapter.register_component_transformers()
-        adapter.register_code_generator()
+    def _configure_framework(self, arg0: str) -> "FrameworkAdapter":
+        """Create a FrameworkAdapter instance configured for the given framework.
 
-        # Register wxPython-specific templates
-        return adapter
+        :param arg0: The name of the framework to configure the adapter for.
+        :return: A FrameworkAdapter instance configured for the given framework.
+        """
+        result = FrameworkAdapter(arg0)
+        result.register_python_templates(result.generator)
+        result.register_property_mappers()
+        result.register_transformations()
+        result.register_code_generator()
+        result.register_property_mappers()
+        result.register_property_validators()
+        result.register_component_transformers()
+        result.register_code_generator()
+        return result
 
     # Template methods
     def window_template(self, context: dict[str, Any]) -> str:
@@ -348,7 +334,7 @@ class FrameworkAdapter:
         """Generate image template code."""
         return "image = tk.PhotoImage()"
 
-    def __getitem__(self, key: str) -> Any:
+    def __getitem__(self, key: str) -> Callable | dict[str, Callable]:
         """Support dictionary-style access to registered items."""
         if key in self.templates:
             return self.templates[key]

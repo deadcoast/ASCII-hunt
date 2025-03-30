@@ -1,0 +1,1 @@
+"""Footer Generator module."""

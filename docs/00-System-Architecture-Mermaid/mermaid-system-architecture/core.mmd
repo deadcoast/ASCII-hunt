@@ -1,0 +1,25 @@
+graph TD
+%% Core System Components
+ASCIIGrid["ASCIIGrid\n(hunt.core.grid)"]
+Pipeline["ProcessingPipeline\n(hunt.core.pipeline)"]
+CompModel["ComponentModel\n(hunt.core.model)"]
+Persist["Persistence\n(hunt.core.persistence)"]
+Registry["ComponentRegistry\n(hunt.core.registry)"]
+Cache["CacheSystem\n(hunt.core.cache)"]
+ErrorHandler["ErrorHandler\n(hunt.core.dsl.dsl_error)"]
+ErrorProcessor["ErrorProcessor\n(hunt.core.dsl.dsl_error_handler)"]
+
+%% Core Internal Dependencies
+Pipeline --> ASCIIGrid
+Pipeline --> CompModel
+Pipeline --> Persist
+Pipeline --> Registry
+Pipeline --> Cache
+CompModel --> Registry
+CompModel --> Persist
+ErrorHandler --> Pipeline
+ErrorProcessor --> ErrorHandler
+ErrorProcessor --> Pipeline
+
+%% Apply core styles
+class ASCIIGrid,Pipeline,CompModel,Persist,Registry,Cache,ErrorHandler,ErrorProcessor core; 

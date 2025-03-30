@@ -1,16 +1,31 @@
+"""Matches components against registered HUNT patterns."""
+
 from typing import Any, TypedDict
 
-from .pattern_registry import PatternRegistry
+# Corrected import path
+from src.patterns.rules.dsl_pattern_matchers import PatternRegistry
+
+# Constants
+DEFAULT_CONFIDENCE_THRESHOLD = 0.5
 
 
 class MatchResult(TypedDict):
+    """Typed dictionary for pattern match results."""
+
     match: bool
     confidence: float
     properties: dict[str, Any]
 
 
 class PatternMatcher:
+    """Matches components against patterns in a PatternRegistry."""
+
     def __init__(self, pattern_registry: PatternRegistry) -> None:
+        """Initialize the PatternMatcher.
+
+        Args:
+            pattern_registry: The registry containing patterns to match against.
+        """
         self.pattern_registry = pattern_registry
 
     def match_component(
@@ -23,8 +38,13 @@ class PatternMatcher:
         if context is None:
             context = {}
 
-        # Get all component patterns
-        component_patterns = self.pattern_registry.get_all_component_patterns()
+        # Get all component patterns by filtering the main patterns dictionary
+        component_patterns = {
+            name: pattern
+            for name, pattern in self.pattern_registry.patterns.items()
+            # Assuming pattern dict has a 'type' key indicating its purpose
+            if pattern.get("type") == "COMPONENT"  # Adjust key/value if needed
+        }
 
         # Try to match the component with each pattern
         matches: list[dict[str, Any]] = []
@@ -79,8 +99,6 @@ class PatternMatcher:
                 if tag_match["match"]:
                     total_confidence += tag_match["confidence"]
                     matched_rules += 1
-
-                    # Add properties
                     result["properties"].update(tag_match["properties"])
 
             elif rule_type == "pluck":
@@ -90,8 +108,6 @@ class PatternMatcher:
                 if pluck_match["match"]:
                     total_confidence += pluck_match["confidence"]
                     matched_rules += 1
-
-                    # Add properties
                     result["properties"].update(pluck_match["properties"])
 
             # Add more rule types as needed
@@ -99,16 +115,17 @@ class PatternMatcher:
         # Calculate overall confidence
         if matched_rules > 0:
             result["confidence"] = total_confidence / matched_rules
-            result["match"] = result["confidence"] > 0.5  # Threshold for matching
+            # Use constant for threshold
+            result["match"] = result["confidence"] > DEFAULT_CONFIDENCE_THRESHOLD
 
         return result
 
     def _match_tag_rule(
         self,
-        grid: dict[str, Any],
+        _grid: dict[str, Any],  # Prefixed unused arg
         component: dict[str, Any],
         rule: dict[str, Any],
-        context: dict[str, Any],
+        _context: dict[str, Any],  # Prefixed unused arg
     ) -> MatchResult:
         """Match a tag rule against a component."""
         result: MatchResult = {"match": False, "confidence": 0.0, "properties": {}}
@@ -127,42 +144,29 @@ class PatternMatcher:
         # Check each tag rule
         for tag_rule in tag_rules:
             # Process tag rule
-            # This will depend on the specific tag rule format
-            # For example, checking if a component has a specific character pattern
-
-            # For illustration, let's say we're looking for a specific character
             if isinstance(tag_rule, list) and len(tag_rule) > 0:
                 char_to_find = tag_rule[0]
-
-                # Check if the component contains the character
                 content = component.get("content", [])
-                found = False
-
-                for line in content:
-                    if char_to_find in line:
-                        found = True
-                        break
-
+                found = any(char_to_find in line for line in content)
                 if found:
                     total_confidence += 1.0
                     matched_rules += 1
-
-                    # Add property
                     result["properties"][f"has_{tag_name}"] = True
 
         # Calculate overall confidence
         if matched_rules > 0:
             result["confidence"] = total_confidence / matched_rules
-            result["match"] = result["confidence"] > 0.5  # Threshold for matching
+            # Use constant for threshold
+            result["match"] = result["confidence"] > DEFAULT_CONFIDENCE_THRESHOLD
 
         return result
 
     def _match_pluck_rule(
         self,
-        grid: dict[str, Any],
+        _grid: dict[str, Any],  # Prefixed unused arg
         component: dict[str, Any],
         rule: dict[str, Any],
-        context: dict[str, Any],
+        _context: dict[str, Any],  # Prefixed unused arg
     ) -> MatchResult:
         """Match a pluck rule against a component."""
         result: MatchResult = {"match": False, "confidence": 0.0, "properties": {}}
@@ -181,37 +185,33 @@ class PatternMatcher:
         # Check each pluck rule
         for pluck_rule in pluck_rules:
             # Process pluck rule
-            # This will depend on the specific pluck rule format
-            # For example, extracting text from a specific region of the component
-
-            # For illustration, let's say we're extracting text matching a pattern
             if isinstance(pluck_rule, list) and len(pluck_rule) > 0:
-                pattern = pluck_rule[0]
+                pattern_str = pluck_rule[0]
+                # Ensure pattern is a string before trying regex
+                if isinstance(pattern_str, str):
+                    content = component.get("content", [])
+                    extracted_text = None
+                    for line in content:
+                        import re
 
-                # Check if the component contains text matching the pattern
-                content = component.get("content", [])
-                extracted_text = None
+                        try:
+                            if match := re.search(pattern_str, line):
+                                extracted_text = match.group(0)
+                                break
+                        except re.error:
+                            # Handle invalid regex patterns gracefully if needed
+                            pass  # Or log a warning
 
-                for line in content:
-                    import re
-
-                    match = re.search(pattern, line)
-
-                    if match:
-                        extracted_text = match.group(0)
-                        break
-
-                if extracted_text:
-                    total_confidence += 1.0
-                    matched_rules += 1
-
-                    # Add property
-                    result["properties"][target] = extracted_text
+                    if extracted_text:
+                        total_confidence += 1.0
+                        matched_rules += 1
+                        result["properties"][target] = extracted_text
 
         # Calculate overall confidence
         if matched_rules > 0:
             result["confidence"] = total_confidence / matched_rules
-            result["match"] = result["confidence"] > 0.5  # Threshold for matching
+            # Use constant for threshold
+            result["match"] = result["confidence"] > DEFAULT_CONFIDENCE_THRESHOLD
 
         return result
 
@@ -225,13 +225,18 @@ class PatternMatcher:
         if context is None:
             context = {}
 
-        # Get all relationship patterns
-        relationship_patterns = self.pattern_registry.get_all_relationship_patterns()
+        # Get all relationship patterns by filtering the main patterns dictionary
+        relationship_patterns = {
+            name: pattern
+            for name, pattern in self.pattern_registry.patterns.items()
+            # Assuming pattern dict has a 'type' or 'pattern_class' key
+            if pattern.get("type") == "RELATE"  # Adjust key/value if needed
+        }
 
         # Try to match relationships
         relationships: list[dict[str, Any]] = []
 
-        for relationship_type, pattern in relationship_patterns.items():
+        for pattern in relationship_patterns.values():
             relationship_matches = self._match_relationship_pattern(
                 grid, components, pattern, context
             )
@@ -239,7 +244,13 @@ class PatternMatcher:
 
         return relationships
 
-    def _match_relationship_pattern(self, grid, components, pattern, context):
+    def _match_relationship_pattern(
+        self,
+        grid: dict[str, Any],
+        components: list[dict[str, Any]],
+        pattern: dict[str, Any],
+        context: dict[str, Any],
+    ) -> list[dict[str, Any]]:
         """Match a relationship pattern between components."""
         # Extract pattern rules
         rules = pattern.get("rules", [])
@@ -265,20 +276,17 @@ class PatternMatcher:
 
         return relationships
 
-    def _match_relationship_tag_rule(self, grid, components, rule, context):
-        """Match a tag rule for relationships between components."""
+    def _match_relationship_tag_rule(
+        self,
+        _grid: dict[str, Any],  # Prefixed unused arg
+        _components: list[dict[str, Any]],  # Prefixed unused arg
+        rule: dict[str, Any],
+        _context: dict[str, Any],  # Prefixed unused arg
+    ) -> list[dict[str, Any]]:
+        """Match a relationship tag rule between components."""
         # Get tag name and rules
-        tag_name = rule.get("tag_name")
-        tag_rules = rule.get("rules", [])
+        _tag_name = rule.get("tag_name")
+        _tag_rules = rule.get("rules", [])
 
-        if not tag_name or not tag_rules:
-            return []
-
-        # Initialize relationships
-        relationships = []
-
-        # Implement relationship matching logic
-        # This will depend on the specific tag rule format
-        # For example, checking for containing relationships based on bounding boxes
-
-        return relationships
+        # Placeholder: Implement actual relationship tag matching logic
+        return []  # Return empty list for now

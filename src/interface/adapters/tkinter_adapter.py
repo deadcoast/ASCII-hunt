@@ -1,7 +1,7 @@
 from tkinter import Canvas, Event, Frame, Tk
 from typing import Any
 
-from ..enums.drawing_mode import DrawingMode
+from src.engine.modeling.drawing_mode import DrawingMode
 
 
 class TkinterAdapter:
@@ -59,8 +59,6 @@ class TkinterAdapter:
 
         x1 = x * self.cell_size
         y1 = y * self.cell_size
-        x2 = x1 + self.cell_size
-        y2 = y1 + self.cell_size
 
         self.canvas.create_text(
             x1 + self.cell_size / 2,
@@ -82,6 +80,6 @@ class TkinterAdapter:
             )
 
 
-def create_tkinter_adapter():
+def create_tkinter_adapter() -> TkinterAdapter:
     """Create and return a new TkinterAdapter instance."""
     return TkinterAdapter()

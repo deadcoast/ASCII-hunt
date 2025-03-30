@@ -29,11 +29,7 @@ class TemporalImportReasoner:
 
     def _iter_blobs(self, tree) -> list:
         """Iterate through all blobs in a git tree."""
-        blobs = []
-        for item in tree.traverse():
-            if item.type == "blob":
-                blobs.append(item)
-        return blobs
+        return [item for item in tree.traverse() if item.type == "blob"]
 
     def _extract_imports(self, content: str) -> list:
         """Extract import statements from Python code content."""
@@ -42,26 +38,26 @@ class TemporalImportReasoner:
             imports = []
             for node in ast.walk(tree):
                 if isinstance(node, ast.Import):
-                    for name in node.names:
-                        imports.append(
-                            {
-                                "type": "import",
-                                "module": name.name,
-                                "alias": name.asname,
-                            }
-                        )
+                    imports.extend(
+                        {
+                            "type": "import",
+                            "module": name.name,
+                            "alias": name.asname,
+                        }
+                        for name in node.names
+                    )
                 elif isinstance(node, ast.ImportFrom):
                     module = node.module or ""
                     level = node.level
-                    for name in node.names:
-                        imports.append(
-                            {
-                                "type": "from",
-                                "module": "." * level + module,
-                                "name": name.name,
-                                "alias": name.asname,
-                            }
-                        )
+                    imports.extend(
+                        {
+                            "type": "from",
+                            "module": "." * level + module,
+                            "name": name.name,
+                            "alias": name.asname,
+                        }
+                        for name in node.names
+                    )
             return imports
         except Exception:
             return []
@@ -70,22 +66,19 @@ class TemporalImportReasoner:
         """Convert import dict to string representation."""
         if imp["type"] == "import":
             result = f"import {imp['module']}"
-            if imp.get("alias"):
-                result += f" as {imp['alias']}"
         else:  # from import
             result = f"from {imp['module']} import {imp['name']}"
-            if imp.get("alias"):
-                result += f" as {imp['alias']}"
+        if imp.get("alias"):
+            result += f" as {imp['alias']}"
         return result
 
     def _extract_transition_features(self, transition: dict) -> list:
         """Extract features from a transition for the prediction model."""
-        features = []
-
-        # Time-based features
-        features.append(transition["time_delta"])
-        features.append(len(transition["added"]))
-        features.append(len(transition["removed"]))
+        features = [
+            transition["time_delta"],
+            len(transition["added"]),
+            len(transition["removed"]),
+        ]
 
         # Calculate change rate
         total_changes = len(transition["added"]) + len(transition["removed"])
@@ -232,12 +225,12 @@ class TemporalImportReasoner:
                 prev_commit, prev_data = sorted_commits[i - 1]
                 curr_commit, curr_data = sorted_commits[i]
 
-                prev_imports = set(
+                prev_imports = {
                     self._import_to_str(imp) for imp in prev_data["imports"]
-                )
-                curr_imports = set(
+                }
+                curr_imports = {
                     self._import_to_str(imp) for imp in curr_data["imports"]
-                )
+                }
 
                 added = curr_imports - prev_imports
                 removed = prev_imports - curr_imports
@@ -363,7 +356,7 @@ class TemporalImportReasoner:
     def predict_future_imports(self, file_path, content, time_horizon=None):
         """Predict what imports may be needed in the future based on temporal patterns."""
         current_imports = self._extract_imports(content)
-        current_import_strs = set(self._import_to_str(imp) for imp in current_imports)
+        current_import_strs = {self._import_to_str(imp) for imp in current_imports}
 
         # Get current features
         if self.import_evolution.get(file_path):
@@ -405,12 +398,9 @@ class TemporalImportReasoner:
                     rule["premise"] in current_import_strs
                     and rule["conclusion"] not in current_import_strs
                 ):
-                    # Check if this rule's conclusion is already in predictions
-                    existing = [
+                    if existing := [
                         p for p in predictions if p["import"] == rule["conclusion"]
-                    ]
-
-                    if existing:
+                    ]:
                         # Increase confidence based on rule
                         existing[0]["probability"] = max(
                             existing[0]["probability"], rule["confidence"]

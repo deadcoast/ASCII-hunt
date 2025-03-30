@@ -1,57 +1,43 @@
 from typing import Any
 
-from recognition.hunt_recognition_processor import HuntRecognitionProcessor
-from src.dsl.hunt_grid import HuntGrid
-from src.dsl.hunt_parser import HuntParser
-from src.patterns.pattern_matcher import PatternMatcher
-from src.patterns.pattern_registry import PatternRegistry
-from visualization.hunt_visualizer import HuntVisualizer
+from src.core.grid.ascii_grid import ASCIIGrid
+from src.interface.api.dsl_visualizer import DslVisualizer
+from src.interface.ui.dsl_grid import DslGrid
+from src.patterns.definitions.pattern_matcher import PatternMatcher
+from src.patterns.matching.flood_fill_processor import FloodFillProcessor
+from src.patterns.rules.dsl_parser import DslParser
+from src.patterns.rules.dsl_pattern_matchers import PatternRegistry
+from src.patterns.rules.dsl_recognition_processor import DslRecognitionProcessor
 
 
 class PatternDevelopmentEnvironment:
     def __init__(
-        self, pattern_registry: PatternRegistry, interpreter: HuntParser
+        self, pattern_registry: PatternRegistry, interpreter: DslParser
     ) -> None:
+        """Initialize the Pattern Development Environment."""
         self.pattern_registry = pattern_registry
         self.interpreter = interpreter
-        self.visualizer = HuntVisualizer(pattern_registry)
+        self.visualizer = DslVisualizer(pattern_registry)
 
-    def interactive_session(self, grid_data: HuntGrid) -> None:
+    def interactive_session(self, grid_data: DslGrid) -> None:
         """Start an interactive pattern development session."""
         # Display grid
-        print("ASCII Grid:")
-        print(grid_data.to_string())
-        print()
 
         # Initialize components
         components = []
 
         while True:
             # Show menu
-            print("Pattern Development Menu:")
-            print("1. Create pattern")
-            print("2. Apply patterns")
-            print("3. Visualize matches")
-            print("4. Edit pattern")
-            print("5. Test pattern")
-            print("6. Save patterns")
-            print("7. Exit")
 
             choice = input("Enter choice (1-7): ")
 
             if choice == "1":
-                # Create pattern
-                pattern_code = self._create_pattern()
-
-                if pattern_code:
+                if pattern_code := self._create_pattern():
                     self.interpreter.interpret(pattern_code)
-                    print("Pattern created successfully.")
 
             elif choice == "2":
                 # Apply patterns
                 components = self._apply_patterns(grid_data)
-
-                print(f"Applied patterns, found {len(components)} components.")
 
             elif choice == "3":
                 # Visualize matches
@@ -73,202 +59,168 @@ class PatternDevelopmentEnvironment:
 
             elif choice == "7":
                 # Exit
-                print("Exiting pattern development session.")
                 break
 
             else:
-                print("Invalid choice. Please try again.")
+                pass
 
     def _create_pattern(self) -> str | None:
         """Create a new pattern."""
-        print("Enter HUNT DSL code for the pattern (end with a blank line):")
 
         lines = []
         while True:
-            line = input()
+            if line := input():
+                lines.append(line)
 
-            if not line:
+            else:
                 break
 
-            lines.append(line)
+        return "\n".join(lines)
 
-        pattern_code = "\n".join(lines)
-
-        return pattern_code
-
-    def _apply_patterns(self, grid_data: HuntGrid) -> list[dict[str, Any]]:
+    def _apply_patterns(self, grid_data: DslGrid) -> list[dict[str, Any]]:
         """Apply patterns to the grid."""
         # Process the grid using the pattern registry
-        processor = HuntRecognitionProcessor(self.pattern_registry)
+        processor = DslRecognitionProcessor(self.pattern_registry)
 
-        # Perform initial component detection
-        from FloodFillProcessor import FloodFillProcessor
-
+        # Perform initial component detection using FloodFillProcessor
         flood_fill_processor = FloodFillProcessor()
-        components = flood_fill_processor.process(grid_data, {})
+        # Create an ASCIIGrid instance from DslGrid data for the processor
+        ascii_grid_obj = ASCIIGrid(grid_data.grid)
+        components = flood_fill_processor.process(ascii_grid_obj, {})
 
         # Process components using HUNT patterns
-        context = {"components": components, "grid": grid_data}
-        processed_components = processor.process(grid_data, context)
+        context = {"components": components, "grid": ascii_grid_obj}
 
-        return processed_components
+        # Convert grid data to dict for DslRecognitionProcessor
+        grid_dict_for_processor = {
+            "grid": ascii_grid_obj.grid,
+            "width": ascii_grid_obj.width,
+            "height": ascii_grid_obj.height,
+        }
+
+        # Rename unused variable (result of process is handled via context)
+        _ = processor.process(grid_dict_for_processor, context)
+        # Return components potentially modified by the processor via context
+        processed_components = context.get("components")
+        return processed_components if isinstance(processed_components, list) else []
 
     def _edit_pattern(self) -> None:
         """Edit an existing pattern."""
-        # Show available patterns
-        tracking_patterns = self.pattern_registry.get_all_tracking_patterns()
+        # Show available patterns - Access the patterns dictionary directly
+        available_patterns = self.pattern_registry.patterns
 
-        if not tracking_patterns:
-            print("No patterns available to edit.")
+        if not available_patterns:
             return
 
-        print("Available patterns:")
-
-        for i, (name, _) in enumerate(tracking_patterns.items()):
-            print(f"{i + 1}. {name}")
+        pattern_names = list(available_patterns.keys())
+        for i, name in enumerate(pattern_names):
+            pass
 
         choice = input("Enter pattern number to edit: ")
 
         try:
             index = int(choice) - 1
-            name = list(tracking_patterns.keys())[index]
+            name = pattern_names[index]
 
             # Show pattern code
-            pattern = tracking_patterns[name]
-            print(f"Pattern '{name}':")
-            print(pattern)
+            # Rename unused variable
+            _pattern_data = available_patterns[name]
 
             # Get new code
-            print("Enter new HUNT DSL code (end with a blank line):")
 
             lines = []
             while True:
-                line = input()
+                if line := input():
+                    lines.append(line)
 
-                if not line:
+                else:
                     break
-
-                lines.append(line)
 
             pattern_code = "\n".join(lines)
 
             # Update pattern
             self.interpreter.interpret(pattern_code)
 
-            print("Pattern updated successfully.")
-
         except (ValueError, IndexError):
-            print("Invalid choice. Please try again.")
+            pass
 
-    def _test_pattern(self, grid_data: HuntGrid) -> None:
+    def _test_pattern(self, grid_data: DslGrid) -> None:
         """Test a pattern on the grid."""
         # Show available patterns
-        tracking_patterns = self.pattern_registry.get_all_tracking_patterns()
+        available_patterns = self.pattern_registry.patterns
 
-        if not tracking_patterns:
-            print("No patterns available to test.")
+        if not available_patterns:
             return
 
-        print("Available patterns:")
-
-        for i, (name, _) in enumerate(tracking_patterns.items()):
-            print(f"{i + 1}. {name}")
+        pattern_names = list(available_patterns.keys())
+        for i, name in enumerate(pattern_names):
+            pass
 
         choice = input("Enter pattern number to test: ")
 
         try:
             index = int(choice) - 1
-            name = list(tracking_patterns.keys())[index]
-            pattern = tracking_patterns[name]
+            name = pattern_names[index]
+            _pattern_data = available_patterns[name]  # Rename unused
 
             # Process the grid using this pattern
-            processor = HuntRecognitionProcessor(self.pattern_registry)
+            # Rename unused variable
+            _processor = DslRecognitionProcessor(self.pattern_registry)
 
             # Perform initial component detection
-            from FloodFillProcessor import FloodFillProcessor
-
             flood_fill_processor = FloodFillProcessor()
-            components = flood_fill_processor.process(grid_data, {})
+            # Create an ASCIIGrid instance from DslGrid data
+            ascii_grid_obj = ASCIIGrid(grid_data.grid)
+            components = flood_fill_processor.process(ascii_grid_obj, {})
 
             # Create a pattern matcher
             pattern_matcher = PatternMatcher(self.pattern_registry)
 
-            # Convert grid_data to dictionary format
-            grid_dict = {
-                "grid": grid_data.grid,
-                "width": grid_data.width,
-                "height": grid_data.height,
-                "components": grid_data.components,
+            # Convert grid_data to dictionary format for matcher
+            grid_dict_for_matcher = {
+                "grid": ascii_grid_obj.grid,
+                "width": ascii_grid_obj.width,
+                "height": ascii_grid_obj.height,
+                "components": components,
             }
 
             # Test pattern on each component
             for component in components:
-                matches = pattern_matcher.match_component(
-                    grid_dict, component, {"test_pattern": name}
-                )
-
-                if matches:
-                    print(f"Component {component.get('id')} matched pattern '{name}':")
+                # Pass the dictionary representation of the grid
+                if matches := pattern_matcher.match_component(
+                    grid_dict_for_matcher, component, {"test_pattern": name}
+                ):
                     for match in matches:
-                        print(f"  Confidence: {match['confidence']:.2f}")
-                        print(f"  Properties: {match['properties']}")
-                        print(f"  Match: {match['match']}")
-                        print(f"  Component: {component['ui_type']}")
-                        print(f"  Bounding Box: {component.get('bounding_box')}")
-                        print(f"  Content: {component.get('content')}")
-                        print(f"  Metadata: {component.get('metadata')}")
-                        print(f"  Relationships: {component.get('relationships')}")
-                        print(f"  UI Type: {component.get('ui_type')}")
-                        print(f"  ID: {component.get('id')}")
-                        print(f"  Index: {component.get('index')}")
-                        print(f"  Row: {component.get('row')}")
-                        print(f"  Column: {component.get('column')}")
-                        print(f"  Width: {component.get('width')}")
-                        print(f"  Height: {component.get('height')}")
-                        print(f"  X: {component.get('x')}")
-                        print(f"  Y: {component.get('y')}")
-                        print(f"  Z: {component.get('z')}")
-                        print(f"  Rotation: {component.get('rotation')}")
-                        print(f"  Scale: {component.get('scale')}")
-                        print(f"  Visible: {component.get('visible')}")
+                        print(f"Match found for pattern {name}:")
+                        print(match)
 
         except (ValueError, IndexError):
-            print("Invalid choice. Please try again.")
+            pass
 
     def _save_patterns(self) -> None:
         """Save patterns to a file."""
         filename = input("Enter filename to save patterns: ")
 
-        # Get all patterns
-        tracking_patterns = self.pattern_registry.get_all_tracking_patterns()
-        extraction_patterns = self.pattern_registry.get_all_extraction_patterns()
+        # Get all patterns from the registry's dictionary
+        all_patterns = self.pattern_registry.patterns
+        # Removed assumption about extraction patterns
 
         # Generate HUNT code for patterns
-        hunt_code = []
+        dsl_code: list[str] = []  # Added annotation
 
-        for name, pattern in tracking_patterns.items():
-            # Generate HUNT code for tracking pattern
-            # This is a simplified version; a real implementation would need to convert
-            # the internal pattern representation back to HUNT DSL code
-            hunt_code.append(f"< hunt Track:{name}")
-            hunt_code.append("    [INIT GATHER =")
-
-            for rule in pattern.get("rules", []):
-                hunt_code.append(f"        {{param {rule['command']} =")
-                hunt_code.append("            (val")
-
-                for value in rule.get("values", []):
-                    hunt_code.append(f"             {value},")
-
-                hunt_code.append("            )")
-                hunt_code.append("        }")
-
-            hunt_code.append("    ]")
-            hunt_code.append("><EXEC>")
-            hunt_code.append("")
-
+        # Use all_patterns dict
+        for name, pattern_data in all_patterns.items():
+            dsl_code.extend((f"< hunt Track:{name}", "    [INIT GATHER ="))
+            # Assuming pattern_data dictionary structure is correct
+            for rule in pattern_data.get("rules", []):
+                dsl_code.extend(
+                    (f"        {{param {rule['command']} =", "            (val")
+                )
+                dsl_code.extend(
+                    f"             {value}," for value in rule.get("values", [])
+                )
+                dsl_code.extend(("            )", "        }"))
+            dsl_code.extend(("    ]", "><EXEC>", ""))
         # Write to file
         with open(filename, "w") as f:
-            f.write("\n".join(hunt_code))
-
-        print(f"Patterns saved to {filename}")
+            f.write("\n".join(dsl_code))

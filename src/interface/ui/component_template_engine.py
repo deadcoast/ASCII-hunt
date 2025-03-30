@@ -62,9 +62,7 @@ class TemplateEngine:
             condition, rest = expr.split(" if ", 1)
             then_part, else_part = rest.split(" else ", 1)
 
-            condition_value = self._evaluate_expression(condition, data)
-
-            if condition_value:
+            if condition_value := self._evaluate_expression(condition, data):
                 return self._evaluate_expression(then_part, data)
             return self._evaluate_expression(else_part, data)
 
@@ -73,7 +71,7 @@ class TemplateEngine:
             return True
         if expr == "false":
             return False
-        if expr == "null" or expr == "none":
+        if expr in ["null", "none"]:
             return None
         if expr.isdigit():
             return int(expr)

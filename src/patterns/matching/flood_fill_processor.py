@@ -5,7 +5,7 @@ This module provides a processor for identifying enclosed regions in ASCII art.
 
 from typing import Any
 
-from src.core.ascii_grid import ASCIIGrid
+from src.core.grid.ascii_grid import ASCIIGrid
 
 
 class FloodFillProcessor:
@@ -17,8 +17,8 @@ class FloodFillProcessor:
 
     def __init__(self) -> None:
         """Initialize the FloodFillProcessor class."""
-        self.boundary_chars = set(["+", "-", "|", "/", "\\", "*", "#", "="])
-        self.ignore_chars = set([" ", "\t", "\n"])
+        self.boundary_chars = {"+", "-", "|", "/", "\\", "*", "#", "="}
+        self.ignore_chars = {" ", "\t", "\n"}
         self.fill_char = "."
         self.min_component_size = 4  # Minimum size to consider as a component
 
@@ -62,9 +62,7 @@ class FloodFillProcessor:
         # Create a working copy of the grid
         grid_copy = []
         for y in range(height):
-            row = []
-            for x in range(width):
-                row.append(grid.get_cell(x, y))
+            row = [grid.get_cell(x, y) for x in range(width)]
             grid_copy.append(row)
 
         # Store original grid in context
@@ -186,16 +184,17 @@ class FloodFillProcessor:
                     (x, y - 1),  # up
                 ]
 
-                for nx, ny in neighbors:
+                queue.extend(
+                    (nx, ny)
+                    for nx, ny in neighbors
                     if (
                         0 <= nx < width
                         and 0 <= ny < height
                         and (nx, ny) not in visited
                         and grid[ny][nx] not in self.boundary_chars
                         and grid[ny][nx] not in self.ignore_chars
-                    ):
-                        queue.append((nx, ny))
-
+                    )
+                )
         return component
 
     def merge_adjacent_components(
@@ -291,9 +290,7 @@ class FloodFillProcessor:
             The merged component.
         """
         # Merge cells
-        merged_cells = list(
-            set(tuple(cell) for cell in comp1["cells"] + comp2["cells"])
-        )
+        merged_cells = list({tuple(cell) for cell in comp1["cells"] + comp2["cells"]})
 
         # Calculate new bounds
         min_x = min(comp1["bounds"]["x1"], comp2["bounds"]["x1"])
@@ -301,8 +298,7 @@ class FloodFillProcessor:
         max_x = max(comp1["bounds"]["x2"], comp2["bounds"]["x2"])
         max_y = max(comp1["bounds"]["y2"], comp2["bounds"]["y2"])
 
-        # Create merged component
-        merged = {
+        return {
             "id": f"{comp1['id']}_{comp2['id']}",
             "cells": merged_cells,
             "bounds": {
@@ -316,5 +312,3 @@ class FloodFillProcessor:
             "size": len(merged_cells),
             "type": "merged_region",
         }
-
-        return merged

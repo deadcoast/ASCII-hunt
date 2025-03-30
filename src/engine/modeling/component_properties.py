@@ -1,6 +1,6 @@
 """Component Properties Module."""
 
-from typing import Any, Union
+from typing import Any
 
 # Define the expected types for component properties
 COMPONENT_PROPERTIES = {
@@ -20,11 +20,11 @@ COMPONENT_PROPERTIES = {
     "bg": str,
     "fg": str,
     "font": str,
-    "value": Union[str, int, float],
+    "value": str | int | float,
     "checked": bool,
     "selected": bool,
     "items": list[str],
-    "data": Union[list[Any], dict[str, Any]],
+    "data": list[Any] | dict[str, Any],
     "source": str,
     "template": str,
     "layout": dict[str, Any],

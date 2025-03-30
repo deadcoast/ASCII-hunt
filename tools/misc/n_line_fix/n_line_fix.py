@@ -1,6 +1,5 @@
 #!/usr/bin/env python3
-"""
-Markdown Newline Format Fixer
+"""Markdown Newline Format Fixer
 
 This script fixes Markdown documents with escaped newline characters by converting them
 to proper newline characters. It's specifically designed for Markdown files and uses
@@ -29,8 +28,7 @@ import yaml
 
 
 def fix_newlines_in_markdown(text):
-    """
-    Replace escaped newline characters with actual newlines in Markdown content.
+    """Replace escaped newline characters with actual newlines in Markdown content.
 
     Args:
         text (str): The Markdown text with escaped newline characters.
@@ -58,8 +56,7 @@ def fix_newlines_in_markdown(text):
 
 
 def create_backup(file_path, backup_dir=None):
-    """
-    Create a backup of the specified file.
+    """Create a backup of the specified file.
 
     Args:
         file_path (str): Path to the file to back up.
@@ -84,8 +81,7 @@ def create_backup(file_path, backup_dir=None):
 
 
 def process_single_file(file_path, output_dir=None, make_backup=True, backup_dir=None):
-    """
-    Process a single Markdown file to fix its newline characters.
+    """Process a single Markdown file to fix its newline characters.
 
     Args:
         file_path (str): Path to the input Markdown file.
@@ -147,8 +143,7 @@ def process_single_file(file_path, output_dir=None, make_backup=True, backup_dir
 def process_directory(
     directory_path, output_dir=None, recursive=False, make_backup=True, backup_dir=None
 ):
-    """
-    Process all Markdown files in a directory.
+    """Process all Markdown files in a directory.
 
     Args:
         directory_path (str): Path to the directory containing files to process.
@@ -189,11 +184,7 @@ def process_directory(
         for item in directory_path.iterdir():
             if item.is_dir():
                 # Create corresponding output subdirectory if needed
-                if output_dir:
-                    subdir_output = Path(output_dir) / item.name
-                else:
-                    subdir_output = None
-
+                subdir_output = Path(output_dir) / item.name if output_dir else None
                 sub_success, sub_failure = process_directory(
                     item, subdir_output, recursive, make_backup, backup_dir
                 )
@@ -204,8 +195,7 @@ def process_directory(
 
 
 def load_config(config_path):
-    """
-    Load and validate the YAML configuration file.
+    """Load and validate the YAML configuration file.
 
     Args:
         config_path (str): Path to the YAML configuration file.
@@ -292,8 +282,7 @@ def load_config(config_path):
 
 
 def create_sample_config(output_path):
-    """
-    Create a sample YAML configuration file.
+    """Create a sample YAML configuration file.
 
     Args:
         output_path (str): Path where the sample config will be saved.
@@ -363,8 +352,7 @@ def main():
                 f"Sample configuration file created at: {os.path.abspath(config_path)}"
             )
             return 0
-        else:
-            return 1
+        return 1
 
     # Require configuration file
     if not args.config:

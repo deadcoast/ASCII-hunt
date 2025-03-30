@@ -1,0 +1,41 @@
+graph TD
+%% DSL System Components
+%% Core DSL Components
+DslInterp["DslInterpreter\n(dsl.interpreter)"]
+CmdDisp["CommandDispatcher\n(dsl.dispatcher)"]
+Grammar["GrammarEngine\n(dsl.grammar)"]
+PatternDef["PatternDefinition\n(dsl.pattern)"]
+
+%% Language Components
+LangParser["LanguageParser\n(dsl.lang.parser)"]
+Tokenizer["Tokenizer\n(dsl.lang.tokenizer)"]
+Validator["SyntaxValidator\n(dsl.lang.validator)"]
+Semantics["SemanticAnalyzer\n(dsl.lang.semantics)"]
+
+%% Generation Components
+TmplEngine["TemplateEngine\n(dsl.gen.template)"]
+CodeGen["CodeGenerator\n(dsl.gen.code)"]
+RuleGen["RuleGenerator\n(dsl.gen.rules)"]
+Templates["TemplateLibrary\n(dsl.gen.templates)"]
+
+%% DSL Internal Dependencies
+%% Core Dependencies
+DslInterp --> CmdDisp
+DslInterp --> Grammar
+CmdDisp --> PatternDef
+Grammar --> LangParser
+
+%% Language Dependencies
+LangParser --> Tokenizer
+LangParser --> Validator
+Validator --> Semantics
+Semantics --> PatternDef
+
+%% Generation Dependencies
+TmplEngine --> Templates
+CodeGen --> TmplEngine
+RuleGen --> CodeGen
+PatternDef --> RuleGen
+
+%% Apply DSL styles
+class DslInterp,CmdDisp,Grammar,PatternDef,LangParser,Tokenizer,Validator,Semantics,TmplEngine,CodeGen,RuleGen,Templates dsl; 

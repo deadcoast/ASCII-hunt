@@ -6,8 +6,9 @@ from pathlib import Path
 from unittest.mock import patch
 
 import yaml
-from mermaid_connect.config_manager import ConfigManager
-from mermaid_connect.validation_report import ValidationReport
+
+from tools.mermaid_connect.config_manager import ConfigManager
+from tools.mermaid_connect.validation_report import ValidationReport
 
 
 class TestValidationReport(unittest.TestCase):
@@ -22,19 +23,77 @@ class TestValidationReport(unittest.TestCase):
             "directories": {
                 "base_dir": str(self.test_dir),
                 "output_dir": str(self.test_dir / "output"),
+                "temp_dir": str(self.test_dir / "temp"),
             },
             "styles": {
-                "required": ["style1", "style2"],
-                "forbidden": ["style3", "style4"],
+                "core_processing": {
+                    "required": ["fill:#f9f", "stroke:#333"],
+                    "forbidden": ["stroke-dasharray"],
+                },
+                "component_styles": {
+                    "required": ["fill:#fff"],
+                    "forbidden": ["stroke-width:2px"],
+                },
             },
-            "validation": {"syntax": True, "dependencies": True},
-            "error_handling": {"strict_mode": True, "ignore_warnings": False},
-            "logging": {"level": "INFO", "file": str(self.test_dir / "validation.log")},
+            "validation": {
+                "syntax": {
+                    "check_brackets": True,
+                    "check_quotes": True,
+                },
+                "components": {
+                    "max_depth": 10,
+                },
+                "dependencies": {
+                    "check_circular": True,
+                },
+                "styles": {
+                    "validate_all": True,
+                },
+            },
+            "error_handling": {
+                "strict_mode": True,
+                "max_errors": 10,
+                "stop_on_critical": True,
+                "log_all_errors": True,
+                "severity_levels": {
+                    "critical": ["syntax", "dependency"],
+                    "warning": ["style"],
+                },
+            },
+            "logging": {
+                "enabled": True,
+                "level": "INFO",
+                "format": "%(asctime)s - %(name)s - %(levelname)s - %(message)s",
+                "file": str(self.test_dir / "validation.log"),
+                "rotate": True,
+                "max_size": "1MB",
+                "backup_count": 3,
+                "console": {
+                    "enabled": True,
+                    "color": True,
+                },
+                "file_logging": {
+                    "enabled": True,
+                    "append": True,
+                },
+            },
             "reporting": {
                 "format": "detailed",
-                "output": str(self.test_dir / "report.txt"),
+                "sections": ["summary", "errors", "warnings"],
+                "output_formats": ["console", "file"],
+                "summary_stats": {
+                    "show_total": True,
+                    "show_passed": True,
+                    "show_failed": True,
+                },
             },
-            "performance": {"parallel_processing": True, "cache_results": True},
+            "performance": {
+                "parallel_processing": True,
+                "max_workers": 4,
+                "chunk_size": 1000,
+                "cache_enabled": True,
+                "cache_ttl": 3600,
+            },
         }
 
         with open(self.config_file, "w") as f:

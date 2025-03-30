@@ -5,25 +5,32 @@ An interactive CLI tool that provides comprehensive character analysis with dyna
 borders that properly adjust to content and terminal dimensions.
 """
 
+import contextlib
 import os
 import re
 import shutil
 import sys
 import unicodedata
+from typing import Any, Protocol
+
+
+class PyperclipProtocol(Protocol):
+    """Protocol defining the interface we need from pyperclip."""
+
+    def paste(self) -> str: ...
+
 
 # Initialize pyperclip
 CLIPBOARD_AVAILABLE = False
-pyperclip = None
-try:
-    import pyperclip
+pyperclip_module: PyperclipProtocol | None = None
+with contextlib.suppress(ImportError):
+    import pyperclip as pyperclip_module
 
     CLIPBOARD_AVAILABLE = True
-except ImportError:
-    pass
 
 
 # Get terminal dimensions
-def get_terminal_size():
+def get_terminal_size() -> os.terminal_size:
     """Get current terminal size."""
     return shutil.get_terminal_size()
 
@@ -41,30 +48,23 @@ COLORS = {
 }
 
 
-def clear_screen():
+def clear_screen() -> None:
     """Clear the terminal screen."""
     os.system("cls" if os.name == "nt" else "clear")
 
 
-def get_display_width(text):
+def get_display_width(text: str) -> int:
     """Calculate the monospace display width of a string.
     Accounts for wide characters like CJK and emoji.
     """
-    width = 0
-    for char in text:
-        # Handle zero-width characters
-        if unicodedata.category(char) in ["Mn", "Me", "Cf"]:
-            continue
-        # Handle wide characters (CJK, emoji, etc.)
-        if unicodedata.east_asian_width(char) in ["F", "W"]:
-            width += 2
-        # Standard width characters
-        else:
-            width += 1
-    return width
+    return sum(
+        2 if unicodedata.east_asian_width(char) in ["F", "W"] else 1
+        for char in text
+        if unicodedata.category(char) not in ["Mn", "Me", "Cf"]
+    )
 
 
-def truncate_text(text, max_width):
+def truncate_text(text: str, max_width: int) -> str:
     """Truncate text to fit within max_width, accounting for display width."""
     if get_display_width(text) <= max_width:
         return text
@@ -80,7 +80,7 @@ def truncate_text(text, max_width):
         else:
             break
 
-    return result + "..."
+    return f"{result}..."
 
 
 def create_dynamic_box(
@@ -191,11 +191,10 @@ def create_dynamic_box(
                     2 if unicodedata.east_asian_width(char) in ["F", "W"] else 1
                 )
 
-                if current_width + char_width <= max_content_width - 3:
-                    truncated += char
-                    current_width += char_width
-                else:
+                if current_width + char_width > max_content_width - 3:
                     break
+                truncated += char
+                current_width += char_width
                 i += 1
 
             # Transfer color codes from original to truncated text
@@ -204,9 +203,7 @@ def create_dynamic_box(
             for char in truncated:
                 while original_idx < len(line) and line[original_idx] != char:
                     if line[original_idx] == "\033":
-                        # Copy the ANSI sequence
-                        match = re.search(r"m", line[original_idx:])
-                        if match:
+                        if match := re.search(r"m", line[original_idx:]):
                             ansi_end = match.end()
                             ansi_seq = line[original_idx : original_idx + ansi_end]
                             colored_truncated += ansi_seq
@@ -220,9 +217,9 @@ def create_dynamic_box(
                     colored_truncated += line[original_idx]
                     original_idx += 1
 
-            line = colored_truncated + "..." + COLORS["reset"]
+            line = f"{colored_truncated}..." + COLORS["reset"]
             # Recalculate display width for the truncated line
-            clean_line = re.sub(r"\033\[[0-9;]*m", "", colored_truncated + "...")
+            clean_line = re.sub(r"\033\[[0-9;]*m", "", f"{colored_truncated}...")
             display_width = get_display_width(clean_line)
 
         # Calculate padding based on centering preference
@@ -242,22 +239,30 @@ def create_dynamic_box(
     return box_lines
 
 
-def analyze_string(text):
+# Box drawing characters split into multiple lines for readability
+BOX_CHARS = (
+    "─│┌┐└┘├┤┬┴┼╌╍╎╏═║╒╓╔╕╖╗╘╙╚╛╜╝╞╟╠╡╢╣╤╥╦╧╨╩╪╫╬"
+    "/"  # Using standard forward slash
+    "X"  # Using standard X
+    "╴╵╶╷╸╹╺╻╼╽╾╿"
+)
+
+
+def analyze_string(text: str) -> dict[str, Any]:
     """Perform comprehensive analysis of a string.
 
     Returns a dictionary with analysis results.
     """
-    results = {}
-
-    # Basic metrics
-    results["char_count"] = len(text)
-    results["display_width"] = get_display_width(text)
-    results["bytes"] = len(text.encode("utf-8"))
+    results: dict[str, Any] = {
+        "char_count": len(text),
+        "display_width": get_display_width(text),
+        "bytes": len(text.encode("utf-8")),
+    }
 
     # Character type analysis
-    char_types = {}
-    width_types = {}
-    categories = {}
+    char_types: dict[str, int] = {}
+    width_types: dict[str, int] = {}
+    categories: dict[str, int] = {}
 
     for char in text:
         # Unicode category
@@ -273,7 +278,7 @@ def analyze_string(text):
             char_type = "zero_width"
         elif unicodedata.east_asian_width(char) in ["F", "W"]:
             char_type = "wide"
-        elif char in "─│┌┐└┘├┤┬┴┼╌╍╎╏═║╒╓╔╕╖╗╘╙╚╛╜╝╞╟╠╡╢╣╤╥╦╧╨╩╪╫╬╱╲╳╴╵╶╷╸╹╺╻╼╽╾╿":
+        elif char in BOX_CHARS:
             char_type = "box_drawing"
         elif ord(char) < 32 or (ord(char) >= 127 and ord(char) < 160):
             char_type = "control"
@@ -287,9 +292,7 @@ def analyze_string(text):
     results["categories"] = categories
 
     # Detect patterns
-    results["has_box_drawing"] = any(
-        c in "─│┌┐└┘├┤┬┴┼╌╍╎╏═║╒╓╔╕╖╗╘╙╚╛╜╝╞╟╠╡╢╣╤╥╦╧╨╩╪╫╬╱╲╳╴╵╶╷╸╹╺╻╼╽╾╿" for c in text
-    )
+    results["has_box_drawing"] = any(c in BOX_CHARS for c in text)
     results["has_wide_chars"] = any(
         unicodedata.east_asian_width(c) in ["F", "W"] for c in text
     )
@@ -300,21 +303,20 @@ def analyze_string(text):
     return results
 
 
-def format_analysis_results(analysis):
+def format_analysis_results(analysis: dict[str, Any]) -> list[str]:
     """Format analysis results for display."""
-    lines = []
-
-    # Basic metrics
-    lines.append(f"{COLORS['bold']}BASIC METRICS:{COLORS['reset']}")
-    lines.append(
-        f"• Character count: {COLORS['green']}{analysis['char_count']}{COLORS['reset']}"
-    )
-    lines.append(
-        f"• Display width: {COLORS['green']}{analysis['display_width']}{COLORS['reset']}"
-    )
-    lines.append(
-        f"• UTF-8 bytes: {COLORS['green']}{analysis['bytes']}{COLORS['reset']}"
-    )
+    lines = [
+        f"{COLORS['bold']}BASIC METRICS:{COLORS['reset']}",
+        (
+            f"• Character count: {COLORS['green']}"
+            f"{analysis['char_count']}{COLORS['reset']}"
+        ),
+        (
+            f"• Display width: {COLORS['green']}"
+            f"{analysis['display_width']}{COLORS['reset']}"
+        ),
+        (f"• UTF-8 bytes: {COLORS['green']}{analysis['bytes']}{COLORS['reset']}"),
+    ]
 
     # Explain any discrepancy
     if analysis["char_count"] != analysis["display_width"]:
@@ -322,14 +324,16 @@ def format_analysis_results(analysis):
         if analysis["display_width"] > analysis["char_count"]:
             diff = analysis["display_width"] - analysis["char_count"]
             lines.append(
-                f"{COLORS['yellow']}Width exceeds count by {diff} columns{COLORS['reset']}"
+                f"{COLORS['yellow']}Width exceeds count by {diff} "
+                f"columns{COLORS['reset']}"
             )
             if analysis["has_wide_chars"]:
                 lines.append("  (Contains wide characters that occupy 2 columns each)")
         else:
             diff = analysis["char_count"] - analysis["display_width"]
             lines.append(
-                f"{COLORS['yellow']}Count exceeds width by {diff} characters{COLORS['reset']}"
+                f"{COLORS['yellow']}Count exceeds width by {diff} "
+                f"characters{COLORS['reset']}"
             )
             if analysis["has_zero_width"]:
                 lines.append("  (Contains zero-width or combining characters)")
@@ -354,10 +358,13 @@ def format_analysis_results(analysis):
     return lines
 
 
-def display_welcome():
+def display_welcome() -> None:
     """Display welcome message and instructions."""
-    welcome_text = [
-        f"{COLORS['bold']}{COLORS['cyan']}ASCII CHARACTER AND WIDTH ANALYZER{COLORS['reset']}",
+    welcome_text: list[str] = [
+        (
+            f"{COLORS['bold']}{COLORS['cyan']}"
+            f"ASCII CHARACTER AND WIDTH ANALYZER{COLORS['reset']}"
+        ),
         "",
         "This tool helps analyze text for ASCII UI design by measuring:",
         "• Character count (actual Unicode characters)",
@@ -377,10 +384,10 @@ def display_welcome():
     print()
 
 
-def display_results(text, analysis):
+def display_results(text: str, analysis: dict[str, Any]) -> None:
     """Display analysis results in nicely formatted boxes."""
     # Input box
-    input_text = [text]
+    input_text: list[str] = [text]
     input_box = create_dynamic_box(
         input_text,
         title=f"{COLORS['bold']}INPUT TEXT{COLORS['reset']}",
@@ -407,7 +414,14 @@ def display_results(text, analysis):
     print()
 
 
-def main():
+def get_clipboard_text() -> str | None:
+    """Get text from clipboard if available."""
+    if CLIPBOARD_AVAILABLE and pyperclip_module is not None:
+        return pyperclip_module.paste()
+    return None
+
+
+def main() -> None:
     """Main function for the interactive CLI."""
     clear_screen()
     display_welcome()
@@ -416,14 +430,16 @@ def main():
         try:
             # Get user input
             print(
-                f"\n{COLORS['bold']}Enter text to analyze (or command):{COLORS['reset']}"
+                f"\n{COLORS['bold']}Enter text to analyze "
+                f"(or command):{COLORS['reset']}"
             )
             user_input = input(f"{COLORS['green']}> {COLORS['reset']}")
 
             # Process commands
             if user_input.lower() in ["exit", "quit"]:
                 print(
-                    f"\n{COLORS['cyan']}Thank you for using the ASCII Character Analyzer. Goodbye!{COLORS['reset']}"
+                    f"\n{COLORS['cyan']}Thank you for using the ASCII Character "
+                    f"Analyzer. Goodbye!{COLORS['reset']}"
                 )
                 sys.exit(0)
 
@@ -433,27 +449,16 @@ def main():
                 continue
 
             elif user_input.lower() in ["clip", "clipboard"]:
-                if CLIPBOARD_AVAILABLE and pyperclip is not None:
-                    try:
-                        clipboard_text = pyperclip.paste()
-                        if clipboard_text:
-                            user_input = clipboard_text
-                            print(
-                                f"{COLORS['yellow']}Analyzing clipboard content ({len(clipboard_text)} chars){COLORS['reset']}"
-                            )
-                        else:
-                            print(
-                                f"{COLORS['red']}Clipboard appears to be empty{COLORS['reset']}"
-                            )
-                            continue
-                    except Exception as e:
-                        print(
-                            f"{COLORS['red']}Error accessing clipboard: {e!s}{COLORS['reset']}"
-                        )
-                        continue
+                if clipboard_text := get_clipboard_text():
+                    user_input = clipboard_text
+                    print(
+                        f"{COLORS['yellow']}Analyzing clipboard content "
+                        f"({len(clipboard_text)} chars){COLORS['reset']}"
+                    )
                 else:
                     print(
-                        f"{COLORS['red']}Clipboard feature not available. Install pyperclip module.{COLORS['reset']}"
+                        f"{COLORS['red']}Clipboard appears to be empty or "
+                        f"feature not available{COLORS['reset']}"
                     )
                     print(
                         f"{COLORS['yellow']}Run: pip install pyperclip{COLORS['reset']}"

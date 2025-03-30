@@ -1,0 +1,14 @@
+# Configuration for namespace_extractor
+include_private: true
+include_dunder: false  
+include_docstrings: true
+recursive: true
+max_recursion_depth: -1  # -1 means no limit
+output_format: "markdown"
+indent_size: 4
+exclude_patterns:
+  - "__pycache__"
+  - "venv"
+  - "test_.*\\.py"
+include_module_vars: true
+show_file_path_prefix: true

@@ -1,29 +1,48 @@
 """Python Tkinter Generator Module."""
 
+import logging
+from collections.abc import Callable
+from typing import Any
 
-class PythonTkinterGenerator:
-    def __init__(self):
-        """Initialize the PythonTkinterGenerator.
+from src.core.generation.code_generator import CodeGenerator
+from src.engine.modeling.component_model_representation import ComponentModel
 
-        The PythonTkinterGenerator has the following properties:
-        - self.template_registry: a dictionary mapping component types to
-          template functions for generating code
-        - self.default_template: the template to use for components without a
-          specific template
-        """
-        self.template_registry = {}
-        self.default_template = None
+# Setup logger
+logger = logging.getLogger(__name__)
 
-    def register_template(self, component_type, template):
+
+class PythonTkinterGenerator(CodeGenerator):
+    """Generates Python Tkinter code from a component model representation."""
+
+    def __init__(self) -> None:
+        """Initialize the PythonTkinterGenerator."""
+        super().__init__()  # Call base class init if needed
+        self.template_registry: dict[str, Callable[..., str]] = {}
+        self.default_template: Callable[..., str] | None = None
+
+    def register_template(
+        self, component_type: str, template: Callable[..., str]
+    ) -> None:
         """Register a template for a specific component type."""
         self.template_registry[component_type] = template
 
-    def set_default_template(self, template):
+    def set_default_template(self, template: Callable[..., str]) -> None:
         """Set the default template for components without a specific template."""
         self.default_template = template
 
-    def generate(self, component_model, options=None):
-        """Generate Tkinter code for the given component model."""
+    # Renamed to avoid signature conflict with base class CodeGenerator.generate
+    def generate_tkinter_code(
+        self, component_model: ComponentModel, options: dict | None = None
+    ) -> str:
+        """Generate Tkinter code for the given component model.
+
+        Args:
+            component_model: The component model object.
+            options: Dictionary of generation options.
+
+        Returns:
+            The generated Tkinter code as a string.
+        """
         if options is None:
             options = {}
 
@@ -40,12 +59,17 @@ class PythonTkinterGenerator:
             "    def create_widgets(self):",
         ]
 
-        # Get the component hierarchy
-        hierarchy = component_model.get_hierarchy()
+        # Get the component hierarchy - Use get_all_components instead
+        all_components = (
+            component_model.get_all_components()
+            if hasattr(component_model, "get_all_components")
+            else []
+        )
 
-        # Generate code for each root component
-        for root_id, node in hierarchy.items():
-            component_code = self._generate_component_code(node, "        ", options)
+        # Assume the list contains the nodes needed
+        # Might need filtering or specific root finding depending on model structure
+        for _node in all_components:
+            component_code = self._generate_component_code(_node, "        ", options)
             code_parts.extend(component_code)
 
         # Add main function
@@ -61,13 +85,15 @@ class PythonTkinterGenerator:
         # Join all code parts
         return "\n".join(code_parts)
 
-    def _generate_component_code(self, node, indent, options):
+    def _generate_component_code(
+        self, node: dict[str, Any], indent: str, options: dict
+    ) -> list[str]:
         """Generate code for a component and its children."""
-        component = node["component"]
-        children = node["children"]
+        component = node.get("component", {})
+        children = node.get("children", [])
 
         # Get component type
-        component_type = component.type
+        component_type = getattr(component, "type", "unknown")  # Safer access
 
         # Get appropriate template
         template = self.template_registry.get(component_type, self.default_template)
@@ -78,19 +104,27 @@ class PythonTkinterGenerator:
 
         # Generate code for this component
         try:
-            component_code = template.render(component, indent, options)
-        except Exception as e:
-            # Log error and return empty list
-            print(f"Error generating code for component {component.id}: {e!s}")
+            # Assuming template callable accepts component, indent, options
+            component_code_str = template(component, indent, options)
+            component_code = component_code_str.split("\n")
+        except AttributeError:
+            logger.exception(  # Use logger.exception
+                "AttributeError rendering template for component type '%s'",
+                component_type,
+            )
             return []
-
-        code_parts = component_code.split("\n")
+        except Exception:  # Catch other potential template errors more broadly
+            logger.exception(
+                "Unexpected error rendering template for component type '%s'",
+                component_type,
+            )
+            return []
 
         # Generate code for children
         for child_node in children:
             child_code = self._generate_component_code(
-                child_node, indent + "    ", options
+                child_node, f"{indent}    ", options
             )
-            code_parts.extend(child_code)
+            component_code.extend(child_code)
 
-        return code_parts
+        return component_code

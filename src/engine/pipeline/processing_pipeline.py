@@ -24,9 +24,9 @@ class ProcessingPipeline:
         self.pipeline_stages: list[str] = []
         self.performance_monitors: dict[str, PerformanceMonitor] = {}
         self.stage_status: dict[str, str] = {}
-        self.pre_stage_hooks: dict[
-            str, list[Callable[[Any, dict[str, Any]], None]]
-        ] = {}
+        self.pre_stage_hooks: dict[str, list[Callable[[Any, dict[str, Any]], None]]] = (
+            {}
+        )
         self.post_stage_hooks: dict[
             str, list[Callable[[Any, dict[str, Any]], None]]
         ] = {}

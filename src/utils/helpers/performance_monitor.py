@@ -51,10 +51,12 @@ class PerformanceMonitor:
         self.metrics["timestamps"].append(time.time())
 
         # Update min/max/avg
-        if elapsed_time < self.metrics["min_execution_time"]:
-            self.metrics["min_execution_time"] = elapsed_time
-        if elapsed_time > self.metrics["max_execution_time"]:
-            self.metrics["max_execution_time"] = elapsed_time
+        self.metrics["min_execution_time"] = min(
+            self.metrics["min_execution_time"], elapsed_time
+        )
+        self.metrics["max_execution_time"] = max(
+            self.metrics["max_execution_time"], elapsed_time
+        )
 
         self.metrics["avg_execution_time"] = (
             self.metrics["execution_time"] / self.metrics["calls"]

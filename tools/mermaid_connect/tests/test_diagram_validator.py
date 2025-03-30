@@ -3,6 +3,7 @@
 import tempfile
 import unittest
 from pathlib import Path
+from typing import Any
 from unittest.mock import MagicMock, patch
 
 import yaml
@@ -11,13 +12,13 @@ from mermaid_connect.diagram_validator import DiagramValidator
 
 
 class TestDiagramValidator(unittest.TestCase):
-    def setUp(self):
+    def setUp(self) -> None:
         """Set up test environment."""
         self.test_dir = Path(tempfile.mkdtemp())
         self.config_file = self.test_dir / "config.yaml"
 
         # Create test config file
-        config = {
+        config: dict[str, Any] = {
             "directories": {
                 "base_dir": str(self.test_dir),
                 "output_dir": str(self.test_dir / "output"),
@@ -86,7 +87,7 @@ class TestDiagramValidator(unittest.TestCase):
         self.invalid_diagram.write_text(invalid_content)
         self.combined_diagram.write_text(combined_content)
 
-    def tearDown(self):
+    def tearDown(self) -> None:
         """Clean up test environment after each test."""
         # Remove test files
         for file in [self.valid_diagram, self.invalid_diagram, self.combined_diagram]:
@@ -97,33 +98,33 @@ class TestDiagramValidator(unittest.TestCase):
         if self.test_dir.exists() and not any(self.test_dir.iterdir()):
             self.test_dir.rmdir()
 
-    def test_initialization(self):
+    def test_initialization(self) -> None:
         """Test validator initialization."""
         self.assertIsInstance(self.validator.config, ConfigManager)
         self.assertEqual(self.validator.base_dir, str(self.test_dir))
         self.assertTrue(hasattr(self.validator, "source_files"))
         self.assertTrue(hasattr(self.validator, "report"))
 
-    def test_get_source_files(self):
+    def test_get_source_files(self) -> None:
         """Test source file collection."""
         source_files = self.validator._get_source_files()
         self.assertIsInstance(source_files, list)
         self.assertEqual(len(source_files), 2)  # valid and invalid diagrams
         self.assertNotIn("combined_diagram.mmd", source_files)
 
-    def test_read_file_valid(self):
+    def test_read_file_valid(self) -> None:
         """Test reading a valid file."""
         content = self.validator._read_file("valid_diagram.mmd")
         self.assertIsInstance(content, str)
         self.assertIn("Component A", content)
         self.assertIn("Component B", content)
 
-    def test_read_file_invalid(self):
+    def test_read_file_invalid(self) -> None:
         """Test reading an invalid file."""
         with self.assertRaises(ConfigurationError):
             self.validator._read_file("nonexistent.mmd")
 
-    def test_extract_components(self):
+    def test_extract_components(self) -> None:
         """Test component extraction."""
         content = """graph TD
     A["Component A"] --> B["Component B"]"""
@@ -133,7 +134,7 @@ class TestDiagramValidator(unittest.TestCase):
         self.assertIn('A["Component A"]', components)
         self.assertIn('B["Component B"]', components)
 
-    def test_validate_module_valid(self):
+    def test_validate_module_valid(self) -> None:
         """Test validation of a valid module."""
         combined_content = self.validator._read_file("combined_diagram.mmd")
         is_valid, errors = self.validator.validate_module(
@@ -142,7 +143,7 @@ class TestDiagramValidator(unittest.TestCase):
         self.assertTrue(is_valid)
         self.assertEqual(len(errors), 0)
 
-    def test_validate_module_invalid(self):
+    def test_validate_module_invalid(self) -> None:
         """Test validation of an invalid module."""
         combined_content = self.validator._read_file("combined_diagram.mmd")
         is_valid, errors = self.validator.validate_module(
@@ -151,13 +152,13 @@ class TestDiagramValidator(unittest.TestCase):
         self.assertFalse(is_valid)
         self.assertGreater(len(errors), 0)
 
-    def test_validate_all(self):
+    def test_validate_all(self) -> None:
         """Test complete validation process."""
         with patch("rich.console.Console.print") as mock_print:
             self.validator.validate_all()
             mock_print.assert_called()
 
-    def test_error_handling(self):
+    def test_error_handling(self) -> None:
         """Test error handling in validation process."""
         # Test with invalid configuration
         with patch("config_manager.ConfigManager") as mock_config:
@@ -165,7 +166,7 @@ class TestDiagramValidator(unittest.TestCase):
             with self.assertRaises(ConfigurationError):
                 DiagramValidator(str(self.test_dir))
 
-    def test_parallel_processing(self):
+    def test_parallel_processing(self) -> None:
         """Test parallel processing of validations."""
         # Mock the performance optimizer
         mock_optimizer = MagicMock()

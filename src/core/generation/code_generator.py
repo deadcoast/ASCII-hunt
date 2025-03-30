@@ -1,10 +1,15 @@
 """Code Generator Module."""
 
-from src.components.component_model_representation import ComponentModel
+from collections.abc import Callable
+from typing import Any
+
+from src.engine.modeling.component_model_representation import ComponentModel
 
 
 class CodeGenerator:
-    def __init__(self):
+    """Code Generator."""
+
+    def __init__(self) -> None:
         """Initialize a CodeGenerator.
 
         The CodeGenerator has the following properties:
@@ -16,54 +21,54 @@ class CodeGenerator:
           statements required by the generated code
         - self.component_model: a ComponentModel instance
         """
-        self.template_registry = {}
-        self.helper_functions = {}
-        self.imports = set()
+        self.template_registry: dict[str, Callable] = {}
+        self.helper_functions: dict[str, Callable] = {}
+        self.imports: set[str] = set()
         self.component_model = ComponentModel()
         self.register_python_templates()
         self.register_python_helpers()
         self.register_python_imports()
         self.register_python_components()
 
-    def register_python_templates(self):
+    def register_python_templates(self) -> None:
         """Register Python-specific templates."""
         self.register_template("Window", self.window_template)
         self.register_template("Button", self.button_template)
         self.register_helper("escape_string", lambda s: s.replace('"', '\\"'))
         self.add_import("import tkinter as tk")
 
-    def register_python_helpers(self):
+    def register_python_helpers(self) -> None:
         """Register Python-specific helper functions."""
         self.register_helper("escape_string", lambda s: s.replace('"', '\\"'))
 
-    def register_python_imports(self):
+    def register_python_imports(self) -> None:
         """Register Python-specific imports."""
         self.add_import("import tkinter as tk")
         self.add_import("from tkinter import ttk")
 
-    def register_python_components(self):
+    def register_python_components(self) -> None:
         """Register Python-specific component templates."""
         self.register_template("Window", self.window_template)
         self.register_template("Button", self.button_template)
 
-    def register_template(self, component_type, template_func):
+    def register_template(self, component_type: str, template_func: Callable) -> None:
         """Register a template function for a component type."""
         self.template_registry[component_type] = template_func
 
-    def register_helper(self, name, helper_func):
+    def register_helper(self, name: str, helper_func: Callable) -> None:
         """Register a helper function for templates."""
         self.helper_functions[name] = helper_func
 
-    def add_import(self, import_statement):
+    def add_import(self, import_statement: str) -> None:
         """Add an import statement to the generated code."""
         self.imports.add(import_statement)
 
-    def generate(self, component, indent_level=0):
+    def generate(self, component: dict[str, Any], indent_level: int = 0) -> str:
         """Generate code for a component and its children."""
-        if component.type not in self.template_registry:
-            raise ValueError(
-                f"No template registered for component type: {component.type}"
-            )
+        component_type = component.get("type")
+        if not component_type or component_type not in self.template_registry:
+            msg = f"No template registered for component type: {component_type}"
+            raise ValueError(msg)
 
         # Create template context
         context = {
@@ -73,21 +78,19 @@ class CodeGenerator:
         }
 
         # Apply template
-        template_func = self.template_registry[component.type]
-        code_parts = []
-
+        template_func = self.template_registry[component_type]
         # Generate component code
         component_code = template_func(context)
-        code_parts.append(component_code)
-
+        code_parts = [component_code]
         # Generate child components
-        for child in component.children:
-            child_code = self.generate(child, indent_level + 1)
-            code_parts.append(child_code)
+        for child in component.get("children", []):
+            if isinstance(child, dict):
+                child_code = self.generate(child, indent_level + 1)
+                code_parts.append(child_code)
 
         return "\n".join(code_parts)
 
-    def generate_full_source(self, root_component):
+    def generate_full_source(self, root_component: dict[str, Any]) -> str:
         """Generate complete source code including imports."""
         component_code = self.generate(root_component)
         import_code = "\n".join(sorted(self.imports))
@@ -95,7 +98,7 @@ class CodeGenerator:
         return f"{import_code}\n\n{component_code}"
 
     # Window template
-    def window_template(self, context):
+    def window_template(self, context: dict[str, Any]) -> str:
         """Generate code for a Window component.
 
         The code generated by this template initializes a Tkinter window with
@@ -109,14 +112,14 @@ class CodeGenerator:
         component = context["component"]
         indent = context["indent"]
 
-        title = component.properties.get("title", "Window")
-        width = component.properties.get("width", 400)
-        height = component.properties.get("height", 300)
-        x = component.properties.get("x", 0)
-        y = component.properties.get("y", 0)
-        bg = component.properties.get("bg", "#d3d3d3")
-        fg = component.properties.get("fg", "#000000")
-        font = component.properties.get("font", "TkDefaultFont 12")
+        title = component.get("title", "Window")
+        width = component.get("width", 400)
+        height = component.get("height", 300)
+        component.get("x", 0)
+        component.get("y", 0)
+        component.get("bg", "#d3d3d3")
+        component.get("fg", "#000000")
+        component.get("font", "TkDefaultFont 12")
 
         self.add_import("import tkinter as tk")
 
@@ -125,7 +128,7 @@ class CodeGenerator:
 {indent}window.geometry("{width}x{height}")"""
 
     # Button template
-    def button_template(self, context):
+    def button_template(self, context: dict[str, Any]) -> str:
         """Generate code for a Button component.
 
         The code generated by this template initializes a Tkinter button with
@@ -139,9 +142,9 @@ class CodeGenerator:
         component = context["component"]
         indent = context["indent"]
 
-        text = component.properties.get("text", "Button")
-        x = component.properties.get("x", 0)
-        y = component.properties.get("y", 0)
+        text = component.get("text", "Button")
+        x = component.get("x", 0)
+        y = component.get("y", 0)
 
         self.add_import("import tkinter as tk")
         self.add_import("from tkinter import ttk")
@@ -151,28 +154,56 @@ class CodeGenerator:
 
     # Register templates
 
-    def register_templates(self):
+    def register_templates(self) -> None:
         """Register all templates."""
         self.register_template("Window", self.window_template)
         self.register_template("Button", self.button_template)
 
-    def register_helpers(self):
+    def register_helpers(self) -> None:
         """Register all helpers."""
         self.register_helper("escape_string", lambda s: s.replace('"', '\\"'))
 
-    def register_imports(self):
+    def register_imports(self) -> None:
         """Register all imports."""
         self.add_import("import tkinter as tk")
 
-    def generate_code(self, component):
+    def generate_code(self, component: dict[str, Any]) -> str:
         """Generate code for a component."""
         return self.generate(component)
 
-    def generate_code_from_model(self, component_model):
-        """Generate code for a component model."""
-        return self.generate(component_model)
+    def generate_code_from_model(self, component_model: ComponentModel) -> str:
+        """Generate code from a ComponentModel instance.
 
-    def generate_full_source_from_model(self, component_model):
+        Assumes the model has a root component accessible via an attribute or method.
+        NOTE: This implementation assumes a `get_root_component` method exists.
+        Adjust if the actual access method is different.
+
+        Args:
+            component_model: A ComponentModel instance.
+
+        Returns:
+            A string representing the generated code.
+
+        Raises:
+            ValueError: If the root component is not found.
+            TypeError: If the root component is not a dictionary.
+        """
+        root_component = getattr(component_model, "root_component", None)
+        if root_component is None:
+            if all_components := component_model.get_all_components():
+                root_component = all_components[0]
+            else:
+                msg = (
+                    "ComponentModel does not contain a root component or any components"
+                )
+                raise ValueError(msg)
+        if not isinstance(root_component, dict):
+            msg = "Root component fetched from model is not a dictionary."
+            raise TypeError(msg)
+
+        return self.generate(root_component)
+
+    def generate_full_source_from_model(self, component_model: ComponentModel) -> str:
         """Generate complete source code including imports from a component model."""
         component_code = self.generate_code_from_model(component_model)
         import_code = "\n".join(sorted(self.imports))

@@ -1,28 +1,54 @@
-class PatternRecognitionProcessor:
-    def __init__(self):
-        self.pattern_matchers = {}
+"""Pattern Recognition Processor Module."""
 
-    def register_pattern_matcher(self, name, matcher):
+from typing import Any
+
+from src.patterns.rules.pattern_matcher import PatternMatcher
+
+
+class PatternRecognitionProcessor:
+    """Pattern Recognition Processor."""
+
+    def __init__(self) -> None:
+        """Initialize the pattern recognition processor."""
+        self.pattern_matchers: dict[str, PatternMatcher] = {}
+
+    def register_pattern_matcher(self, name: str, matcher: PatternMatcher) -> None:
         """Register a pattern matcher."""
         self.pattern_matchers[name] = matcher
 
-    def process(self, components, context=None):
+    def process(
+        self, components: list[Any], context: dict[str, Any] | None = None
+    ) -> list[Any]:
         """Process components to recognize UI patterns."""
+        if components is None:
+            msg = "Components are required"
+            raise TypeError(msg)
+
+        if not isinstance(components, list):
+            msg = "Components must be a list"
+            raise TypeError(msg)
+
+        if not components:
+            msg = "Components list cannot be empty"
+            raise ValueError(msg)
+
+        if not isinstance(context, dict):
+            msg = "Context must be a dictionary"
+            raise TypeError(msg)
+
         if context is None:
             context = {}
 
-        # Ensure we have a grid available
         if "grid" not in context:
-            raise ValueError("Grid not available in context")
+            msg = "Grid not available in context"
+            raise ValueError(msg)
 
         grid = context["grid"]
 
         # Apply all registered pattern matchers
         for name, matcher in self.pattern_matchers.items():
             for component in components:
-                pattern_matches = matcher.match(component, grid)
-
-                if pattern_matches:
+                if pattern_matches := matcher.match(component, grid):
                     # Add pattern matches to component
                     if "pattern_matches" not in component:
                         component["pattern_matches"] = {}
@@ -37,7 +63,9 @@ class PatternRecognitionProcessor:
 
         return components
 
-    def _apply_pattern_attributes(self, component, pattern_name, matches):
+    def _apply_pattern_attributes(
+        self, component: Any, pattern_name: str, matches: Any
+    ) -> None:
         """Apply pattern-specific attributes to a component."""
         if pattern_name == "button":
             component["is_button"] = True

@@ -66,10 +66,10 @@ class Tabs(QTabWidget):
             Name of current tab, or None if no tabs
         """
         current = self.currentWidget()
-        for name, widget in self.tab_map.items():
-            if widget == current:
-                return name
-        return None
+        return next(
+            (name for name, widget in self.tab_map.items() if widget == current),
+            None,
+        )
 
     def _on_tab_changed(self, index: int) -> None:
         """Handle tab change events.

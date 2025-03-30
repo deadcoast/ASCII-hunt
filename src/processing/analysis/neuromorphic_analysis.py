@@ -110,22 +110,23 @@ class NeuromorphicImportAnalyzer:
 
             # Initial activation from semantic similarity
             for node in self.synapse_graph.nodes():
-                if self.synapse_graph.nodes[node].get("type") == "symbol":
-                    if node.split(":")[-1] == symbol:
-                        # Same symbol name from some module
-                        module_part = node.split(":")[0]
-                        symbol_embedding = self.symbol_embeddings.get(node)
+                if (
+                    self.synapse_graph.nodes[node].get("type") == "symbol"
+                    and node.split(":")[-1] == symbol
+                ):
+                    module_part = node.split(":")[0]
+                    symbol_embedding = self.symbol_embeddings.get(node)
 
-                        if symbol_embedding is not None:
-                            similarity = self._calculate_semantic_similarity(
-                                context_embedding, symbol_embedding
-                            )
-                            activation[node] = similarity
+                    if symbol_embedding is not None:
+                        similarity = self._calculate_semantic_similarity(
+                            context_embedding, symbol_embedding
+                        )
+                        activation[node] = similarity
 
-                            # Add the module to the activation pattern
-                            activation[module_part] = similarity * 0.5
-                            visited.add(node)
-                            visited.add(module_part)
+                        # Add the module to the activation pattern
+                        activation[module_part] = similarity * 0.5
+                        visited.add(node)
+                        visited.add(module_part)
 
             # Propagate activation through the network (spreading activation)
             for _ in range(3):  # 3 steps of spreading
@@ -146,15 +147,14 @@ class NeuromorphicImportAnalyzer:
 
                 activation = new_activation
 
-            # Find the most activated modules that could provide this symbol
-            candidates = []
-            for node, value in activation.items():
+            candidates = [
+                (node, value)
+                for node, value in activation.items()
                 if (
                     self.synapse_graph.nodes.get(node, {}).get("type") == "module"
                     and value > 0.3
-                ):
-                    candidates.append((node, value))
-
+                )
+            ]
             # Sort by activation strength
             candidates.sort(key=lambda x: x[1], reverse=True)
             import_candidates[symbol] = candidates
@@ -214,27 +214,25 @@ class NeuromorphicImportAnalyzer:
             # Extract imports
             for node in ast.walk(tree):
                 if isinstance(node, ast.Import):
-                    for name in node.names:
-                        imports.append(
-                            {
-                                "type": "import",
-                                "module": name.name,
-                                "alias": name.asname,
-                            }
-                        )
+                    imports.extend(
+                        {
+                            "type": "import",
+                            "module": name.name,
+                            "alias": name.asname,
+                        }
+                        for name in node.names
+                    )
                 elif isinstance(node, ast.ImportFrom):
                     module = node.module or ""
-                    for name in node.names:
-                        imports.append(
-                            {
-                                "type": "from",
-                                "module": module,
-                                "name": name.name,
-                                "alias": name.asname,
-                            }
-                        )
-
-                # Extract symbol definitions
+                    imports.extend(
+                        {
+                            "type": "from",
+                            "module": module,
+                            "name": name.name,
+                            "alias": name.asname,
+                        }
+                        for name in node.names
+                    )
                 elif isinstance(
                     node, (ast.FunctionDef | ast.ClassDef | ast.AsyncFunctionDef)
                 ):
@@ -304,11 +302,8 @@ class NeuromorphicImportAnalyzer:
             return True
 
         # Check if this symbol is commonly imported individually
-        individual_imports = sum(1 for n in symbol_nodes if n.endswith(f":{symbol}"))
-        if individual_imports > 0:
-            return False
-
-        return True
+        individual_imports = sum(bool(n.endswith(f":{symbol}")) for n in symbol_nodes)
+        return individual_imports <= 0
 
     def _create_semantic_embedding(self, code_text: str) -> np.ndarray:
         """Create a semantic embedding for the given code text."""
