@@ -120,7 +120,9 @@ def overlay_example() -> None:
     ..........
     ..........
     ..........
-    """.strip("\n")
+    """.strip(
+            "\n"
+        )
     )
 
     # Create foreground with transparency
@@ -129,7 +131,9 @@ def overlay_example() -> None:
     *-*
     | |
     *-*
-    """.strip("\n")
+    """.strip(
+            "\n"
+        )
     )
 
     # Overlay with transparency

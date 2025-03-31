@@ -27,7 +27,8 @@ class PatternRegistry:
             tags: Optional list of tags to categorize the pattern
         """
         if pattern_id in self.patterns:
-            raise ValueError(f"Pattern with ID '{pattern_id}' already exists")
+            error_message = f"Pattern with ID '{pattern_id}' already exists"
+            raise ValueError(error_message)
 
         self.patterns[pattern_id] = pattern_definition
 
@@ -46,9 +47,10 @@ class PatternRegistry:
             matcher_function: Function that implements the pattern matching logic
         """
         if pattern_id not in self.patterns:
-            raise ValueError(
+            error_message = (
                 f"Cannot register matcher for unknown pattern '{pattern_id}'"
             )
+            raise ValueError(error_message)
 
         self.pattern_matchers[pattern_id] = matcher_function
 
@@ -65,7 +67,8 @@ class PatternRegistry:
             KeyError: If pattern is not found
         """
         if pattern_id not in self.patterns:
-            raise KeyError(f"Pattern '{pattern_id}' not found")
+            error_message = f"Pattern '{pattern_id}' not found"
+            raise KeyError(error_message)
 
         return self.patterns[pattern_id]
 
@@ -82,7 +85,8 @@ class PatternRegistry:
             KeyError: If matcher is not found
         """
         if pattern_id not in self.pattern_matchers:
-            raise KeyError(f"Matcher for pattern '{pattern_id}' not found")
+            error_message = f"Matcher for pattern '{pattern_id}' not found"
+            raise KeyError(error_message)
 
         return self.pattern_matchers[pattern_id]
 
@@ -108,6 +112,7 @@ class PatternRegistry:
             Match result if successful, None otherwise
         """
         if pattern_id not in self.pattern_matchers:
-            raise KeyError(f"Matcher for pattern '{pattern_id}' not found")
+            error_message = f"Matcher for pattern '{pattern_id}' not found"
+            raise KeyError(error_message)
 
         return self.pattern_matchers[pattern_id](content)

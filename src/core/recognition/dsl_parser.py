@@ -24,10 +24,13 @@ The DSLParser class can be extended to support custom DSLs by overriding the
 _parse_source and _build_mapping methods.
 """
 
+import logging
 from collections.abc import Callable
 from typing import Any
 
 from src.processing.transform.component_mapping import ComponentMapping, Mapping
+
+logger = logging.getLogger(__name__)
 
 
 class DslParser:
@@ -59,6 +62,7 @@ class DslParser:
             name: Name of the function
             func: Function to register
         """
+        # TODO(deadcoast): [Issue #XYZ] Implement function registration
 
     def parse(self, dsl_code: str) -> dict[str, Any] | None:
         """Parse HUNT DSL code into an abstract syntax tree."""
@@ -80,6 +84,7 @@ class DslParser:
         Returns:
             Any: Result of interpreting the code
         """
+        # TODO(deadcoast): [Issue #XYZ] Implement DSL interpretation
         ast = self.parse(dsl_code)
         return None if ast is None else self._evaluate_ast(ast)
 
@@ -425,9 +430,7 @@ class DslParser:
             return self._parse_token("STRING")
         if self._match("IDENTIFIER"):
             return self._parse_token("IDENTIFIER")
-        if self._match("KEYWORD"):
-            return self._parse_token("KEYWORD")
-        return None
+        return self._parse_token("KEYWORD") if self._match("KEYWORD") else None
 
     def _parse_token(self, arg0: str) -> str | None:
         """Parse a value."""
@@ -539,8 +542,7 @@ class DSLParseCleaner:
         return self._build_mapping(ast)
 
     def _parse_source(self, _source: str) -> list[dict[str, Any]] | None:
-        # Implement parsing logic
-        # This could use a library like PLY, lark, or a recursive descent parser
+        # Placeholder implementation - returns None
         """Perform lexical analysis and parsing on the given DSL source to
         convert it into an abstract syntax tree (AST).
 
@@ -552,8 +554,9 @@ class DSLParseCleaner:
 
         Returns:
             An abstract syntax tree (AST) built from the parsed DSL source.
+
         """
-        # Placeholder implementation - returns None
+        # TODO(deadcoast): [Issue #XYZ] This could use a library like PLY, lark, or a recursive descent parser
         return None
 
     def _build_mapping(self, ast: list[dict[str, Any]] | None) -> Mapping:

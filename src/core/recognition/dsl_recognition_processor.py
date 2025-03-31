@@ -1,3 +1,5 @@
+"""Process grid data using HUNT patterns."""
+
 import pathlib
 from typing import Any
 
@@ -7,7 +9,14 @@ from src.patterns.definitions.pattern_matcher import PatternMatcher
 
 
 class DslRecognitionProcessor:
+    """Process grid data using HUNT patterns."""
+
     def __init__(self, pattern_registry: PatternRegistry | None = None) -> None:
+        """Initialize the DslRecognitionProcessor.
+
+        Args:
+            pattern_registry: The pattern registry to use.
+        """
         self.pattern_registry = pattern_registry or PatternRegistry()
         self.interpreter = DslInterpreter(self.pattern_registry)
         self.pattern_matcher = PatternMatcher(self.pattern_registry)

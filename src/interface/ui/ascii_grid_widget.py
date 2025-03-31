@@ -3,9 +3,9 @@ It is used to display the ASCII grid of the current file.
 """
 
 from PyQt5.QtCore import QPoint, QSize, Qt
+from PyQt5.QtGui import QKeyEvent  # Grouped imports
 from PyQt5.QtGui import (
     QFocusEvent,
-    QKeyEvent,  # Grouped imports
     QMouseEvent,
     QPainter,
     QPaintEvent,
